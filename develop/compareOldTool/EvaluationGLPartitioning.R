@@ -1,6 +1,6 @@
 #Script for testing the new partitioning GL for REddyProc
 ## install (newer version of) REddyProc
-# install_github(repo = "bgctw/REddyProc",branch = "master")
+# install_github(repo = "EarthyScience/REddyProc",branch = "master")
 
 library(REddyProc)
 # alternative

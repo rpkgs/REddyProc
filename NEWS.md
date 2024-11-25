@@ -10,7 +10,7 @@
 - include mlegp dependency again - its on CRAN again
 
 # REddyProc 1.3.2
-- Avoid strong dependency on mlegp (https://github.com/bgctw/REddyProc/issues/58).
+- Avoid strong dependency on mlegp (https://github.com/EarthyScience/REddyProc/issues/58).
   Daytime partitioning, unfortunately, now requires users to install package 
   mlegp by hand.
 - support reading basic variables from Ameriflux data files
@@ -19,7 +19,7 @@
 # REddyProc 1.3.1
 - bug fix for day-time partitioning: Adapt default of argument uStarScenKeep
   to reflect changes in naming the uStar threshold scenarios 
-  [#55](https://github.com/bgctw/REddyProc/issues/55#issue-1068184211).
+  [#55](https://github.com/EarthyScience/REddyProc/issues/55#issue-1068184211).
 
 # REddyProc 1.3.0
 Accumulations of improvements warrant a new version and new CRAN release

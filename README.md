@@ -8,7 +8,7 @@ maybe clear cache before
 <!-- badges: start -->
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/REddyProc)](http://cran.r-project.org/package=REddyProc)
-[![R-CMD-check](https://github.com/bgctw/REddyProc/workflows/R-CMD-check/badge.svg)](https://github.com/bgctw/REddyProc/actions)
+[![R-CMD-check](https://github.com/EarthyScience/REddyProc/workflows/R-CMD-check/badge.svg)](https://github.com/EarthyScience/REddyProc/actions)
 <!-- badges: end -->
 
 ## Overview
@@ -28,7 +28,7 @@ install.packages("REddyProc")
 
 # The development version from GitHub using devtools:
 # install.packages("devtools")
-devtools::install_github("bgctw/REddyProc")
+devtools::install_github("EarthyScience/REddyProc")
 ```
 
 The REddyProc~package requires a quite recent versions of the tidyverse
@@ -87,11 +87,11 @@ EProc$sPlotFingerprintY('NEE_f', Year = 1998)
 ![](README-example-1.png)<!-- -->
 
 Further examples are in
-[vignette(useCase)](https://github.com/bgctw/REddyProc/blob/master/vignettes/useCase.md)
+[vignette(useCase)](https://github.com/EarthyScience/REddyProc/blob/master/vignettes/useCase.md)
 and
-[vignette(DEGebExample)](https://github.com/bgctw/REddyProc/blob/master/vignettes/DEGebExample.md)
+[vignette(DEGebExample)](https://github.com/EarthyScience/REddyProc/blob/master/vignettes/DEGebExample.md)
 and further md-files of the [vignettes
-directory](https://github.com/bgctw/REddyProc/blob/master/vignettes).
+directory](https://github.com/EarthyScience/REddyProc/blob/master/vignettes).
 
 ## Docker images
 
@@ -99,9 +99,9 @@ Docker images are provided that comprise rstudio, rocker/tidyverse, and
 REddyProc. There are different version for the latest push to github,
 for the version on CRAN and for specific tags starting from 1.1.4.
 
-- bgctw/reddyproc:latest  
-- bgctw/reddyproc_cran
-- bgctw/reddyproc:`tag`
+- EarthyScience/reddyproc:latest  
+- EarthyScience/reddyproc_cran
+- EarthyScience/reddyproc:`tag`
 
 They are usually run with installed docker by typing at a shell:
 

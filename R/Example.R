@@ -24,7 +24,7 @@ getExamplePath <- function(
   # set default remoteDir inside function instead of argument default,
   # because it screws function signature
   if (!nzchar(remoteDir) ) remoteDir <-
-      "https://raw.githubusercontent.com/bgctw/REddyProc/master/examples"
+      "https://raw.githubusercontent.com/EarthyScience/REddyProc/master/examples"
   fullname <- file.path(exampleDir, filename)
   if (file.exists(fullname) ) return(fullname)
   if (isTRUE(isTryDownload) ) {

@@ -1,7 +1,7 @@
 # Script for running REddyProc with different options on 29 site-years
 #   same as was used in Wutzler17 for benchmarking daytime data
 
-# install_github(repo = "bgctw/REddyProc",branch = "master")
+# install_github(repo = "EarthyScience/REddyProc",branch = "master")
 
 if (!exists("partitionNEEGL") ) library(REddyProc)	# only load library if not sourced its already
 .tmp.f <- function(){
