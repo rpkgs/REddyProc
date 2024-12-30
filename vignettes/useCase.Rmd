@@ -339,6 +339,3 @@ fWriteDataframeToFile(
   isSplitDatetime=TRUE, Dir = tempdir())
 # tmp <- fLoadTXTIntoDataframe(file.path(tempdir(),'DE-Tha-Results_ydh.txt'))
 ```
-
-
-

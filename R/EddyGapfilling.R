@@ -441,6 +441,27 @@ sEddyProc$methods(sFillMDC = sEddyProc_sFillMDC)
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#' @param Var Variable to be filled
+#' @param QFVar Quality flag of variable to be filled
+#' @param QFValue Value of quality flag for _good_ (original) data, other data is set to missing
+#' @param V1 Condition variable 1 (default: Global radiation 'Rg' in  W m-2)
+#' @param T1 Tolerance interval 1 (default: 50 W m-2)
+#' @param V2 Condition variable 2 (default: Vapour pressure deficit 'VPD' in hPa)
+#' @param T2 Tolerance interval 2 (default: 5 hPa)
+#' @param V3 Condition variable 3 (default: Air temperature 'Tair' in degC)
+#' @param T3 Tolerance interval 3 (default: 2.5 degC)
+#' 
+#' @param FillAll Fill all values to estimate uncertainties
+#' @param isVerbose Print status information to screen
+#' @param suffix String suffix needed for different processing setups on the same dataset
+#' (for explanations see below)
+#' 
+#' @param minNWarnRunLength scalar integer: 
+#' warn if number of subsequent numerically equal values exceeds this number.
+#' Set to Inf or NA for no warnings.
+#' defaults for "NEE" to records across 4 hours and no warning for others.
+#' @param method specify "Vekuri23" to use the skewness-bias reducing variant
+#' 
 #' @export
 sEddyProc_sMDSGapFill <- function(
   ### MDS gap filling algorithm adapted after the PV-Wave code and paper by Markus Reichstein.

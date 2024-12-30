@@ -146,6 +146,50 @@ sEddyProc$methods(
 #+++ Dependencies: Eddy.R, DataFunctions.R
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+# references<<
+# Reichstein M, Falge E, Baldocchi D et al. (2005) On the separation of
+# net ecosystem exchange
+# into assimilation and ecosystem respiration: review and improved algorithm.
+# Global Change Biology, 11, 1424-1439.
+# details<< \describe{\item{
+# Description of newly generated variables with partitioning results:}{
+# \itemize{
+# \item PotRad - Potential radiation \cr
+# \item FP_NEEnight - Good (original) NEE nighttime fluxes used for flux partitioning \cr
+# \item FP_Temp - Good (original) temperature measurements used for flux partitioning \cr
+# \item E_0 - Estimated temperature sensitivity \cr
+# \item R_ref - Estimated reference respiration \cr
+# \item Reco - Estimated ecosystem respiration \cr
+# \item GPP_f - Estimated gross primary production \cr
+# }
+# }}
+# 
+# details<< \describe{\item{Background}{
+# This partitioning is based on the regression of nighttime respiration with
+# temperature using the Lloyd-Taylor-Function \code{\link{fLloydTaylor}}.
+# First the temperature sensitivity E_0 is estimated from short term data,
+# see \code{sEddyProc_sRegrE0fromShortTerm}.
+# Next the reference temperature R_ref is estimated for successive periods
+# throughout the whole dataset (see \code{sEddyProc_sRegrRref}).
+# These estimates are then used to calculate the respiration during daytime
+# and nighttime and with this GPP.
+# Attention: Gap filling of the net ecosystem fluxes (NEE) and temperature
+# measurements (Tair or Tsoil) is required
+# prior to the partitioning!
+# }}
+# 
+# details<< \describe{\item{Selection of daytime data based on solar time}{
+# The respiration-temperature regression is very
+# sensitive to the selection of night- and daytime data.
+# Nighttime is selected by a combined threshold of current solar radiation
+# and potential radiation.
+# The current implementation calculates potential radiation based on exact
+# solar time, based on latitude and longitude.
+# (see \code{\link{fCalcPotRadiation}})
+# Therefore it might differ from implementations that use local winter
+# clock time instead.
+# }}
+
 #' @export
 sEddyProc_sMRFluxPartition <- function(
   ### Nighttime-based partitioning of net ecosystem fluxes into gross fluxes GPP and REco
@@ -208,37 +252,7 @@ sEddyProc_sMRFluxPartition <- function(
     "Argument names ",paste(varNamesDepr[iDepr], collapse = ",")
     ," have been deprecated."
     ," Please, use instead ", paste(varNamesNew[iDepr], collapse = ","))
-  ##references<<
-  ## Reichstein M, Falge E, Baldocchi D et al. (2005) On the separation of
-  ## net ecosystem exchange
-  ## into assimilation and ecosystem respiration: review and improved algorithm.
-  ## Global Change Biology, 11, 1424-1439.
-  ##details<< \describe{\item{
-  ##Description of newly generated variables with partitioning results:}{
-  ## \itemize{
-  ## \item PotRad - Potential radiation \cr
-  ## \item FP_NEEnight - Good (original) NEE nighttime fluxes used for flux partitioning \cr
-  ## \item FP_Temp - Good (original) temperature measurements used for flux partitioning \cr
-  ## \item E_0 - Estimated temperature sensitivity \cr
-  ## \item R_ref - Estimated reference respiration \cr
-  ## \item Reco - Estimated ecosystem respiration \cr
-  ## \item GPP_f - Estimated gross primary production \cr
-  ## }
-  ## }}
-  #
-  ##details<< \describe{\item{Background}{
-  ## This partitioning is based on the regression of nighttime respiration with
-  ## temperature using the Lloyd-Taylor-Function \code{\link{fLloydTaylor}}.
-  ## First the temperature sensitivity E_0 is estimated from short term data,
-  ## see \code{sEddyProc_sRegrE0fromShortTerm}.
-  ## Next the reference temperature R_ref is estimated for successive periods
-  ## throughout the whole dataset (see \code{sEddyProc_sRegrRref}).
-  ## These estimates are then used to calculate the respiration during daytime
-  ## and nighttime and with this GPP.
-  ## Attention: Gap filling of the net ecosystem fluxes (NEE) and temperature
-  ## measurements (Tair or Tsoil) is required
-  ## prior to the partitioning!
-  ## }}
+  
   #
   # If the default variable names are used and a suffix is provided, then the
   # suffix is added to the variable name (see also comment below)
@@ -246,42 +260,22 @@ sEddyProc_sMRFluxPartition <- function(
     FluxVar <- paste('NEE_', suffix, '_f', sep = '')
     QFFluxVar <- paste('NEE_', suffix, '_fqc', sep = '')
   }
-  #
+
   # Check if specified columns exist in sDATA or sTEMP and if numeric and plausible.
   # Then apply quality flag
   # TODO: avoid repeated cbind
   # TODO: checking column names this does not need a full combined data.frame
   sDT <- cbind(.self$sDATA, .self$sTEMP)
-  fCheckColNames(
-    sDT
-    , c(FluxVar, QFFluxVar, TempVar, QFTempVar, RadVar)
+  fCheckColNames(sDT, c(FluxVar, QFFluxVar, TempVar, QFTempVar, RadVar)
     , 'sMRFluxPartition')
-  fCheckColNum(
-    sDT
-    , c(FluxVar, QFFluxVar, TempVar, QFTempVar, RadVar)
+  fCheckColNum(sDT, c(FluxVar, QFFluxVar, TempVar, QFTempVar, RadVar)
     , 'sMRFluxPartition')
-  fCheckColPlausibility(
-    sDT
-    , c(FluxVar, QFFluxVar, TempVar, QFTempVar, RadVar)
-    , 'sMRFluxPartition')
-  Var.V.n <- fSetQF(
-    sDT, FluxVar, QFFluxVar, QFFluxValue
-    , 'sMRFluxPartition')
+  fCheckColPlausibility(sDT, c(FluxVar, QFFluxVar, TempVar, QFTempVar, RadVar), 
+      'sMRFluxPartition')
+  Var.V.n <- fSetQF(sDT, FluxVar, QFFluxVar, QFFluxValue, 'sMRFluxPartition')
 
-  message('Start flux partitioning for variable ', FluxVar
-          , ' with temperature ', TempVar, '.')
+  message('Start flux partitioning for variable ', FluxVar, ' with temperature ', TempVar, '.')
 
-  ##details<< \describe{\item{Selection of daytime data based on solar time}{
-  ## The respiration-temperature regression is very
-  ## sensitive to the selection of night- and daytime data.
-  ## Nighttime is selected by a combined threshold of current solar radiation
-  ## and potential radiation.
-  ## The current implementation calculates potential radiation based on exact
-  ## solar time, based on latitude and longitude.
-  ## (see \code{\link{fCalcPotRadiation}})
-  ## Therefore it might differ from implementations that use local winter
-  ## clock time instead.
-  ## }}
   # Calculate potential radiation
   #! New code: Local time and equation of time accounted for in potential
   #radiation calculation
@@ -300,10 +294,7 @@ sEddyProc_sMRFluxPartition <- function(
   #to time zone correction (avoids timezone offset between Rg and PotRad)
   #
   # Apply quality flag for temperature
-  sTEMP$FP_Temp_NEW <<- fSetQF(
-    sDT, TempVar, QFTempVar, QFTempValue
-    , 'sMRFluxPartition')
-  #
+  sTEMP$FP_Temp_NEW <<- fSetQF(sDT, TempVar, QFTempVar, QFTempValue, 'sMRFluxPartition')
   # Estimate E_0 and R_ref (results are saved in sTEMP)
   # twutz1508: changed to do.call in order to allow passing further parameters
   # when calling sMRFluxPartition

@@ -12,39 +12,41 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
-# do not execute on CRAN: 
+# do not execute on CRAN:
 # https://stackoverflow.com/questions/28961431/computationally-heavy-r-vignettes
-is_check <- ("CheckExEnv" %in% search()) || any(c("_R_CHECK_TIMINGS_",
-             "_R_CHECK_LICENSE_") %in% names(Sys.getenv()))
+is_check <- ("CheckExEnv" %in% search()) || any(c(
+  "_R_CHECK_TIMINGS_",
+  "_R_CHECK_LICENSE_"
+) %in% names(Sys.getenv()))
 knitr::opts_chunk$set(eval = !is_check)
 ```
 
 ```{r setup, include = FALSE}
 library(knitr)
 # rmarkdown::render("vignettes/DEGebExample.Rmd")
-opts_chunk$set(out.extra = 'style = "display:block; margin: auto"'
-    #, fig.align = "center"
-    , fig.width = 4.3, fig.height = 3.2, dev.args = list(pointsize = 10)
-    , message = FALSE
-    )
+opts_chunk$set(
+  out.extra = 'style = "display:block; margin: auto"'
+  # , fig.align = "center"
+  , fig.width = 4.3, fig.height = 3.2, dev.args = list(pointsize = 10),
+  message = FALSE
+)
 knit_hooks$set(spar = function(before, options, envir) {
-    if (before) {
-        par( las = 1 )                   #also y axis labels horizontal
-        par(mar = c(2.0,3.3,0,0) + 0.3 )  #margins
-        par(tck = 0.02 )                          #axe-tick length inside plots             
-        par(mgp = c(1.1,0.2,0) )  #positioning of axis title, axis labels, axis
-     }
+  if (before) {
+    par(las = 1) # also y axis labels horizontal
+    par(mar = c(2.0, 3.3, 0, 0) + 0.3) # margins
+    par(tck = 0.02) # axe-tick length inside plots
+    par(mgp = c(1.1, 0.2, 0)) # positioning of axis title, axis labels, axis
+  }
 })
 # genVigs("DEGebExample")
 ```
 
-Crop example demonstrating multiple years and user defined uStar-Seasons
-========================================================================
+# 1. Crop example demonstrating multiple years and user defined uStar-Seasons
 
 ```{r results = 'hide'}
-#isDevelopMode <- TRUE
+# isDevelopMode <- TRUE
 if (!exists("isDevelopMode")) library(REddyProc)
-set.seed(0815)      # for reproducible results
+set.seed(0815) # for reproducible results
 ```
 
 First, the data is loaded. This example uses data that has been downloaded 
@@ -54,19 +56,18 @@ and the variables renamed to the BGC-convention (e.g. Tair instead of Ta).
 
 ```{r}
 data(DEGebExample)
+DEGebExample$VPD <- fCalcVPDfromRHandTair(DEGebExample$rH, DEGebExample$Tair)
 summary(DEGebExample)
 ```
 
 
 VPD was not given with the original dataset and is calculated from Tair and rH.
 ```{r}
-DEGebExample$VPD <- fCalcVPDfromRHandTair(DEGebExample$rH, DEGebExample$Tair)
-EProc <- sEddyProc$new('DE-Geb', DEGebExample, c('NEE','Rg','Tair','VPD', 'Ustar'))
-EProc$sSetLocationInfo(LatDeg = 51.1, LongDeg = 10.9, TimeZoneHour = 1)  #Location of Gebesee
+EProc <- sEddyProc$new("DE-Geb", DEGebExample, c("NEE", "Rg", "Tair", "VPD", "Ustar"))
+EProc$sSetLocationInfo(LatDeg = 51.1, LongDeg = 10.9, TimeZoneHour = 1) # Location of Gebesee
 ```
 
-Defining Seasons with different surface friction conditions 
------------------------------------------------------------
+## 1.1. Defining Seasons with different surface friction conditions 
 
 The site is a crop site. The harvesting times are visible as sharp edges in the plots of NEE.
 
@@ -82,33 +83,41 @@ There are other variants of a user-specified season that do respect calendaryear
 or that let seasons start at the same day each year. 
 
 ```{r DEGeb_estUStar1a, spar = TRUE, fig.width = 10}
-seasonStarts <- as.data.frame( do.call( rbind, list(
-	  c(70,2004)
-          ,c(210,2004)
-          ,c(320,2004)
-          ,c(70,2005)
-          ,c(180,2005)
-          ,c(320,2005)
-          ,c(120,2006)
-          ,c(305,2006) 		
+seasonStarts <- as.data.frame(do.call(rbind, list(
+  c(70, 2004),
+  c(210, 2004),
+  c(320, 2004),
+  c(70, 2005),
+  c(180, 2005),
+  c(320, 2005),
+  c(120, 2006),
+  c(305, 2006)
 )))
 seasonFactor <- usCreateSeasonFactorYdayYear(
-  DEGebExample$DateTime - 15*60, starts = seasonStarts)
-plot( NEE ~ DateTime, DEGebExample )
-seasonStartsDate <- fConvertTimeToPosix( data.frame(Year = seasonStarts[,2]
-	, DoY = seasonStarts[,1], Hour = 0.25), 'YDH'
-	, Year = "Year", Day = "DoY", Hour = "Hour")
-abline( v = seasonStartsDate$DateTime)
+  DEGebExample$DateTime - 15 * 60,
+  starts = seasonStarts
+)
+plot(NEE ~ DateTime, DEGebExample)
+seasonStartsDate <- fConvertTimeToPosix(
+  data.frame(
+    Year = seasonStarts[, 2],
+    DoY = seasonStarts[, 1], Hour = 0.25
+  ), "YDH",
+  Year = "Year", Day = "DoY", Hour = "Hour"
+)
+abline(v = seasonStartsDate$DateTime)
 ```
 
 The user-specific seasoning is provided to the gap-filling by the argument `seasonFactor`. 
 ```{r DEGeb_estUStar1b, cache = TRUE}
 (uStarTh <- EProc$sEstUstarThold(seasonFactor = seasonFactor))
-#EProc$useSeaonsalUStarThresholds()
-# estimation can be inspected by plotting the saturation of NEE with UStar 
+# EProc$useSeaonsalUStarThresholds()
+# estimation can be inspected by plotting the saturation of NEE with UStar
 # for the temperatures of one season
-#EProc$sPlotNEEVersusUStarForSeason( levels(uStarTh$season)[2] )
+# EProc$sPlotNEEVersusUStarForSeason( levels(uStarTh$season)[2] )
 ```
+
+## 1.2. UStar Threshold: Seasonal estimates
 
 Note that there is an estimate for each season. Further, an annual estimate is 
 obtained by taking the maximum across the seasons, and the overall estimate is 
@@ -123,15 +132,13 @@ before gapfilling.
 ```{r DEGeb_estUStar1c}
 EProc$useSeaonsalUStarThresholds()
 EProc$sGetUstarScenarios()
-```	
+```
 
 ```{r DEGeb_gapFill1, cache = TRUE, eval = FALSE, output = 'hide', message = FALSE}
-EProc$sMDSGapFillAfterUstar('NEE', FillAll = FALSE, isVerbose = FALSE)
-```		
+EProc$sMDSGapFillAfterUstar("NEE", FillAll = FALSE, isVerbose = FALSE)
+```
 
-
-Uncertainty introduced by the uStar Threshold estimate: bootstrap  
------------------------------------------------------------------
+## 1.3. Uncertainty introduced by the uStar Threshold estimate: bootstrap  
 
 With a lower estimate of uStar threshold, more records with lower NEE are kept in 
 the dataset instead of marked as gaps. Therefore annual estimate of NEE will decrease
@@ -145,47 +152,49 @@ different estimates of the uStar Threshold.
 
 
 ```{r DEGeb_estUStarBoot1, cache = TRUE, message = FALSE}
-EProc <- sEddyProc$new('DE-Geb', DEGebExample, c('NEE','Rg','Tair','VPD', 'Ustar'))
-EProc$sSetLocationInfo(LatDeg = 51.1, LongDeg = 10.9, TimeZoneHour = 1)  #Location of Gebesee
-# here, because of processing time only 30 samples instead of 100, and 10% and 90% 
+EProc <- sEddyProc$new("DE-Geb", DEGebExample, c("NEE", "Rg", "Tair", "VPD", "Ustar"))
+EProc$sSetLocationInfo(LatDeg = 51.1, LongDeg = 10.9, TimeZoneHour = 1) # Location of Gebesee
+# here, because of processing time only 30 samples instead of 100, and 10% and 90%
 # percentile instead of default 5%,50%, and 95% with 100 samples
-EProc$sEstimateUstarScenarios( 
-  seasonFactor = seasonFactor, nSample = 30L, probs = c(0.1,0.9))
-#(uStarScens <- usGetSeasonalSeasonUStarMap(
+EProc$sEstimateUstarScenarios(
+  seasonFactor = seasonFactor, nSample = 30L, probs = c(0.1, 0.9)
+)
+# (uStarScens <- usGetSeasonalSeasonUStarMap(
 #  EProc$sGetEstimatedUstarThresholdDistribution()
-#))
-#EProc$sSetUstarScenarios(uStarScens)
+# ))
+# EProc$sSetUstarScenarios(uStarScens)
 EProc$useSeaonsalUStarThresholds()
 EProc$sGetUstarScenarios()
-```	
+```
 
 After setting the uStar scenarios, they will be used by method 
 `sMDSGapFillUStarScens`.
-```{r DEGeb_gapFillBoot1, cache = TRUE, message = FALSE, output = 'hide'}
-EProc$sMDSGapFillUStarScens('NEE', FillAll = FALSE)
+```{r DEGeb_gapFillBoot1, cache = TRUE, message = FALSE}
+EProc$sMDSGapFillUStarScens("NEE", FillAll = FALSE)
+grep("^NEE.*_f$", colnames(EProc$sExportResults()), value = TRUE)
 ```
-
-Additional output columns are produced for each uStar quantile. 
-
-```{r}
-grep("^NEE.*_f$", colnames( EProc$sExportResults()), value = TRUE )
-```		
 
 Several methods provide processing steps for all scenarios.
 In addition, method `sApplyUStarScen` calls a user-specified function repeatedly
-with a modified argument `suffix`. 
+with a modified argument `suffix`.
+
 For example, the flux partitioning across all threshold scenarios can be
 invoked by the following code to produce several GPP estimates.
 
 ```{r DEGeb_fluxPart1, cache = TRUE, message = FALSE}
-EProc$sMDSGapFill('Tair', FillAll = FALSE)
-EProc$sApplyUStarScen( EProc$sMRFluxPartition )
-#grep("U10", colnames(EProc$sExportResults()), value = TRUE) 	
-grep("^GPP.*_f$", colnames( EProc$sExportResults()), value = TRUE )
+EProc$sMDSGapFill("Tair", FillAll = FALSE)
+EProc$sApplyUStarScen(EProc$sMRFluxPartition)
+r = EProc$sExportResults() #%>% as.data.table()
+# grep("U10", colnames(EProc$sExportResults()), value = TRUE)
+grep("^GPP.*_f$", colnames(r), value = TRUE)
 ```
 
+> sEddyProc_sMRFluxPartition
+
+## 1.4. UStar Threshold: Change point detection
+
 Using change point detection instead of moving point method for UStar Threshold estimation
-------------------------------------------------------------------------------------------
+
 
 The package also provides another method of estimating the point where NEE saturates 
 with increasing uStar.
@@ -199,20 +208,17 @@ to `EstUstarThold` or `sEstUstarThresholdDistribution`.
 The CPT method is usually yields higher thresholds and marks more data as Gap. 
   
 ```{r DEGeb_estUStarCPT, cache = TRUE}
-EProc <- sEddyProc$new(
-  'DE-Geb', DEGebExample, c('NEE','Rg','Tair','VPD', 'Ustar'))
+EProc <- sEddyProc$new("DE-Geb", DEGebExample, c("NEE", "Rg", "Tair", "VPD", "Ustar"))
 resUStar <- EProc$sEstUstarThold(
-					ctrlUstarEst = usControlUstarEst(isUsingCPTSeveralT = TRUE)
-					, seasonFactor = seasonFactor
-			)
-#(uStarThCP <- usGetSeasonalSeasonUStarMap(resUStar))
+  ctrlUstarEst = usControlUstarEst(isUsingCPTSeveralT = TRUE),
+  seasonFactor = seasonFactor
+)
+# ustar = EProc$sEstimateUstarScenarios(
+#   ctrlUstarEst = usControlUstarEst(isUsingCPTSeveralT = TRUE),
+#   seasonFactor = seasonFactor, nSample = 30L, probs = c(0.1, 0.9)
+# )
+
+# (uStarThCP <- usGetSeasonalSeasonUStarMap(resUStar))
 EProc$useSeaonsalUStarThresholds()
 EProc$sGetUstarScenarios()
 ```
-
-
-		
-
-
-
-
