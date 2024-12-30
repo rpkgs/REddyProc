@@ -28,6 +28,31 @@ sEddyProc <- setRefClass('sEddyProc', fields = list(
   # Note: The documenation of the class is not processed by 'inlinedocs'
 ))
 
+# sEddyProc$methods(sPrintFrames = sEddy_show)
+# sEddyProc$methods(show = sEddy_show)
+#' @import crayon
+setMethod("show", "sEddyProc", function(object) {
+  print_var <- function(var, sep = "\n") {
+    cat(underline(bold(green(var))), sep)
+    d = object[[var]]
+    if (var %in% c("sID")) {
+      cat(d, "\n")
+    } else if (var == "sUSTAR_DETAILS") {
+      str(d, 1)
+    } else if (is.data.frame(d) && nrow(d) == 0) {
+      print(d)
+    } else print(dplyr::as_tibble(d))
+  }
+  print_var("sID", sep=": ")
+  print_var("sDATA")
+  print_var("sTEMP")
+  print_var("sLOCATION")
+  print_var("sINFO")
+  print_var("sUSTAR_DETAILS")
+  print_var("sUSTAR")
+  print_var("sUSTAR_SCEN")
+})
+
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #' @export
@@ -424,13 +449,12 @@ sEddyProc_sPrintFrames <- function(
 {
     'Print class internal sDATA data frame'
     nRows <- min(nrow(sDATA), nrow(sTEMP), nRows)
+    print(nRows)
 
     print(cbind(sDATA, sTEMP[, -1])[1:nRows, ])
     ##value<<
     ## Print the first rows of class internal sDATA and sTEMP data frame.
 }
-sEddyProc$methods(sPrintFrames = sEddyProc_sPrintFrames)
-
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 sEddyProc_sUpdateMethod <- function(x){

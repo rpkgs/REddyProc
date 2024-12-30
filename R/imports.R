@@ -1,3 +1,4 @@
+#' @importFrom data.table data.table
 #' @import methods
 NULL
 

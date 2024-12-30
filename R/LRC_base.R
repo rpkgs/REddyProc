@@ -5,13 +5,13 @@
 #' @exportClass LightResponseCurveFitter
 LightResponseCurveFitter <- setRefClass('LightResponseCurveFitter')
 
+ ### return the parameter names used by this Light Response Curve Function
+ # if this method is adjusted in subclass
+ # , then also adjust getPriorLocation, getPriorScale
+ ## value<< string vector of parameter names. Positions are important.
 #' @export
 LightResponseCurveFitter_getParameterNames <- function(
-	### return the parameter names used by this Light Response Curve Function
 ) {
-	# if this method is adjusted in subclass
-	# , then also adjust getPriorLocation, getPriorScale
-	##value<< string vector of parameter names. Positions are important.
 	c(k = "k"						##<< VPD effect
 	, beta = "beta"				##<< saturation of GPP at high radiation
 	, alpha = "alpha"				##<< initial slope

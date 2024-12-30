@@ -1,4 +1,5 @@
 ---
+title: uStar threshold cases
 output: 
   rmarkdown::html_vignette:
     keep_md: true

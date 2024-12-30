@@ -1,4 +1,5 @@
 ---
+title: "DEGeb example: UStar estimation"
 author: "Thomas Wutzler"
 date: "`r Sys.Date()`"
 output: 
