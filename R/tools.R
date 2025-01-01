@@ -17,3 +17,24 @@ logit <- function(p, ...) {
 invlogit <- function(q, ...) {
   plogis(q, ...)
 }
+
+#' replace NA by value of previous record
+#'
+#' @param x numeric vector to fill NAs
+#' @param firstValue value to be used for NA at the beginning of x
+#'
+#' @return numeric vector with NAs replaced
+fillNAForward <- function(x, firstValue = median(x, na.rm = TRUE)) {
+  iMissing <- which(!is.finite(x))
+  if (length(iMissing) && (iMissing[1] == 1L)) {
+    x[1L] <- firstValue
+    iMissing <- iMissing[-1]
+  }
+  if (length(iMissing)) {
+    for (i in iMissing) {
+      # set to value from previous window
+      x[i] <- x[i - 1L]
+    }
+  }
+  return(x)
+}

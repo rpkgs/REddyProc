@@ -22,7 +22,7 @@ vector of GPP
 Nonrectangular Light Response function for GPP
 }
 \details{
-This function generalizes the \code{\link{RectangularLRCFitter_predictGPP}}
+This function generalizes the \code{\link[=RectangularLRCFitter_predictGPP]{RectangularLRCFitter_predictGPP()}}
 by adding the convexity parameter \code{conv}.
 For \code{conv -> 0 (logitconv -> -Inf)}: approaches the rectangular hyperbolic.
 For \code{conv -> 1 (logitconv -> + Inf)}: approaches a step function.

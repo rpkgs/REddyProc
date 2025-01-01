@@ -110,11 +110,11 @@ NonrectangularLRCFitter$methods(predictLRC = LRC_NonRect_predictLRC)
 #' Nonrectangular Light Response function for GPP
 #' 
 #' @details 
-#' This function generalizes the \code{\link{RectangularLRCFitter_predictGPP}}
-#' by adding the convexity parameter \code{conv}.
-#' For \code{conv -> 0 (logitconv -> -Inf)}: approaches the rectangular hyperbolic.
-#' For \code{conv -> 1 (logitconv -> + Inf)}: approaches a step function.
-#' Expected values of \code{conv} are about 0.7-0.9 (Moffat 2012).
+#' This function generalizes the [RectangularLRCFitter_predictGPP()]
+#' by adding the convexity parameter `conv`.
+#' For `conv -> 0 (logitconv -> -Inf)`: approaches the rectangular hyperbolic.
+#' For `conv -> 1 (logitconv -> + Inf)`: approaches a step function.
+#' Expected values of `conv` are about 0.7-0.9 (Moffat 2012).
 #' 
 #' @param Rg photosynthetic flux density [umol / m2 / s] or Global Radiation
 #' @param Amax saturation (beta parameter) adjusted for effect of VPD
