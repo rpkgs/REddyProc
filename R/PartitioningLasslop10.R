@@ -70,7 +70,7 @@ partitionNEEGL <- function(
 	## \item{<LRC>}{Further light response curve (LRC) parameters and
 	##  their standard deviation depend on the used LRC
 	## (e.g. for the non-rectangular LRC
-	## see \code{\link{NonrectangularLRCFitter_getParameterNames}}).
+	## see \code{\link{NonrectangularLRCFitter_getParamNames}}).
 	## They are estimated for windows and are reported with the first record
 	## of the window}
 	dsAns0 <- tibble(
@@ -102,7 +102,7 @@ partitionNEEGL <- function(
 	)
 	#
 	# append LRC parameter result columns
-	lrcParNames <- lrcFitter$getParameterNames()
+	lrcParNames <- lrcFitter$getParamNames()
 	lrcParNames <- c(lrcParNames, paste0(lrcParNames, "_sd"))
 	FP_lrcParNames <- paste0("FP_", lrcParNames)
 	tmp <- matrix(NA_real_, nrow = nrow(ds), ncol = length(FP_lrcParNames)
@@ -915,7 +915,7 @@ partGLInterpolateFluxes <- function(
 	dsAssoc <- .partGPAssociateSpecialRows(summaryLRC[[colNameAssoc]], nRec)
 	# now we have columns iBefore and iAfter, which can be used to merge the
 	# parameter estimate columns to each row
-	parNames <- lrcFitter$getParameterNames()
+	parNames <- lrcFitter$getParamNames()
 	dsBefore <- merge(
 			structure(data.frame(dsAssoc$iSpecialBefore, dsAssoc$iBefore)
 			          , names = c("iParRec", colNameAssoc))
@@ -923,7 +923,7 @@ partGLInterpolateFluxes <- function(
 	)
 	dsAfter  <- merge(structure(data.frame(dsAssoc$iSpecialAfter, dsAssoc$iAfter)
 	             , names = c("iParRec", colNameAssoc))
-	             , summaryLRC[, c(colNameAssoc, lrcFitter$getParameterNames())])
+	             , summaryLRC[, c(colNameAssoc, lrcFitter$getParamNames())])
 	if ( (nrow(dsBefore) != nRec) || (nrow(dsAfter) != nRec)) stop(#
 	  "error in merging parameters to original records.")
 	Reco2 <- lapply(list(dsBefore, dsAfter), function(dsi) {
@@ -997,7 +997,7 @@ computeAggregatedCovariance <- function(
 	, controlGLPart = partGLControl()	##<< further default parameters,
 	  ## see \code{\link{partGLControl}} with entry "isAssociateParmsToMeanOfValids"
 	, lrcFitter	##<< R5 class instance responsible for fitting the light response
-	  ## curve, with method getParameterNames()
+	  ## curve, with method getParamNames()
 	, iAggregate = 1:nrow(dsPred)	##<< row indices about which to
 	  ## sum over, must be contiguous
 ) {
@@ -1012,7 +1012,7 @@ computeAggregatedCovariance <- function(
 	dsAssoc <- .partGPAssociateSpecialRows(summaryLRC[[colNameAssoc]], nRec)
 	# now we have columns iBefore and iAfter, which can be used to
 	# merge the parameter estimate columns to each row
-	parNames <- lrcFitter$getParameterNames()
+	parNames <- lrcFitter$getParamNames()
 	dsBefore <- merge(
 			structure(data.frame(dsAssoc$iSpecialBefore, dsAssoc$iBefore)
 			          , names = c("iParRec", colNameAssoc))
@@ -1020,7 +1020,7 @@ computeAggregatedCovariance <- function(
 	)
 	dsAfter  <- merge(structure(data.frame(dsAssoc$iSpecialAfter, dsAssoc$iAfter)
 	       , names = c("iParRec", colNameAssoc))
-	       , summaryLRC[, c(colNameAssoc, lrcFitter$getParameterNames())])
+	       , summaryLRC[, c(colNameAssoc, lrcFitter$getParamNames())])
 	#
 	# compute gradients (each entry is a list with components vectors Reco and GPP
 	grad2 <- lapply(list(dsBefore, dsAfter), function(dsi) {

@@ -73,11 +73,11 @@ LightResponseCurveFitter$methods(
 #'
 #' @param theta numeric vector of parameters. If theta is a matrix, a different
 #' row of parameters is used for different entries of other inputs.
-#' @param Rg -> photosynthetic flux density [mumol / m2 / s] or
+#' @param Rg photosynthetic flux density [mumol / m2 / s] or
 #' Global Radiation.
-#' @param VPD -> Vapor Pressure Deficit [hPa]
-#' @param Temp -> Temperature [degC]
-#' @param VPD0 [hPa] -> Parameters VPD0 fixed to 10 hPa according to Lasslop et al 2010
+#' @param VPD Vapor Pressure Deficit [hPa]
+#' @param Temp Temperature [degC]
+#' @param VPD0 [hPa], Parameters VPD0 fixed to 10 hPa according to Lasslop et al 2010
 #' @param fixVPD if TRUE the VPD effect is not considered and VPD is not part of the computation
 #' @param TRef numeric scalar of Temperature (degree Celsius) for reference respiration RRef
 #'
@@ -215,6 +215,4 @@ LRC_computeLRCGradient <- function(
   list(NEP = gradNEP, Reco = gradReco, GPP = gradGPP)
 }
 
-LightResponseCurveFitter$methods(
-  computeLRCGradient = LRC_computeLRCGradient
-)
+LightResponseCurveFitter$methods(computeLRCGradient = LRC_computeLRCGradient)

@@ -21,7 +21,7 @@ RectangularLRCFitterCVersion_computeCost(
 \item{thetaOpt}{parameter vector with components of theta0 that are optimized}
 
 \item{theta}{parameter vector with positions as in argument of
-\code{\link[=LRC_getParameterNames]{LRC_getParameterNames()}}}
+\code{\link[=LRC_getParamNames]{LRC_getParamNames()}}}
 
 \item{iOpt}{position in theta that are optimized}
 

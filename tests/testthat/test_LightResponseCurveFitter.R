@@ -226,7 +226,7 @@ test_that("fitLRC", {
     E0 = 185, sdE0 = .05 * 185, RRefNight = mean(dssNight$NEE_f, na.rm = TRUE), lastGoodParameters = NA_real_,
     controlGLPart = partGLControl(nBootUncertainty = 10L)
   )
-  parNames <- as.vector(lrcFitter$getParameterNames())
+  parNames <- as.vector(lrcFitter$getParamNames())
   expect_equal(names(res$thetaOpt), parNames)
   expect_equal(names(res$thetaInitialGuess), parNames)
   expect_equal(colnames(res$covParms), parNames)

@@ -8,7 +8,7 @@ LightResponseCurveFitter <- setRefClass("LightResponseCurveFitter")
 # if this method is adjusted in subclass, then also need to adjust getPriorLocation,
 # getPriorScale.
 
-#' LRC_getParameterNames
+#' LRC_getParamNames
 #' 
 #' @details 
 #' - `k`     : VPD effect
@@ -19,12 +19,11 @@ LightResponseCurveFitter <- setRefClass("LightResponseCurveFitter")
 #' 
 #' @importFrom stats setNames
 #' @export
-LRC_getParameterNames <- function() {
+LRC_getParamNames <- function() {
   vars = c("k", "beta", "alpha", "RRef", "E0")
   setNames(vars, vars)
 }
-LightResponseCurveFitter$methods(
-  getParameterNames = LRC_getParameterNames)
+LightResponseCurveFitter$methods(getParamNames = LRC_getParamNames)
 
 #' Optimize rectangular hyperbolic light response curve in one window
 #' 
@@ -75,11 +74,11 @@ LRC_fitLRC <- function(
   controlGLPart = partGLControl(), lastGoodParameters = rep(NA_real_, 7L)) {
 
   # Three initial guess vectors are defined according to Lasslop et al., 2010
-  parNames <- .self$getParameterNames() # hook method from derived classes
+  parNames <- .self$getParamNames() # hook method from derived classes
   nPar <- length(parNames)
 
   parPrior <- .self$getPriorLocation(dsDay$NEE, RRefNight = RRefNight, E0 = E0)
-  thetaInitials <- .self$getParameterInitials(parPrior)
+  thetaInitials <- .self$getParamInitials(parPrior)
   
   resOpt3 <- apply(thetaInitials, 1, function(theta0) {
     resOpt <- .self$optimLRCBounds(theta0, parPrior,
@@ -234,7 +233,7 @@ LightResponseCurveFitter$methods(getPriorLocation = LRC_getPriorLocation)
 
 # ' @return A numeric matrix (3, nPar) of initial values for fitting parameters
 #' @export
-LRC_getParameterInitials <- function(thetaPrior) {
+LRC_getParamInitials <- function(thetaPrior) {
   theta0 <- matrix(rep(thetaPrior, each = 3), 3, length(thetaPrior),
     dimnames = list(NULL, names(thetaPrior))
   )
@@ -243,7 +242,7 @@ LRC_getParameterInitials <- function(thetaPrior) {
   theta0 # thetaInitials
 }
 LightResponseCurveFitter$methods(
-  getParameterInitials = LRC_getParameterInitials)
+  getParamInitials = LRC_getParamInitials)
 
 #' Optimize parameters with refitting with some fixed parameters if outside bounds
 #' 
@@ -277,7 +276,7 @@ LRC_optimLRCBounds <- function(
   isUsingFixedVPD <- isNeglectVPDEffect || (sum(dsDay$VPD >= VPD0, na.rm = TRUE) == 0)
   isUsingFixedAlpha <- FALSE
   
-  getIOpt <- .self$getOptimizedParameterPositions
+  getIOpt <- .self$getOptimizedParamPos
   
   theta0Adj <- theta0 # initial estimate with some parameters adjusted to bounds
   if (isNeglectVPDEffect) theta0Adj[1] <- 0
@@ -382,7 +381,7 @@ LightResponseCurveFitter$methods(
 #' 
 #' @return integer vector of positions in parameter vector
 #' @export
-LRC_getOptimizedParameterPositions <- function(isUsingFixedVPD, isUsingFixedAlpha) {
+LRC_getOptimizedParamPos <- function(isUsingFixedVPD, isUsingFixedAlpha) {
   if (!isUsingFixedVPD & !isUsingFixedAlpha) {
     c(1:4)
   } else if (isUsingFixedVPD & !isUsingFixedAlpha) {
@@ -394,7 +393,7 @@ LRC_getOptimizedParameterPositions <- function(isUsingFixedVPD, isUsingFixedAlph
   } # iOpt
 }
 LightResponseCurveFitter$methods(
-  getOptimizedParameterPositions = LRC_getOptimizedParameterPositions)
+  getOptimizedParamPos = LRC_getOptimizedParamPos)
 
 #' optimLRCOnAdjustedPrior
 #' 

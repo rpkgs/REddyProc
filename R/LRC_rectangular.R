@@ -60,7 +60,7 @@ RectangularLRCFitterCVersion <- setRefClass('RectangularLRCFitterCVersion',
 #' 
 #' @param thetaOpt parameter vector with components of theta0 that are optimized
 #' @param theta parameter vector with positions as in argument of
-#' [LRC_getParameterNames()]
+#' [LRC_getParamNames()]
 #' @param iOpt position in theta that are optimized
 #' @param flux numeric: NEP (-NEE) or GPP time series [umolCO2 / m2 / s],
 #' should not contain NA

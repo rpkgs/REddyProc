@@ -10,14 +10,14 @@ LRC_predictLRC(theta, Rg, VPD, Temp, VPD0 = 10, fixVPD = (k == 0), TRef = 15)
 \item{theta}{numeric vector of parameters. If theta is a matrix, a different
 row of parameters is used for different entries of other inputs.}
 
-\item{Rg}{-> photosynthetic flux density \link{mumol / m2 / s} or
+\item{Rg}{photosynthetic flux density \link{mumol / m2 / s} or
 Global Radiation.}
 
-\item{VPD}{-> Vapor Pressure Deficit \link{hPa}}
+\item{VPD}{Vapor Pressure Deficit \link{hPa}}
 
-\item{Temp}{-> Temperature \link{degC}}
+\item{Temp}{Temperature \link{degC}}
 
-\item{VPD0}{\link{hPa} -> Parameters VPD0 fixed to 10 hPa according to Lasslop et al 2010}
+\item{VPD0}{\link{hPa}, Parameters VPD0 fixed to 10 hPa according to Lasslop et al 2010}
 
 \item{fixVPD}{if TRUE the VPD effect is not considered and VPD is not part of the computation}
 
