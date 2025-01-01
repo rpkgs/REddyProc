@@ -42,7 +42,7 @@ Imports: Rcpp, dplyr, purrr, rlang, readr, tibble,
     data.table, crayon, 
     magrittr, solartime, 
     bigleaf (>= 0.7), mlegp
-Suggests: testthat, minpack.lm, segmented, knitr, rmarkdown, lognorm, ggplot2, 
+Suggests: testthat, lubridate, minpack.lm, segmented, knitr, rmarkdown, lognorm, ggplot2, 
     tidyr, markdown
 Collate: 
     'CheckVal.R'
