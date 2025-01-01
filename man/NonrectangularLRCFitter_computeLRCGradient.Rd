@@ -9,7 +9,7 @@ NonrectangularLRCFitter_computeLRCGradient(
   Rg,
   VPD,
   Temp,
-  VPD0,
+  VPD0 = 10,
   fixVPD = (k == 0),
   TRef = 15
 )
@@ -26,6 +26,8 @@ theta[5] = logitconv)}
 
 \item{VPD}{Vapor Pressure Deficit [hPa]}
 
+\item{Temp}{Temperature [degC]}
+
 \item{VPD0}{[hPa] -> Parameters VPD0 fixed to 10 hPa according to
 Lasslop et al 2010}
 
@@ -35,8 +37,6 @@ of the computation}
 
 \item{TRef}{numeric scalar of Temperature (degree Celsius) for reference 
 respiration `RRef`}
-
-\item{Temp}{Temperature [degC]}
 }
 \description{
 Gradient of [NonrectangularLRCFitter_predictLRC()]
