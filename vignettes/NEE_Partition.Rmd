@@ -1,9 +1,0 @@
----
-title: NEE Partition
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteEngine{knitr::knitr}
-  %\VignetteIndexEntry{NEE Partition}
-  %\usepackage[UTF-8]{inputenc}
----
-
