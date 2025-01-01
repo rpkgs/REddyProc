@@ -46,18 +46,17 @@ NonrectangularLRCFitter$methods(
 )
 
 NonrectangularLRCFitter$methods(
-  getPriorScale = function( ### return the prior distribution of parameters
-                           thetaPrior ## << numeric vector of location of priors
-                           , medianRelFluxUncertainty ## << numeric scalar: median across the
-                           ## relative uncertainty of the flux values, i.e. sdNEE / NEE
-                           , nRec ## << integer scalar: number of finite observations
-                           , ctrl ## << list of further controls, with entry
-                           ## \code{isLasslopPriorsApplied}
-  ) {
+  #' Get the prior distribution of parameters
+  #' @param thetaPrior numeric vector of location of priors
+  #' @param medianRelFluxUncertainty numeric scalar: median across the relative
+  #' uncertainty of the flux values, i.e. sdNEE / NEE
+  #' @param nRec integer scalar: number of finite observations
+  #' @param ctrl list of further controls, with entry \code{isLasslopPriorsApplied}
+  #' 
+  getPriorScale = function(thetaPrior, medianRelFluxUncertainty, nRec, ctrl) {
     ans <- callSuper(
       thetaPrio = thetaPrior,
-      medianRelFluxUncertainty = medianRelFluxUncertainty, nRec = nRec, ctrl = ctrl
-    )
+      medianRelFluxUncertainty = medianRelFluxUncertainty, nRec = nRec, ctrl = ctrl)
     ## value<< adds NA prior for logitconv
     c(ans, logitconv = NA)
   }

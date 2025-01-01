@@ -30,6 +30,7 @@ jobs:
         with:
           upload-snapshots: true
           timeout-minutes: 30
+          error-on: '"error"'
 
       - name: Show testthat output
         if: always()
