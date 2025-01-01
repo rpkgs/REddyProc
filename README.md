@@ -7,8 +7,9 @@ maybe clear cache before
 -->
 <!-- badges: start -->
 
-[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/REddyProc)](http://cran.r-project.org/package=REddyProc)
+<!-- [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/REddyProc)](http://cran.r-project.org/package=REddyProc) -->
 [![R-CMD-check](https://github.com/EarthyScience/REddyProc/workflows/R-CMD-check/badge.svg)](https://github.com/EarthyScience/REddyProc/actions)
+[![codecov](https://codecov.io/gh/rpkgs/REddyProc/branch/master/graph/badge.svg)](https://app.codecov.io/gh/rpkgs/REddyProc/tree/master/R)
 <!-- badges: end -->
 
 ## Overview

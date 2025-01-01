@@ -18,7 +18,7 @@ RectangularLRCFitter <- setRefClass('RectangularLRCFitter'
 #' @seealso [LightResponseCurveFitter_predictGPP()]
 #' @export
 RectangularLRCFitter_predictGPP <- function(Rg, Amax, alpha) {
-	GPP <- (Amax * alpha * Rg) / (alpha * Rg + Amax)
+	(Amax * alpha * Rg) / (alpha * Rg + Amax) # GPP
 }
 RectangularLRCFitter$methods(predictGPP = RectangularLRCFitter_predictGPP)
 

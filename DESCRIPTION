@@ -58,6 +58,7 @@ Collate:
     'FileHandlingFormats.R'
     'GeoFunctions.R'
     'LRC_base.R'
+    'LRC_base_optim.R'
     'LRC_logisticSigmoid.R'
     'LRC_nonrectangular.R'
     'LRC_rectangular.R'
