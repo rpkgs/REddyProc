@@ -10,12 +10,12 @@ RectangularLRCFitter <- setRefClass('RectangularLRCFitter'
 #' 
 #' @details `GPP <- (Amax * alpha * Rg) / (alpha * Rg + Amax)`
 #' 
-#' @param Rg [numeric] ppfd -> photosynthetic flux density [mumol / m2 / s] or Global Radiation
-#' @param Amax [numeric] saturation (beta parameter) adjusted for effect of VPD
-#' @param alpha [numeric] slope at Rg = 0
+#' @param Rg ppfd -> photosynthetic flux density [mumol / m2 / s] or Global Radiation
+#' @param Amax saturation (beta parameter) adjusted for effect of VPD
+#' @param alpha slope at Rg = 0
 #' 
 #' @return numeric vector of GPP
-#' @seealso \code{\link{LightResponseCurveFitter_predictGPP}}
+#' @seealso [LightResponseCurveFitter_predictGPP()]
 #' @export
 RectangularLRCFitter_predictGPP <- function(Rg, Amax, alpha) {
 	GPP <- (Amax * alpha * Rg) / (alpha * Rg + Amax)

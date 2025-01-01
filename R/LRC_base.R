@@ -14,7 +14,7 @@ LightResponseCurveFitter <- setRefClass("LightResponseCurveFitter")
 #' - `k`     : VPD effect
 #' - `beta`  : saturation of GPP at high radiation
 #' - `alpha` : initial slope
-#' - `RRef`  : basal respiration (units of provided NEE, usually mumol CO2 m-^-2 s^-2)
+#' - `RRef`  : basal respiration (units of provided NEE, usually mumol CO2 m-2 s-2)
 #' - `E0`    : temperature sensitivity estimated from night-time data (K)
 #' 
 #' @importFrom stats setNames
@@ -44,19 +44,19 @@ LightResponseCurveFitter$methods(
 #' @param E0 temperature sensitivity of respiration
 #' @param sdE0 standard deviation of E_0.n
 #' @param RRefNight basal respiration estimated from night time data
-#' @param controlGLPart further default parameters (see \code{\link{partGLControl}})
+#' @param controlGLPart further default parameters (see [partGLControl()])
 #' @param lastGoodParameters numeric vector returned by last reasonable fit
 #' 
 #' @return A list with the following components:
-#' - `thetaOpt`          : [numeric] vector of optimized parameters, including the fixed ones and E0
-#' - `iOpt`              : [integer] vector of positions of parameters that are
-#'   optimized, including E0, which has been optimized prior to this function
-#' - `thetaInitialGuess` : [numeric] initial guess from data
-#' - `covParms`          : [numeric] matrix of the covariance matrix of
-#'   parameters, including E0
-#' - convergence         : [integer] code specifying convergence problems
+#' - `thetaOpt`          : vector of optimized parameters, including the fixed ones and E0
+#' - `iOpt`              : vector of positions of parameters that are optimized,
+#'   including E0, which has been optimized prior to this function
+#' - `thetaInitialGuess` : initial guess from data
+#' - `covParms`          : matrix of the covariance matrix of parameters,
+#'   including E0
+#' - convergence         : code specifying convergence problems
 #'  + 0      : good convergence
-#'  + 1-1000 : see \code{\link{optim}}
+#'  + 1-1000 : see [optim()]
 #'  + 1001   : too few bootstraps converged
 #'  + 1002   : fitted parameters were outside reasonable bounds
 #'  + 1003   : too few valid records in window
@@ -255,15 +255,15 @@ LightResponseCurveFitter$methods(
 #' 
 #' @param theta0 numeric vector of initial parameter estimate
 #' @param parameterPrior numeric vector of prior estimate of model parameters
-#' @param ... further parameters to \code{.optimLRC}
+#' @param ... further parameters to `.optimLRC`
 #' @param dsDay dataframe of NEE, sdNEE and predictors Rg, VPD and Temp
 #' @param lastGoodParameters numeric vector of last successful fit
-#' @param ctrl list of further controls, such as \code{isNeglectVPDEffect = TRUE}
+#' @param ctrl list of further controls, such as `isNeglectVPDEffect = TRUE`
 #' 
 #' @return list of result of [LightResponseCurveFitter_optimLRCOnAdjustedPrior()]
-#' - `theta`: [numeric] vector of optimized parameters
-#' - `iOpt`: [integer] vector of positions of parameters that are optimized
-#' - `thetaInitialGuess`: [numeric] initial guess from data
+#' - `theta`: vector of optimized parameters
+#' - `iOpt`: vector of positions of parameters that are optimized
+#' - `thetaInitialGuess`: initial guess from data
 #' see [LightResponseCurveFitter_fitLRC()]
 #' 
 #' @seealso [LightResponseCurveFitter_fitLRC()]
@@ -401,14 +401,14 @@ LightResponseCurveFitter$methods(
 #' Lower bound flux uncertainty and adjust prior uncertainty before calling optimLRC
 #' 
 #' @details Only those records are used for optimization where both NEE and sdNEE are finite.
-#' In larger settings, already filtered at \code{partGLFitLRCOneWindow}
+#' In larger settings, already filtered at `partGLFitLRCOneWindow`
 #' 
 #' Optimization of LRC parameters takes into account the uncertainty of the flux
 #' values. In order to avoid very strong leverage, values with a very low
 #' uncertainty (< a lower quantile) are assigned the lower quantile is assigned.
 #' This procedure downweighs records with a high uncertainty, but does not apply
 #' a large leverage for records with a very low uncertainty. Avoid this
-#' correction by setting \code{ctrl$isBoundLowerNEEUncertainty = FALSE}
+#' correction by setting `ctrl$isBoundLowerNEEUncertainty = FALSE`
 #' 
 #' @param theta numeric vector of starting values
 #' @param iOpt integer vector: positions of subset of parameters that are optimized
@@ -416,8 +416,8 @@ LightResponseCurveFitter$methods(
 #' @param parameterPrior numeric vector of prior parameter estimates (corresponding to theta)
 #' @param ctrl list of further controls
 #' @param ... further arguments to
-#' \code{\link{LightResponseCurveFitter_optimLRC}} (passed to
-#' \code{\link{LightResponseCurveFitter_computeCost}})
+#' [LightResponseCurveFitter_optimLRC()] (passed to
+#' [LightResponseCurveFitter_computeCost()])
 #' 
 #' @return list of result of [LightResponseCurveFitter_optimLRC()] amended with list
 #' `theta`, `iOpt` and `convergence`
@@ -456,9 +456,7 @@ LightResponseCurveFitter_optimLRCOnAdjustedPrior <- function(
   ## adapt to the uncertainty of the fluxes.
   ## This is done in \code{link{LightResponseCurveFitter_getPriorScale}}
   sdParameterPrior <- .self$getPriorScale(parameterPrior, medianRelFluxUncertainty,
-    nrow(dsDayFinite),
-    ctrl = ctrl
-  )
+    nrow(dsDayFinite), ctrl = ctrl)
   sdParameterPrior[-iOpt] <- NA
   isUsingHessian <- (ctrl$nBootUncertainty == 0L)
   .self$optimLRC(theta,
@@ -504,11 +502,11 @@ LightResponseCurveFitter$methods(
 #' @param theta numeric vector of parameters
 #' @param iOpt integer vector of positions of parameters that are optimized
 #' @param sdParameterPrior numeric vector of standard deviation of parameterPrior
-#' @param ... other arguments to \code{\link{LightResponseCurveFitter_computeCost}}
+#' @param ... other arguments to [LightResponseCurveFitter_computeCost()]
 #' @param ctrl list of further controls
 #' @param isUsingHessian scalar boolean: set to TRUE to compute Hessian at optimum
 #' 
-#' @return list of result of \code{\link{optim}} amended with list
+#' @return list of result of [optim()] amended with list
 #' @export
 LightResponseCurveFitter_optimLRC <- function(
   theta, iOpt, sdParameterPrior, ..., ctrl, isUsingHessian) {
@@ -543,7 +541,7 @@ LightResponseCurveFitter$methods(optimLRC = LightResponseCurveFitter_optimLRC)
 #' @param weightMisfitPar2000 weight of misfit of difference between
 #' saturation and prediction at PAR = 2000
 #' @param ... other arguments to
-#' \code{\link{LightResponseCurveFitter_predictLRC}}, such as VPD0, fixVPD
+#' [LightResponseCurveFitter_predictLRC()], such as VPD0, fixVPD
 #' @return numeric: residual sum of squares
 #' 
 #' @export
@@ -574,10 +572,10 @@ LightResponseCurveFitter$methods(
 #'
 #' @param theta numeric vector of parameters. If theta is a matrix, a different
 #' row of parameters is used for different entries of other inputs.
-#' @param Rg [numeric] -> photosynthetic flux density [mumol / m2 / s] or
+#' @param Rg -> photosynthetic flux density [mumol / m2 / s] or
 #' Global Radiation.
-#' @param VPD [numeric] -> Vapor Pressure Deficit [hPa]
-#' @param Temp [numeric] -> Temperature [degC]
+#' @param VPD -> Vapor Pressure Deficit [hPa]
+#' @param Temp -> Temperature [degC]
 #' @param VPD0 [hPa] -> Parameters VPD0 fixed to 10 hPa according to Lasslop et al 2010
 #' @param fixVPD if TRUE the VPD effect is not considered and VPD is not part of the computation
 #' @param TRef numeric scalar of Temperature (degree Celsius) for reference respiration RRef
@@ -631,7 +629,7 @@ LightResponseCurveFitter$methods(predictLRC = LightResponseCurveFitter_predictLR
 #' - Nonrectangular: [NonrectangularLRCFitter_predictGPP()]
 #' - Logistic Sigmoid: [LogisticSigmoidLRCFitter_predictGPP()]
 #'
-#' @param Rg ppfd [numeric] -> photosynthetic flux density [mumol / m2 / s] or Global Radiation
+#' @param Rg ppfd -> photosynthetic flux density [mumol / m2 / s] or Global Radiation
 #' @param ... further parameters to the LRC
 #' @return numeric vector of length(Rg) of GPP
 #'
@@ -646,9 +644,9 @@ LightResponseCurveFitter$methods(predictGPP = LightResponseCurveFitter_predictGP
 #' Gradient of the Light Response Function
 #' @param theta numeric vector of parameters. If theta is a matrix, a different
 #' row of parameters is used for different entries of other inputs.
-#' @param Rg ppfd [numeric] -> photosynthetic flux density [mumol / m2 / s] or Global Radiation
-#' @param VPD VPD [numeric] -> Vapor Pressure Deficit [hPa]
-#' @param Temp Temp [numeric] -> Temperature [degC]
+#' @param Rg ppfd -> photosynthetic flux density [mumol / m2 / s] or Global Radiation
+#' @param VPD VPD -> Vapor Pressure Deficit [hPa]
+#' @param Temp Temp -> Temperature [degC]
 #' @param VPD0 VPD0 [hPa] -> Parameters VPD0 fixed to 10 hPa according to Lasslop et al 2010
 #' @param fixVPD if TRUE the VPD effect is not considered and VPD is not part of the computation
 #' @param TRef numeric scalar of Temperature (degree Celsius) for reference respiration RRef

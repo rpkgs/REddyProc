@@ -56,6 +56,7 @@ fConvertTimeToPosix <- function(
   , tz = 'GMT'				     ##<< timezone used to store the data. Advised to keep
     ## GMT to avoid daytime shifting issues
 ){
+  # Data.F = as_tibble(Data.F)
   varNamesDepr <- c(
     "TFormat.s","Year.s","Month.s","Day.s","Hour.s","Min.s","TName.s")
   varNamesNew <- c(

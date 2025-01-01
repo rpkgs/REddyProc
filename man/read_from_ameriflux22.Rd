@@ -11,7 +11,7 @@ read_from_ameriflux22(df)
 }
 \value{
 Data.Frame with columns
-  DateTime, NEE,	Rg,	Tair,	rH,	VPD, Ustar, LE, H
+DateTime, NEE,	Rg,	Tair,	rH,	VPD, Ustar, LE, H
 }
 \description{
 NEE is read from FC, Rg from SW_in, VPD is computed from RH and Tair.

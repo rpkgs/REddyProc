@@ -1,8 +1,8 @@
 #' Estimate VPD from daily minimum temperature
 #'
-#' of the data in the class function using \code{\link{estimate_vpd_from_dew}}.
+#' of the data in the class function using [estimate_vpd_from_dew()].
 #'
-#' @param ... further arguments to \code{\link{estimate_vpd_from_dew}}
+#' @param ... further arguments to [estimate_vpd_from_dew()]
 #'
 #' @return side effect of updated column VPDfromDew in class
 #' @export

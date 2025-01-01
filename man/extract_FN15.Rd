@@ -20,7 +20,7 @@ both nighttime and daytime partitioning columns present}
 }
 \value{
 data.frame with columns names of Fluxnet15. Timestamps are
-  in ISO string format \code{\link{POSIXctToBerkeleyJulianDate}}
+in ISO string format \code{\link[=POSIXctToBerkeleyJulianDate]{POSIXctToBerkeleyJulianDate()}}
 }
 \description{
 extract processing results with columns corresponding to Fluxnet15 release

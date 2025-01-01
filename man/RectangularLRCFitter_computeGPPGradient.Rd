@@ -7,11 +7,11 @@
 RectangularLRCFitter_computeGPPGradient(Rg, Amax, alpha)
 }
 \arguments{
-\item{Rg}{[numeric] ppfd -> photosynthetic flux density [mumol / m2 / s] or Global Radiation}
+\item{Rg}{ppfd -> photosynthetic flux density \link{mumol / m2 / s} or Global Radiation}
 
-\item{Amax}{[numeric] saturation (beta parameter) adjusted for effect of VPD}
+\item{Amax}{saturation (beta parameter) adjusted for effect of VPD}
 
-\item{alpha}{[numeric] slope at Rg = 0}
+\item{alpha}{slope at Rg = 0}
 }
 \value{
 numeric matrix (length(Rg), 2) of gradients of predicted GPP

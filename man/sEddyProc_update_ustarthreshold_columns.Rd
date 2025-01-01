@@ -7,11 +7,11 @@
 sEddyProc_update_ustarthreshold_columns()
 }
 \value{
-side effect in .self$sDATA new columns Ustar_Thresh_<ustarsuffix>
+side effect in .self$sDATA new columns Ustar_Thresh_\if{html}{\out{<ustarsuffix>}}
 }
 \description{
 Add columns reporting the uStar threshold for each scenario to sDATA
 }
 \seealso{
-\code{\link{sEddyProc_sGetUstarScenarios}}
+\code{\link[=sEddyProc_sGetUstarScenarios]{sEddyProc_sGetUstarScenarios()}}
 }

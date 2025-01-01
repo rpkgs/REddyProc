@@ -11,7 +11,7 @@ get_timestep_hours(x)
 }
 \value{
 Numeric scalar of the time difference of the first two entries
-  in fraction hours.
+in fraction hours.
 }
 \description{
 Get the timestep in fractional hours

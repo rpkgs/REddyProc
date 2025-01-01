@@ -17,13 +17,13 @@ NonrectangularLRCFitter_predictLRC(
 \arguments{
 \item{theta}{numeric vector of parameters}
 
-\item{Rg}{photosynthetic flux density [umol / m2 / s] or Global Radiation}
+\item{Rg}{photosynthetic flux density \link{umol / m2 / s} or Global Radiation}
 
-\item{VPD}{Vapor Pressure Deficit [hPa]}
+\item{VPD}{Vapor Pressure Deficit \link{hPa}}
 
-\item{Temp}{Temperature [degC]}
+\item{Temp}{Temperature \link{degC}}
 
-\item{VPD0}{[hPa] -> Parameters VPD0 fixed to 10 hPa according to
+\item{VPD0}{\link{hPa} -> Parameters VPD0 fixed to 10 hPa according to
 Lasslop et al 2010}
 
 \item{fixVPD}{boolean scalar or vector of nrow theta: fixVPD if TRUE the VPD

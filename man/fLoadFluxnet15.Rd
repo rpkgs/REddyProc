@@ -15,12 +15,12 @@ fLoadFluxnet15(
 \item{file_path}{scalar string: the path to the csv file}
 
 \item{additional_columns}{character vector of columns to
-read in addition of standard columns of \code{\link{read_from_fluxnet15}}.
-Can be a character vector or a object return by \code{\link{cols}}}
+read in addition of standard columns of \code{\link[=read_from_fluxnet15]{read_from_fluxnet15()}}.
+Can be a character vector or a object return by \code{\link[=cols]{cols()}}}
 
 \item{colname_NEE}{name (scalar string) of column that reports NEE observations}
 
-\item{...}{further arguments to \code{\link{read_csv}}}
+\item{...}{further arguments to \code{\link[=read_csv]{read_csv()}}}
 }
 \description{
 Assigns default units to the columns and keeps variable name attributes

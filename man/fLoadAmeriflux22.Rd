@@ -9,12 +9,12 @@ fLoadAmeriflux22(file_path, ...)
 \arguments{
 \item{file_path}{scalar string: the path to the csv file}
 
-\item{...}{further arguments to \code{\link{read_csv}}}
+\item{...}{further arguments to \code{\link[=read_csv]{read_csv()}}}
 }
 \description{
 Reads Variables from file into data.frame from file and passes
-it to \code{\link{read_from_ameriflux22}}.
+it to \code{\link[=read_from_ameriflux22]{read_from_ameriflux22()}}.
 }
 \seealso{
-\code{\link{read_from_ameriflux22}} \code{\link{help_export}}
+\code{\link[=read_from_ameriflux22]{read_from_ameriflux22()}} \code{\link[=help_export]{help_export()}}
 }

@@ -2,19 +2,19 @@
 % Please edit documentation in R/LRC_nonrectangular.R
 \name{NonrectangularLRCFitter_computeGPPGradient}
 \alias{NonrectangularLRCFitter_computeGPPGradient}
-\title{Gradient of [NonrectangularLRCFitter_predictGPP()]}
+\title{Gradient of \code{\link[=NonrectangularLRCFitter_predictGPP]{NonrectangularLRCFitter_predictGPP()}}}
 \usage{
 NonrectangularLRCFitter_computeGPPGradient(Rg, Amax, alpha, logitconv)
 }
 \arguments{
-\item{Rg}{photosynthetic flux density [umol / m2 / s] or Global Radiation}
+\item{Rg}{photosynthetic flux density \link{umol / m2 / s} or Global Radiation}
 
-\item{Amax}{[numeric] saturation (beta parameter) adjusted for effect of VPD}
+\item{Amax}{saturation (beta parameter) adjusted for effect of VPD}
 
-\item{alpha}{[numeric] slope at Rg = 0}
+\item{alpha}{slope at Rg = 0}
 
-\item{logitconv}{[numeric] -> logit-transformed convexity parameter}
+\item{logitconv}{-> logit-transformed convexity parameter}
 }
 \description{
-Gradient of [NonrectangularLRCFitter_predictGPP()]
+Gradient of \code{\link[=NonrectangularLRCFitter_predictGPP]{NonrectangularLRCFitter_predictGPP()}}
 }

@@ -695,12 +695,12 @@ sEddyProc$methods(sMDSGapFill = sEddyProc_sMDSGapFill)
 #' @title sEddyProc$sMDSGapFillAfterUstar - MDS gap filling algorithm after u*
 #' filtering
 #' 
-#' @description Calling \code{\link{sEddyProc_sMDSGapFill}} after filtering for
+#' @description Calling [sEddyProc_sMDSGapFill()] after filtering for
 #' (provided) friction velocity u*
 #' 
-#' @details The u* threshold(s) are provided with argument \code{uStarTh} for
+#' @details The u* threshold(s) are provided with argument `uStarTh` for
 #' filtering the conditions of low turbulence. After filtering, the data is gap
-#' filled using the MDS algorithm \code{\link{sEddyProc_sMDSGapFill}}.
+#' filled using the MDS algorithm [sEddyProc_sMDSGapFill()].
 #' 
 #' @param fluxVar Flux variable to gap fill after ustar filtering 
 #' @param uStarVar Column name of friction velocity u* (ms-1), default 'Ustar'
@@ -716,7 +716,7 @@ sEddyProc$methods(sMDSGapFill = sEddyProc_sMDSGapFill)
 #' @param swThr threshold of solar radiation below which data is marked as night
 #' time respiration.
 #' @param RgColName Column name of incoming short wave radiation
-#' @param ... Other arguments passed to \code{\link{sEddyProc_sMDSGapFill}}
+#' @param ... Other arguments passed to [sEddyProc_sMDSGapFill()]
 #' 
 #' @return Vector with quality flag from filtering: 
 #' 0: good data, 
@@ -728,9 +728,9 @@ sEddyProc$methods(sMDSGapFill = sEddyProc_sMDSGapFill)
 #' Gap filling results are in sTEMP data frame (with renamed columns) that can be 
 #' retrieved by [sEddyProc_sExportResults()].
 #' 
-#' @seealso \code{\link{sEddyProc_sEstimateUstarScenarios}}, 
-#' \code{\link{sEddyProc_sEstUstarThold}} for estimating the u* threshold from 
-#' the data. \code{\link{sEddyProc_sMDSGapFillUStarScens}} for automated gapfilling 
+#' @seealso [sEddyProc_sEstimateUstarScenarios()], 
+#' [sEddyProc_sEstUstarThold()] for estimating the u* threshold from 
+#' the data. [sEddyProc_sMDSGapFillUStarScens()] for automated gapfilling 
 #' for several scenarios of u* threshold estimates.
 #'
 #' @author AMM, TW

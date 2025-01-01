@@ -51,8 +51,7 @@ NonrectangularLRCFitter$methods(
   #' @param medianRelFluxUncertainty numeric scalar: median across the relative
   #' uncertainty of the flux values, i.e. sdNEE / NEE
   #' @param nRec integer scalar: number of finite observations
-  #' @param ctrl list of further controls, with entry \code{isLasslopPriorsApplied}
-  #' 
+  #' @param ctrl list of further controls, with entry `isLasslopPriorsApplied`
   getPriorScale = function(thetaPrior, medianRelFluxUncertainty, nRec, ctrl) {
     ans <- callSuper(
       thetaPrio = thetaPrior,
@@ -131,9 +130,9 @@ NonrectangularLRCFitter$methods(predictLRC = NonrectangularLRCFitter_predictLRC)
 #' Nonrectangular Light Response function for GPP
 #'
 #' @param Rg photosynthetic flux density [umol / m2 / s] or Global Radiation
-#' @param Amax [numeric] saturation (beta parameter) adjusted for effect of VPD
-#' @param alpha [numeric] slope at Rg = 0
-#' @param conv [numeric] convexity parameter (see details)
+#' @param Amax saturation (beta parameter) adjusted for effect of VPD
+#' @param alpha slope at Rg = 0
+#' @param conv convexity parameter (see details)
 #'
 #' @seealso [LightResponseCurveFitter_predictGPP()]
 #' @export
@@ -157,10 +156,10 @@ NonrectangularLRCFitter$methods(predictGPP = NonrectangularLRCFitter_predictGPP)
 #' @details This function computes the gradient of the Nonrectangular Light Response
 #' Curve function with respect to the parameters.
 #' 
-#' Differs from base by extracting \code{conv} parameter from \code{theta} and adding
-#' gradient to \code{logitconv} (3rd parameter from computeGPPGradient).
+#' Differs from base by extracting `conv` parameter from `theta` and adding
+#' gradient to `logitconv` (3rd parameter from computeGPPGradient).
 #' 
-#' @param theta [numeric] -> parameter vector (
+#' @param theta -> parameter vector (
 #' theta[1] = kVPD (k),
 #' theta[2] = beta0 (beta),
 #' theta[3] = alpha,
@@ -249,7 +248,7 @@ NonrectangularLRCFitter$methods(
 #' Gradient of [NonrectangularLRCFitter_predictGPP()]
 #' 
 #' @inheritParams NonrectangularLRCFitter_predictGPP
-#' @param logitconv [numeric] -> logit-transformed convexity parameter
+#' @param logitconv -> logit-transformed convexity parameter
 NonrectangularLRCFitter_computeGPPGradient <- function(Rg, Amax, alpha, logitconv) {
   zRoot <- ((alpha * Rg + Amax)^2) - (4 * alpha * Rg * invlogit(logitconv) * Amax)
   iNegRoot <- which(zRoot < 0)

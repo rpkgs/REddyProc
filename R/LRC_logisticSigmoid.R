@@ -10,13 +10,13 @@ LogisticSigmoidLRCFitter <- setRefClass("LogisticSigmoidLRCFitter",
 #'
 #' @details `GPP <- Amax * tanh(alpha * Rg / Amax)`
 #'
-#' @param Rg [numeric] ppfd -> photosynthetic flux density [mumol / m2 / s] or Global Radiation
-#' @param Amax [numeric] saturation (beta parameter) adjusted for effect of VPD
-#' @param alpha [numeric] slope at Rg = 0
+#' @param Rg ppfd -> photosynthetic flux density [mumol / m2 / s] or Global Radiation
+#' @param Amax saturation (beta parameter) adjusted for effect of VPD
+#' @param alpha slope at Rg = 0
 #'
 #' @seealso [LightResponseCurveFitter_predictGPP()]
 #' @return
-#' - `GPP`: [numeric] vector of GPP
+#' - `GPP`: vector of GPP
 #' - `GPPGradient`: [numeric matrix] of gradients of predicted GPP to Amax and alpha
 #'
 #' @rdname LogisticSigmoidLRCFitter
@@ -28,7 +28,6 @@ LogisticSigmoidLRCFitter_predictGPP <- function(Rg, Amax, alpha) {
 LogisticSigmoidLRCFitter$methods(predictGPP = LogisticSigmoidLRCFitter_predictGPP)
 
 #' @rdname LogisticSigmoidLRCFitter
-#' @inheritParams LogisticSigmoidLRCFitter_predictGPP
 #' @export
 LogisticSigmoidLRCFitter_computeGPPGradient <- function(Rg, Amax, alpha) {
   # ex <- expression(  Amax * tanh(alpha * Rg / Amax) ); deriv(ex, c("Amax", "alpha"))

@@ -14,7 +14,7 @@ NEE, LE, H, USTAR, TA, TS, VPD, SW_IN and optionally USTAR_QC}
 }
 \value{
 data.frame with additional columns 'DateTime', 'NEE','Ustar' and
-  'Rg','Tair','Tsoil' if columns 'SW_IN','TA', or 'TS' are present respectively
+'Rg','Tair','Tsoil' if columns 'SW_IN','TA', or 'TS' are present respectively
 }
 \description{
 Column format as described at

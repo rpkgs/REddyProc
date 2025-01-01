@@ -2,7 +2,7 @@
 % Please edit documentation in R/LRC_nonrectangular.R
 \name{NonrectangularLRCFitter_computeLRCGradient}
 \alias{NonrectangularLRCFitter_computeLRCGradient}
-\title{Gradient of [NonrectangularLRCFitter_predictLRC()]}
+\title{Gradient of \code{\link[=NonrectangularLRCFitter_predictLRC]{NonrectangularLRCFitter_predictLRC()}}}
 \usage{
 NonrectangularLRCFitter_computeLRCGradient(
   theta,
@@ -15,31 +15,31 @@ NonrectangularLRCFitter_computeLRCGradient(
 )
 }
 \arguments{
-\item{theta}{[numeric] -> parameter vector (
-theta[1] = kVPD (k),
-theta[2] = beta0 (beta),
-theta[3] = alpha,
-theta[4] = RRef (rb), # theta[4] = E0,
-theta[5] = logitconv)}
+\item{theta}{-> parameter vector (
+theta\link{1} = kVPD (k),
+theta\link{2} = beta0 (beta),
+theta\link{3} = alpha,
+theta\link{4} = RRef (rb), # theta\link{4} = E0,
+theta\link{5} = logitconv)}
 
-\item{Rg}{photosynthetic flux density [umol / m2 / s] or Global Radiation}
+\item{Rg}{photosynthetic flux density \link{umol / m2 / s} or Global Radiation}
 
-\item{VPD}{Vapor Pressure Deficit [hPa]}
+\item{VPD}{Vapor Pressure Deficit \link{hPa}}
 
-\item{Temp}{Temperature [degC]}
+\item{Temp}{Temperature \link{degC}}
 
-\item{VPD0}{[hPa] -> Parameters VPD0 fixed to 10 hPa according to
+\item{VPD0}{\link{hPa} -> Parameters VPD0 fixed to 10 hPa according to
 Lasslop et al 2010}
 
 \item{fixVPD}{boolean scalar or vector of nrow(theta):
 fixVPD if TRUE the VPD effect is not considered and VPD is not part
 of the computation}
 
-\item{TRef}{numeric scalar of Temperature (degree Celsius) for reference 
-respiration `RRef`}
+\item{TRef}{numeric scalar of Temperature (degree Celsius) for reference
+respiration \code{RRef}}
 }
 \description{
-Gradient of [NonrectangularLRCFitter_predictLRC()]
+Gradient of \code{\link[=NonrectangularLRCFitter_predictLRC]{NonrectangularLRCFitter_predictLRC()}}
 }
 \details{
 This function computes the gradient of the Nonrectangular Light Response
