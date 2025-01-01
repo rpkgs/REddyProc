@@ -60,7 +60,7 @@
 <span>    suffix <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/missing.html" class="external-link">missing</a></span><span class="op">(</span><span class="va">Suffix.s</span><span class="op">)</span><span class="op">)</span> <span class="va">Suffix.s</span> <span class="kw">else</span> <span class="st">""</span>, </span>
 <span>    <span class="va">NEEVar.s</span>, <span class="va">TempVar.s</span>, <span class="va">VPDVar.s</span>, <span class="va">RadVar.s</span>, </span>
 <span>    <span class="va">Suffix.s</span>, <span class="va">...</span>, controlGLPart <span class="op">=</span> <span class="fu"><a href="partGLControl.html">partGLControl</a></span><span class="op">(</span><span class="op">)</span>, </span>
-<span>    isVerbose <span class="op">=</span> <span class="cn">TRUE</span>, nRecInDay <span class="op">=</span> <span class="fl">48L</span>, lrcFitter <span class="op">=</span> <span class="fu"><a href="RectangularLRCFitter.html">RectangularLRCFitter</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>    isVerbose <span class="op">=</span> <span class="cn">TRUE</span>, nRecInDay <span class="op">=</span> <span class="fl">48L</span>, lrcFitter <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/REddyProc/man/RectangularLRCFitter-class.html" class="external-link">RectangularLRCFitter</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -122,7 +122,7 @@ see <code><a href="partGLControl.html">partGLControl</a></code></p></dd>
   <dt id="arg-lrcfitter">lrcFitter<a class="anchor" aria-label="anchor" href="#arg-lrcfitter"></a></dt>
 <dd><p>R5 class instance
 responsible for fitting the light response curve.
-Current possibilities are <code><a href="RectangularLRCFitter.html">RectangularLRCFitter()</a></code>,
+Current possibilities are <code><a href="https://rdrr.io/pkg/REddyProc/man/RectangularLRCFitter-class.html" class="external-link">RectangularLRCFitter()</a></code>,
 <code><a href="NonrectangularLRCFitter.html">NonrectangularLRCFitter()</a></code>,
 and <code><a href="LogisticSigmoidLRCFitter.html">LogisticSigmoidLRCFitter()</a></code>.</p></dd>
 
@@ -135,7 +135,7 @@ gross primary production (GPP) and ecosystem respiration (Reco)</p>
 hyperbolic function, as in Lasslop et al. (2010)
 Alternative fittings can be used by providing the corresponding subclass of
 <code><a href="LightResponseCurveFitter-class.html">LightResponseCurveFitter-class</a></code> to <code>lrcFitter</code> argument.
-(see <code><a href="LightResponseCurveFitter_predictGPP.html">LightResponseCurveFitter_predictGPP</a></code>)</p>
+(see <code>LightResponseCurveFitter_predictGPP</code>)</p>
 <p>While the extrapolation uses filled data, the parameter optimization
 may use only measured data, i.e. with specified quality flag.
 Even with using filled VPD, there may be large gaps that have not been
@@ -195,7 +195,7 @@ that has a parameter estimate associated</p></dd>
 <dt>FP_errorcode</dt>
 <dd><p>information why LRC-fit was not
 successful or was rejected, see result of
-<code><a href="LightResponseCurveFitter_fitLRC.html">LightResponseCurveFitter_fitLRC</a></code></p></dd>
+<code>LightResponseCurveFitter_fitLRC</code></p></dd>
 
 <dt>FP_GPP2000</dt>
 <dd><p>predicted GPP at VPD = 0 and PAR = 2000:
