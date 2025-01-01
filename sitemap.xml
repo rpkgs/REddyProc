@@ -45,6 +45,7 @@
 <url><loc>/reference/RectangularLRCFitterCVersion_computeCost.html</loc></url>
 <url><loc>/reference/RectangularLRCFitter_computeGPPGradient.html</loc></url>
 <url><loc>/reference/RectangularLRCFitter_predictGPP.html</loc></url>
+<url><loc>/reference/applyWindows.html</loc></url>
 <url><loc>/reference/estimate_vpd_from_dew.html</loc></url>
 <url><loc>/reference/extract_FN15.html</loc></url>
 <url><loc>/reference/fCalcAVPfromVMFandPress.html</loc></url>
@@ -69,6 +70,7 @@
 <url><loc>/reference/fSplitDateTime.html</loc></url>
 <url><loc>/reference/fWriteDataframeToFile.html</loc></url>
 <url><loc>/reference/fWriteFrench23.html</loc></url>
+<url><loc>/reference/fillNAForward.html</loc></url>
 <url><loc>/reference/filterLongRuns.html</loc></url>
 <url><loc>/reference/filterLongRunsInVector.html</loc></url>
 <url><loc>/reference/filter_entire_days.html</loc></url>
@@ -78,6 +80,7 @@
 <url><loc>/reference/getExamplePath.html</loc></url>
 <url><loc>/reference/getFilledExampleDETha98Data.html</loc></url>
 <url><loc>/reference/getREddyProcExampleDir.html</loc></url>
+<url><loc>/reference/getStartRecsOfWindows.html</loc></url>
 <url><loc>/reference/getTZone.html</loc></url>
 <url><loc>/reference/get_day_boundaries.html</loc></url>
 <url><loc>/reference/get_timestep_hours.html</loc></url>
@@ -87,7 +90,10 @@
 <url><loc>/reference/index.html</loc></url>
 <url><loc>/reference/partGLControl.html</loc></url>
 <url><loc>/reference/partGLControlLasslopCompatible.html</loc></url>
+<url><loc>/reference/partGLEstimateTempSensInBoundsE0Only.html</loc></url>
 <url><loc>/reference/partGLExtractStandardData.html</loc></url>
+<url><loc>/reference/partGLFitNightTimeTRespSens.html</loc></url>
+<url><loc>/reference/partGLSmoothTempSens.html</loc></url>
 <url><loc>/reference/partitionNEEGL.html</loc></url>
 <url><loc>/reference/pipe.html</loc></url>
 <url><loc>/reference/read_from_ameriflux22.html</loc></url>
@@ -137,6 +143,7 @@
 <url><loc>/reference/sEddyProc_update_ustarthreshold_columns.html</loc></url>
 <url><loc>/reference/sEddyProc_useAnnualUStarThresholds.html</loc></url>
 <url><loc>/reference/sEddyProc_useSeaonsalUStarThresholds.html</loc></url>
+<url><loc>/reference/simplifyApplyWindows.html</loc></url>
 <url><loc>/reference/usControlUstarEst.html</loc></url>
 <url><loc>/reference/usControlUstarSubsetting.html</loc></url>
 <url><loc>/reference/usCreateSeasonFactorMonth.html</loc></url>
