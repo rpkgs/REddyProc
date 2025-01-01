@@ -34,8 +34,12 @@
 <url><loc>/reference/LogisticSigmoidLRCFitter_predictGPP.html</loc></url>
 <url><loc>/reference/NonrectangularLRCFitter-class.html</loc></url>
 <url><loc>/reference/NonrectangularLRCFitter.html</loc></url>
+<url><loc>/reference/NonrectangularLRCFitter_computeGPPGradient.html</loc></url>
+<url><loc>/reference/NonrectangularLRCFitter_computeLRCGradient.html</loc></url>
+<url><loc>/reference/NonrectangularLRCFitter_getOptimizedParameterPositions.html</loc></url>
 <url><loc>/reference/NonrectangularLRCFitter_getParameterNames.html</loc></url>
 <url><loc>/reference/NonrectangularLRCFitter_predictGPP.html</loc></url>
+<url><loc>/reference/NonrectangularLRCFitter_predictLRC.html</loc></url>
 <url><loc>/reference/POSIXctToBerkeleyJulianDate.html</loc></url>
 <url><loc>/reference/REddyProc-package.html</loc></url>
 <url><loc>/reference/REddyProc_defaultunits.html</loc></url>

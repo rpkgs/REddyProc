@@ -157,23 +157,29 @@
 <span><span class="va">EProc</span><span class="op">$</span><span class="fu">sPlotFingerprintY</span><span class="op">(</span><span class="st">'NEE_f'</span>, Year <span class="op">=</span> <span class="fl">1998</span><span class="op">)</span></span></code></pre></div>
 <p><img src="README-example-1.png"><!-- --></p>
 <p>Further examples are in <a href="https://github.com/EarthyScience/REddyProc/blob/master/vignettes/useCase.md" class="external-link">vignette(useCase)</a> and <a href="https://github.com/EarthyScience/REddyProc/blob/master/vignettes/DEGebExample.md" class="external-link">vignette(DEGebExample)</a> and further md-files of the <a href="https://github.com/EarthyScience/REddyProc/blob/master/vignettes" class="external-link">vignettes directory</a>.</p>
-</div>
-<div class="section level2">
-<h2 id="docker-images">Docker images<a class="anchor" aria-label="anchor" href="#docker-images"></a>
-</h2>
-<p>Docker images are provided that comprise rstudio, rocker/tidyverse, and REddyProc. There are different version for the latest push to github, for the version on CRAN and for specific tags starting from 1.1.4.</p>
-<ul>
-<li>EarthyScience/reddyproc:latest<br>
-</li>
-<li>EarthyScience/reddyproc_cran</li>
-<li>EarthyScience/reddyproc:<code>tag</code>
-</li>
-</ul>
-<p>They are usually run with installed docker by typing at a shell:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>docker run <span class="sc">--</span>rm <span class="sc">-</span>p <span class="dv">8787</span><span class="sc">:</span><span class="dv">8787</span> <span class="sc">-</span>e PASSWORD<span class="ot">=</span>REddyProc <span class="sc">&lt;</span>imagename<span class="sc">&gt;</span></span></code></pre></div>
-<p>Then the loading url <code>localhost:8787</code> in a browser window should bring up RStudio<br>
-(default username is rstudio and password was set to REddyProc), where you can type the above usage example.</p>
-<p>For processing your own files in docker you need to mount local directories with the <a href="https://docs.docker.com/storage/bind-mounts/" class="external-link">–mount option</a>, e.g. <code>--mount type=bind,source=/home/twutz/devR,target=/home/rstudio/devR -e USERID=$UID</code></p>
+<!-- ## Docker images
+
+Docker images are provided that comprise rstudio, rocker/tidyverse, and
+REddyProc. There are different version for the latest push to github,
+for the version on CRAN and for specific tags starting from 1.1.4.
+
+- EarthyScience/reddyproc:latest
+- EarthyScience/reddyproc_cran
+- EarthyScience/reddyproc:`tag`
+
+They are usually run with installed docker by typing at a shell:
+
+    docker run --rm -p 8787:8787 -e PASSWORD=REddyProc <imagename>
+
+Then the loading url `localhost:8787` in a browser window should bring
+up RStudio
+(default username is rstudio and password was set to REddyProc), where
+you can type the above usage example.
+
+For processing your own files in docker you need to mount local
+directories with the [–mount
+option](https://docs.docker.com/storage/bind-mounts/), e.g.
+`--mount type=bind,source=/home/twutz/devR,target=/home/rstudio/devR -e USERID=$UID` -->
 </div>
 <div class="section level2">
 <h2 id="reference">Reference<a class="anchor" aria-label="anchor" href="#reference"></a>
