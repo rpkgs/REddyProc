@@ -66,8 +66,15 @@ RectangularLRCFitterCVersion <- setRefClass('RectangularLRCFitterCVersion',
 	### to a C-version (\code{\link{RectangularLRCFitter_C_computeCost}}).
 )
 
+#' Computing residual sum of squares for predictions vs. data of NEE
+#' 
+#' @param thetaOpt parameter vector with components of theta0 that are optimized
+#' @param theta parameter vector with positions as in argument of
+#' [LightResponseCurveFitter_getParameterNames()]
+#' 
+#' @export
 RectangularLRCFitterCVersion_computeCost <- function(
-  ### Computing residual sum of squares for predictions vs. data of NEE
+  ### 
   thetaOpt   ##<< parameter vector with components of theta0 that are optimized
   , theta		##<< parameter vector with positions as in argument of
     ## \code{\link{LightResponseCurveFitter_getParameterNames}}
@@ -95,13 +102,6 @@ RectangularLRCFitterCVersion_computeCost <- function(
 	  theta, flux, sdFlux, parameterPrior, sdParameterPrior
 	  , ..., VPD0 = VPD0, fixVPD = fixVPD)
 }
-RectangularLRCFitterCVersion$methods(computeCost =
-                                       RectangularLRCFitterCVersion_computeCost)
 
-
-
-
-
-
-
-
+RectangularLRCFitterCVersion$methods(
+  computeCost = RectangularLRCFitterCVersion_computeCost)

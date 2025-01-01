@@ -160,22 +160,26 @@ test_that("Time format values unvalid (fCheckOutsideRange)",{
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-test_that("Time format missing cols (fCheckColNames)",{
-	expect_error(
-			res <- fConvertTimeToPosix(
-			  Date.F.x, "YDH", Year = "FluxnetYear.n", Day = "FluxnetDoY.n", Hour = "hr" )
-	)
+test_that("Time format missing cols (fCheckColNames)", {
+  expect_error(
+    res <- fConvertTimeToPosix(
+      Date.F.x, "YDH",
+      Year = "FluxnetYear.n", Day = "FluxnetDoY.n", Hour = "hr"
+    )
+  )
 })
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-test_that("Time Format non-numeric cols (fCheckColNumeric)",{
-			expect_error(
-					res <- fConvertTimeToPosix(
-					  Date.F.x, "YDH", Year = "FluxnetYear.n", Day = "FluxnetDoY.n"
-					  , Hour = "Description.s" )
-			)
-		})
+test_that("Time Format non-numeric cols (fCheckColNumeric)", {
+  expect_error(
+    res <- fConvertTimeToPosix(
+      Date.F.x, "YDH",
+      Year = "FluxnetYear.n", Day = "FluxnetDoY.n",
+      Hour = "Description.s"
+    )
+  )
+})
 
 test_that("reading Berkeley",{
   res  <- fConvertTimeToPosix(
@@ -228,7 +232,3 @@ test_that("filter_years_eop",{
   # check that attributes are copied
   expect_equal(sapply(dss, attributes), sapply(ds2yr, attributes))
 })
-
-
-
-

@@ -93,7 +93,7 @@ and
 and further md-files of the [vignettes
 directory](https://github.com/EarthyScience/REddyProc/blob/master/vignettes).
 
-## Docker images
+<!-- ## Docker images
 
 Docker images are provided that comprise rstudio, rocker/tidyverse, and
 REddyProc. There are different version for the latest push to github,
@@ -115,7 +115,7 @@ you can type the above usage example.
 For processing your own files in docker you need to mount local
 directories with the [–mount
 option](https://docs.docker.com/storage/bind-mounts/), e.g.
-`--mount type=bind,source=/home/twutz/devR,target=/home/rstudio/devR -e USERID=$UID`
+`--mount type=bind,source=/home/twutz/devR,target=/home/rstudio/devR -e USERID=$UID` -->
 
 ## Reference
 

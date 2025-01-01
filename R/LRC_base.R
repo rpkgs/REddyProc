@@ -550,65 +550,69 @@ LightResponseCurveFitter_computeCost <- function(
 	#if (!is.finite(RSS) ) recover()	# debugging the fit
 	RSS
 }
-LightResponseCurveFitter$methods(computeCost =
-                                   LightResponseCurveFitter_computeCost)
+LightResponseCurveFitter$methods(
+  computeCost = LightResponseCurveFitter_computeCost)
 
+#' Light Response Function
+#' 
+#' Predicts the Net Ecosystem Production (NEP), Ecosystem Respiration (Reco) and
+#' Gross Primary Production (GPP) based on the Light Response Function.
+#' 
+#' The VPD effect is included according to Lasslop et al., 2010.
+#' 
+#' @param theta numeric vector of parameters. If theta is a matrix, a different
+#' row of parameters is used for different entries of other inputs.
+#' 
+#' 
+#' 
+#' @param Rg ppfd [numeric] -> photosynthetic flux density [mumol / m2 / s] or
+#' Global Radiation.
+#' @param VPD VPD [numeric] -> Vapor Pressure Deficit [hPa]
+#' @param Temp Temp [numeric] -> Temperature [degC]
+#' @param VPD0 VPD0 [hPa] -> Parameters VPD0 fixed to 10 hPa according to Lasslop et al 2010
+#' @param fixVPD if TRUE the VPD effect is not considered and VPD is not part of the computation
+#' @param TRef numeric scalar of Temperature (degree Celsius) for reference respiration RRef
+#' 
+#' @return 
+#' - NEP: Net ecosystem production (-NEE), vector of length(Rg)
+#' - Reco: Ecosystem respiration
+#' - GPP: Gross primary production
+#' 
 #' @export
 LightResponseCurveFitter_predictLRC <- function(
-		### Light Response Function
-		theta   ##<< numeric vector of parameters
-		, Rg   	##<< ppfd [numeric] -> photosynthetic flux density
-		  ## [umol / m2 / s] or Global Radiation
-		, VPD 	##<< VPD [numeric] -> Vapor Pressure Deficit [hPa]
-		, Temp 	##<< Temp [degC] -> Temperature [degC]
-		, VPD0 = 10 			##<< VPD0 [hPa] -> Parameters VPD0 fixed to 10 hPa
-		  ## according to Lasslop et al 2010
-		, fixVPD = (k == 0)   	##<< boolean scalar or vector of nrow theta:
-		  ## fixVPD if TRUE the VPD effect is not considered and VPD is not part
-		  ## of the computation
-		, TRef = 15			##<< numeric scalar of Temperature (degree Celsius) for
-		  ## reference respiration RRef
-) {
-	##details<<
-	## Predict ecosystem fluxes (Reco, GPP, NEP = GPP-Reco) for given parameters
-	## and environmental conditions.
-	##
-	## The VPD effect is included according to Lasslop et al., 2010.
-	##details<<
-	## If theta is a matrix, a different row of parameters is used for different
-	## entries of other inputs
-	if (is.matrix(theta) ) {
-		k <- theta[, 1]
-		beta <- theta[, 2]
-		alpha <- theta[, 3]
-		RRef <- theta[, 4]
-		E0 <- theta[, 5]
-	} else {
-		k <- theta[1]
-		beta <- theta[2]
-		alpha <- theta[3]
-		RRef <- theta[4]
-		E0 <- theta[5]
-	}
-	if (length(fixVPD) != length(VPD) )
-		if (length(fixVPD) == 1L) fixVPD <- rep(fixVPD, length(VPD) ) else
-			stop("Length of vector argument fixVPD must correspond to rows in theta.")
-	Amax <- ifelse(fixVPD, beta,
-				#ifelse(is.finite(VPD) & (VPD > VPD0), beta * exp(-k * (VPD-VPD0)), beta)
-				#deprecated: better filter for k: twutz: 170927: introduced pmin(1, ...)
-				# after looking at pvWave code, can happen if k is negative
-				ifelse((VPD > VPD0), beta * exp(-k * (VPD - VPD0)), beta)
-			)
-	Reco <- RRef * exp(E0 * (1 / ((273.15 + TRef) - 227.13) - 1 /
-	                           (Temp + 273.15 - 227.13)))
-	GPP <- .self$predictGPP(Rg, Amax = Amax, alpha = alpha)
-	NEP <- GPP - Reco
-	## a data.frame of length of Rg of computed
-	ans <- list(
-			NEP = NEP		##<< Net ecosystem production (-NEE), vector of length(Rg)
-			, Reco = Reco	##<< Ecosystem respiration
-			, GPP = GPP	##<< Gross primary production
-	)
+    theta, Rg, VPD, Temp, VPD0 = 10, fixVPD = (k == 0), TRef = 15) {
+  if (is.matrix(theta)) {
+    k <- theta[, 1]
+    beta <- theta[, 2]
+    alpha <- theta[, 3]
+    RRef <- theta[, 4]
+    E0 <- theta[, 5]
+  } else {
+    k <- theta[1]
+    beta <- theta[2]
+    alpha <- theta[3]
+    RRef <- theta[4]
+    E0 <- theta[5]
+  }
+  if (length(fixVPD) != length(VPD)) {
+    if (length(fixVPD) == 1L) {
+      fixVPD <- rep(fixVPD, length(VPD))
+    } else {
+      stop("Length of vector argument fixVPD must correspond to rows in theta.")
+    }
+  }
+  Amax <- ifelse(fixVPD, beta,
+    # ifelse(is.finite(VPD) & (VPD > VPD0), beta * exp(-k * (VPD-VPD0)), beta)
+    # deprecated: better filter for k: twutz: 170927: introduced pmin(1, ...)
+    # after looking at pvWave code, can happen if k is negative
+    ifelse((VPD > VPD0), beta * exp(-k * (VPD - VPD0)), beta)
+  )
+  Reco <- RRef * exp(E0 * (1 / ((273.15 + TRef) - 227.13) - 1 /
+    (Temp + 273.15 - 227.13)))
+  GPP <- .self$predictGPP(Rg, Amax = Amax, alpha = alpha)
+  NEP <- GPP - Reco
+  ## a data.frame of length of Rg of computed
+  ans <- list(NEP = NEP, Reco = Reco, GPP = GPP)
 }
 LightResponseCurveFitter$methods(	predictLRC = LightResponseCurveFitter_predictLRC)
 
