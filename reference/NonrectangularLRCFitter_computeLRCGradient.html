@@ -83,7 +83,7 @@
 <span>  <span class="va">Rg</span>,</span>
 <span>  <span class="va">VPD</span>,</span>
 <span>  <span class="va">Temp</span>,</span>
-<span>  <span class="va">VPD0</span>,</span>
+<span>  VPD0 <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  fixVPD <span class="op">=</span> <span class="op">(</span><span class="va">k</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span>,</span>
 <span>  TRef <span class="op">=</span> <span class="fl">15</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -110,6 +110,10 @@ theta[5] = logitconv)</p></dd>
 <dd><p>Vapor Pressure Deficit [hPa]</p></dd>
 
 
+<dt id="arg-temp">Temp<a class="anchor" aria-label="anchor" href="#arg-temp"></a></dt>
+<dd><p>Temperature [degC]</p></dd>
+
+
 <dt id="arg-vpd-">VPD0<a class="anchor" aria-label="anchor" href="#arg-vpd-"></a></dt>
 <dd><p>[hPa] -&gt; Parameters VPD0 fixed to 10 hPa according to
 Lasslop et al 2010</p></dd>
@@ -124,10 +128,6 @@ of the computation</p></dd>
 <dt id="arg-tref">TRef<a class="anchor" aria-label="anchor" href="#arg-tref"></a></dt>
 <dd><p>numeric scalar of Temperature (degree Celsius) for reference
 respiration `RRef`</p></dd>
-
-
-<dt id="arg-temp">Temp<a class="anchor" aria-label="anchor" href="#arg-temp"></a></dt>
-<dd><p>Temperature [degC]</p></dd>
 
 </dl></div>
     <div id="details">
