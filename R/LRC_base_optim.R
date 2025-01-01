@@ -3,13 +3,13 @@
 #' @param theta numeric vector of parameters
 #' @param iOpt integer vector of positions of parameters that are optimized
 #' @param sdParameterPrior numeric vector of standard deviation of parameterPrior
-#' @param ... other arguments to [LightResponseCurveFitter_computeCost()]
+#' @param ... other arguments to [LRC_computeCost()]
 #' @param ctrl list of further controls
 #' @param isUsingHessian scalar boolean: set to TRUE to compute Hessian at optimum
 #'
 #' @return list of result of [optim()] amended with list
 #' @export
-LightResponseCurveFitter_optimLRC <- function(
+LRC_optimLRC <- function(
     theta, iOpt, sdParameterPrior, ..., ctrl, isUsingHessian) {
   thetaOrig <- theta
   resOptim <- optim(thetaOrig[iOpt], .self$computeCost,
@@ -24,7 +24,7 @@ LightResponseCurveFitter_optimLRC <- function(
   ans <- list(theta = thetaOpt, iOpt = iOpt)
   c(resOptim, ans)
 }
-LightResponseCurveFitter$methods(optimLRC = LightResponseCurveFitter_optimLRC)
+LightResponseCurveFitter$methods(optimLRC = LRC_optimLRC)
 
 
 #' Computing residual sum of squares for predictions vs. data of NEE
@@ -42,11 +42,11 @@ LightResponseCurveFitter$methods(optimLRC = LightResponseCurveFitter_optimLRC)
 #' @param weightMisfitPar2000 weight of misfit of difference between
 #' saturation and prediction at PAR = 2000
 #' @param ... other arguments to
-#' [LightResponseCurveFitter_predictLRC()], such as VPD0, fixVPD
+#' [LRC_predictLRC()], such as VPD0, fixVPD
 #' @return numeric: residual sum of squares
 #'
 #' @export
-LightResponseCurveFitter_computeCost <- function(
+LRC_computeCost <- function(
     thetaOpt, theta, iOpt, flux, sdFlux, parameterPrior, sdParameterPrior, ...) {
   theta[iOpt] <- thetaOpt
   resPred <- .self$predictLRC(theta, ...)
@@ -61,7 +61,7 @@ LightResponseCurveFitter_computeCost <- function(
   RSS
 }
 LightResponseCurveFitter$methods(
-  computeCost = LightResponseCurveFitter_computeCost
+  computeCost = LRC_computeCost
 )
 
 #' Light Response Function
@@ -87,7 +87,7 @@ LightResponseCurveFitter$methods(
 #' - GPP: Gross primary production
 #'
 #' @export
-LightResponseCurveFitter_predictLRC <- function(
+LRC_predictLRC <- function(
     theta, Rg, VPD, Temp, VPD0 = 10, fixVPD = (k == 0), TRef = 15) {
   if (is.matrix(theta)) {
     k <- theta[, 1]
@@ -122,7 +122,7 @@ LightResponseCurveFitter_predictLRC <- function(
   ## a data.frame of length of Rg of computed
   ans <- list(NEP = NEP, Reco = Reco, GPP = GPP)
 }
-LightResponseCurveFitter$methods(predictLRC = LightResponseCurveFitter_predictLRC)
+LightResponseCurveFitter$methods(predictLRC = LRC_predictLRC)
 
 cal_Reco <- function(Temp, E0, RRef, TRef = 15) {
   RRef * exp(E0 * (1 / ((273.15 + TRef) - 227.13) - 1 / (Temp + 273.15 - 227.13)))
@@ -140,10 +140,10 @@ cal_Reco <- function(Temp, E0, RRef, TRef = 15) {
 #'
 #' @seealso [partitionNEEGL()]
 #' @export
-LightResponseCurveFitter_predictGPP <- function(Rg, ...) {
+LRC_predictGPP <- function(Rg, ...) {
   stop("Abstract method. Need to define in derived LRC class.")
 }
-LightResponseCurveFitter$methods(predictGPP = LightResponseCurveFitter_predictGPP)
+LightResponseCurveFitter$methods(predictGPP = LRC_predictGPP)
 
 
 #' Gradient of the Light Response Function
@@ -158,7 +158,7 @@ LightResponseCurveFitter$methods(predictGPP = LightResponseCurveFitter_predictGP
 #'
 #' @return list with gradient matrices. For each record (length(Rg)), c("k", "beta", "alpha", "RRef")
 #' @export
-LightResponseCurveFitter_computeLRCGradient <- function(
+LRC_computeLRCGradient <- function(
     theta, Rg, VPD, Temp, VPD0 = 10, fixVPD = (k == 0), TRef = 15) {
   if (is.matrix(theta)) {
     k <- theta[, 1]
@@ -216,5 +216,5 @@ LightResponseCurveFitter_computeLRCGradient <- function(
 }
 
 LightResponseCurveFitter$methods(
-  computeLRCGradient = LightResponseCurveFitter_computeLRCGradient
+  computeLRCGradient = LRC_computeLRCGradient
 )

@@ -15,7 +15,7 @@ RectangularLRCFitter <- setRefClass('RectangularLRCFitter'
 #' @param alpha slope at Rg = 0
 #' 
 #' @return numeric vector of GPP
-#' @seealso [LightResponseCurveFitter_predictGPP()]
+#' @seealso [LRC_predictGPP()]
 #' @export
 RectangularLRCFitter_predictGPP <- function(Rg, Amax, alpha) {
 	(Amax * alpha * Rg) / (alpha * Rg + Amax) # GPP
@@ -60,7 +60,7 @@ RectangularLRCFitterCVersion <- setRefClass('RectangularLRCFitterCVersion',
 #' 
 #' @param thetaOpt parameter vector with components of theta0 that are optimized
 #' @param theta parameter vector with positions as in argument of
-#' [LightResponseCurveFitter_getParameterNames()]
+#' [LRC_getParameterNames()]
 #' @param iOpt position in theta that are optimized
 #' @param flux numeric: NEP (-NEE) or GPP time series [umolCO2 / m2 / s],
 #' should not contain NA
@@ -70,7 +70,7 @@ RectangularLRCFitterCVersion <- setRefClass('RectangularLRCFitterCVersion',
 #' parameter (range of values)
 #' @param sdParameterPrior standard deviation of parameterPrior
 #' @param ... other arguments to
-#' [LightResponseCurveFitter_predictLRC], such as VPD0, fixVPD
+#' [LRC_predictLRC], such as VPD0, fixVPD
 #' @param VPD0 VPD0 [hPa] -> Parameters VPD0 fixed to 10 hPa according
 #' to Lasslop et al 2010
 #' @param fixVPD boolean scalar or vector of nrow theta:fixVPD

@@ -1,0 +1,107 @@
+```{r}
+set.seed(0815) 
+library(REddyProc)
+library(dplyr)
+library(data.table)
+library(hydroTools)
+library(Ipaper)
+library(magrittr)
+library(lubridate)
+```
+
+```{r}
+load_site <- function() {
+  DEGebExample %<>% mutate(VPD = fCalcVPDfromRHandTair(rH, Tair)) # hPa
+  EProc <- sEddyProc$new("DE-Geb", DEGebExample, c("NEE", "Rg", "Tair", "VPD", "Ustar"))
+  EProc$sSetLocationInfo(LatDeg = 51.1, LongDeg = 10.9, TimeZoneHour = 1) # Location of Gebesee
+  EProc
+}
+
+dt = data.table(DEGebExample)
+# data.table(DEGebExample)
+# DEGebExample$VPD %>% attributes()
+```
+
+```{r}
+seasonStarts <- dplyr::tribble(
+  ~doy, ~year,
+  70, 2004,
+  210, 2004,
+  320, 2004,
+  70, 2005,
+  180, 2005,
+  320, 2005,
+  120, 2006,
+  305, 2006
+) 
+
+seasonFactor = create_season(DEGebExample$DateTime - dminutes(15), seasonStarts)
+table(seasonFactor)
+```
+
+```{r}
+EProc <- load_site()
+(uStarTh <- EProc$sEstUstarThold(seasonFactor = seasonFactor))
+# 采用动态阈值
+EProc$useSeaonsalUStarThresholds()
+EProc$sGetUstarScenarios()
+```
+
+## bootstrap采样
+```{r}
+EProc <- load_site()
+EProc$sEstimateUstarScenarios(
+  seasonFactor = seasonFactor, nSample = 30L, probs = c(0.1, 0.9)
+)
+# (uStarScens <- usGetSeasonalSeasonUStarMap(
+#  EProc$sGetEstimatedUstarThresholdDistribution()
+# ))
+# EProc$sSetUstarScenarios(uStarScens)
+EProc$useSeaonsalUStarThresholds()
+EProc$sGetUstarScenarios()
+
+EProc$sMDSGapFillUStarScens('NEE', FillAll = FALSE) # 插补
+r = EProc$sExportResults() %>% as.data.table()
+fwrite(r, "out2.csv")
+file_show("out2.csv")
+grep("^NEE.*_f$", colnames(EProc$sExportResults()), value = TRUE)
+```
+
+> 之后便可填充阈值
+
+```{r}
+EProc$sMDSGapFillAfterUstar("NEE", FillAll = FALSE, isVerbose = FALSE)
+# sEddyProc_sMDSGapFillAfterUstar
+# sEddyProc_sMDSGapFill
+r = EProc$sExportResults() %>% as.data.table()
+fwrite(r, "out.csv")
+```
+- `0`: good data
+- `1`: low turbulence
+- `2`: first half hour after low turbulence
+- `3`: no threshold available
+- `4`: missing uStar value
+
+## Gap Filling
+- `Ustar_uStar_Thres` : uStar threshold
+- `Ustar_uStar_fqc`   : qc, 0-4
+
+- `VAR_orig`    : Original values used for gap filling
+- `VAR_f`       : Original values and gaps filled with mean of selected datapoints 
+                  (condition depending on gap filling method)
+                  > TODO: 
+- `VAR_fqc`     : Quality flag assigned depending on gap filling method and window length 
+                  (0 = original data, 1 = most reliable, 2 = medium, 3 = least reliable)
+- `VAR_fall`    : All values considered as gaps (for uncertainty estimates)
+- `VAR_fall_qc` : Quality flag assigned depending on gap filling method and window length 
+                  (1 = most reliable, 2 = medium, 3 = least reliable)
+- `VAR_fnum`    : Number of datapoints used for gap-filling
+- `VAR_fsd`     : Standard deviation of datapoints used for gap filling (uncertainty)
+- `VAR_fmeth`   : Method used for gap filling (1 = similar meteo condition (sFillLUT with Rg, VPD, Tair), 
+                  2 = similar meteo (sFillLUT with Rg only), 3 = mean diurnal course (sFillMDC))
+- `VAR_fwin`    : Full window length used for gap filling
+
+> `var_f`和``var_fall`的区别是什么？
+<https://bgc.iwww.mpg.de/5624860/Gap-filling>
+
+![](vignettes/images/sMDS_gapFilling.png)

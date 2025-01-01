@@ -14,7 +14,7 @@ LogisticSigmoidLRCFitter <- setRefClass("LogisticSigmoidLRCFitter",
 #' @param Amax saturation (beta parameter) adjusted for effect of VPD
 #' @param alpha slope at Rg = 0
 #'
-#' @seealso [LightResponseCurveFitter_predictGPP()]
+#' @seealso [LRC_predictGPP()]
 #' @return
 #' - `GPP`: vector of GPP
 #' - `GPPGradient`: [numeric matrix] of gradients of predicted GPP to Amax and alpha

@@ -5,10 +5,10 @@
 #' @exportClass LightResponseCurveFitter
 LightResponseCurveFitter <- setRefClass("LightResponseCurveFitter")
 
-# if this method is adjusted in subclass, then also adjust getPriorLocation,
+# if this method is adjusted in subclass, then also need to adjust getPriorLocation,
 # getPriorScale.
 
-#' LightResponseCurveFitter_getParameterNames
+#' LRC_getParameterNames
 #' 
 #' @details 
 #' - `k`     : VPD effect
@@ -19,13 +19,12 @@ LightResponseCurveFitter <- setRefClass("LightResponseCurveFitter")
 #' 
 #' @importFrom stats setNames
 #' @export
-LightResponseCurveFitter_getParameterNames <- function() {
+LRC_getParameterNames <- function() {
   vars = c("k", "beta", "alpha", "RRef", "E0")
   setNames(vars, vars)
 }
-
 LightResponseCurveFitter$methods(
-  getParameterNames = LightResponseCurveFitter_getParameterNames)
+  getParameterNames = LRC_getParameterNames)
 
 #' Optimize rectangular hyperbolic light response curve in one window
 #' 
@@ -69,9 +68,9 @@ LightResponseCurveFitter$methods(
 #'  + 1011   : too few valid records in window (from different location:
 #'    partGLFitLRCOneWindow)
 #' 
-#' @seealso [partGLFitLRCWindows()], [LightResponseCurveFitter_optimLRCBounds()]
+#' @seealso [partGLFitLRCWindows()], [LRC_optimLRCBounds()]
 #' @export
-LightResponseCurveFitter_fitLRC <- function(
+LRC_fitLRC <- function(
   dsDay, E0, sdE0, RRefNight, 
   controlGLPart = partGLControl(), lastGoodParameters = rep(NA_real_, 7L)) {
 
@@ -86,9 +85,10 @@ LightResponseCurveFitter_fitLRC <- function(
     resOpt <- .self$optimLRCBounds(theta0, parPrior,
       dsDay = dsDay, ctrl = controlGLPart, lastGoodParameters = lastGoodParameters)
   })
-  iValid <- which(sapply(resOpt3, function(resOpt) { is.finite(resOpt$theta[1]) }))
+  iValid <- which(sapply(resOpt3, \(r) is.finite(r$theta[1]) ))
   resOpt3Valid <- resOpt3[iValid]
   optSSE <- sapply(resOpt3Valid, "[[", "value")
+
   getNAResult <- function(convergenceCode) {
     list(
       thetaOpt = structure(rep(NA_real_, nPar), names = colnames(thetaInitials)),
@@ -172,10 +172,10 @@ LightResponseCurveFitter_fitLRC <- function(
     covParms = covParms, 
     convergence = resOpt$convergence)
 }
-LightResponseCurveFitter$methods(fitLRC = LightResponseCurveFitter_fitLRC)
+LightResponseCurveFitter$methods(fitLRC = LRC_fitLRC)
 
 
-#' LightResponseCurveFitter_getPriorScale
+#' LRC_getPriorScale
 #' 
 #' @details 
 #' The beta parameter is quite well defined. Hence use a prior with
@@ -199,7 +199,7 @@ LightResponseCurveFitter$methods(fitLRC = LightResponseCurveFitter_fitLRC)
 #' 
 #' @return a numeric vector with prior estimates of the parameters
 #' @export
-LightResponseCurveFitter_getPriorScale <- function(
+LRC_getPriorScale <- function(
   thetaPrior, medianRelFluxUncertainty, nRec, ctrl) {
   sdParameterPrior <- if (ctrl$isLasslopPriorsApplied) {
     # twutz: changed to no prior for logitconv
@@ -209,33 +209,32 @@ LightResponseCurveFitter_getPriorScale <- function(
     c(k = NA, beta = as.vector(sdBetaPrior), alpha = NA, RRef = NA, E0 = NA)
   }
 }
-LightResponseCurveFitter$methods(getPriorScale = LightResponseCurveFitter_getPriorScale)
+LightResponseCurveFitter$methods(getPriorScale = LRC_getPriorScale)
 
-
-#' LightResponseCurveFitter_getPriorLocation
+#' LRC_getPriorLocation
 #' 
 #' @param NEEDay numeric vector of daytime NEE
 #' @param RRefNight numeric scalar of basal respiration estimated from night-time data
 #' @param E0 numeric scalar of night-time estimate of temperature sensitivity
-#' 
+#'
 #' @return a numeric vector with prior estimates of the parameters
 #' @export
-LightResponseCurveFitter_getPriorLocation <- function(NEEDay, RRefNight, E0) {
+LRC_getPriorLocation <- function(NEEDay, RRefNight, E0) {
   if (!is.finite(RRefNight)) stop("must provide finite RRefNight")
-  zs = quantile(NEEDay, c(0.03, 0.97), na.rm = TRUE)
-  c(k = 0.05, 
+  zs <- quantile(NEEDay, c(0.03, 0.97), na.rm = TRUE)
+  c(
+    k = 0.05,
     beta = as.vector(abs(diff(zs))),
-    alpha = 0.1, 
-    RRef = as.vector(RRefNight), 
+    alpha = 0.1,
+    RRef = as.vector(RRefNight),
     E0 = as.vector(E0)
   ) # parameterPrior
 }
-LightResponseCurveFitter$methods(
-  getPriorLocation = LightResponseCurveFitter_getPriorLocation)
+LightResponseCurveFitter$methods(getPriorLocation = LRC_getPriorLocation)
 
-#' @return A numeric matrix (3, nPar) of initial values for fitting parameters
+# ' @return A numeric matrix (3, nPar) of initial values for fitting parameters
 #' @export
-LightResponseCurveFitter_getParameterInitials <- function(thetaPrior) {
+LRC_getParameterInitials <- function(thetaPrior) {
   theta0 <- matrix(rep(thetaPrior, each = 3), 3, length(thetaPrior),
     dimnames = list(NULL, names(thetaPrior))
   )
@@ -244,7 +243,7 @@ LightResponseCurveFitter_getParameterInitials <- function(thetaPrior) {
   theta0 # thetaInitials
 }
 LightResponseCurveFitter$methods(
-  getParameterInitials = LightResponseCurveFitter_getParameterInitials)
+  getParameterInitials = LRC_getParameterInitials)
 
 #' Optimize parameters with refitting with some fixed parameters if outside bounds
 #' 
@@ -259,15 +258,15 @@ LightResponseCurveFitter$methods(
 #' @param lastGoodParameters numeric vector of last successful fit
 #' @param ctrl list of further controls, such as `isNeglectVPDEffect = TRUE`
 #' 
-#' @return list of result of [LightResponseCurveFitter_optimLRCOnAdjustedPrior()]
+#' @return list of result of [LRC_optimLRCOnAdjustedPrior()]
 #' - `theta`: vector of optimized parameters
 #' - `iOpt`: vector of positions of parameters that are optimized
 #' - `thetaInitialGuess`: initial guess from data
-#' see [LightResponseCurveFitter_fitLRC()]
+#' see [LRC_fitLRC()]
 #' 
-#' @seealso [LightResponseCurveFitter_fitLRC()]
+#' @seealso [LRC_fitLRC()]
 #' @export
-LightResponseCurveFitter_optimLRCBounds <- function(
+LRC_optimLRCBounds <- function(
   theta0, parameterPrior, ..., dsDay, lastGoodParameters, ctrl) {
   # twutz 161014: default alpha
   if (!is.finite(lastGoodParameters[3L])) lastGoodParameters[3L] <- 0.22 # default alpha
@@ -284,7 +283,8 @@ LightResponseCurveFitter_optimLRCBounds <- function(
   if (isNeglectVPDEffect) theta0Adj[1] <- 0
   resOpt <- resOpt0 <- .self$optimLRCOnAdjustedPrior(theta0Adj,
     iOpt = getIOpt(isUsingFixedVPD, isUsingFixedAlpha),
-    parameterPrior = parameterPrior, ctrl, dsDay = dsDay, ...)
+    parameterPrior = parameterPrior, ctrl, dsDay = dsDay, ...
+  )
   
   fun_optim <- function() {
     .self$optimLRCOnAdjustedPrior(theta0Adj,
@@ -371,7 +371,7 @@ LightResponseCurveFitter_optimLRCBounds <- function(
   resOpt
 }
 LightResponseCurveFitter$methods(
-  optimLRCBounds = LightResponseCurveFitter_optimLRCBounds)
+  optimLRCBounds = LRC_optimLRCBounds)
 
 #' Get the positions of the parameters to optimize for given Fixed
 #' 
@@ -382,7 +382,7 @@ LightResponseCurveFitter$methods(
 #' 
 #' @return integer vector of positions in parameter vector
 #' @export
-LightResponseCurveFitter_getOptimizedParameterPositions <- function(isUsingFixedVPD, isUsingFixedAlpha) {
+LRC_getOptimizedParameterPositions <- function(isUsingFixedVPD, isUsingFixedAlpha) {
   if (!isUsingFixedVPD & !isUsingFixedAlpha) {
     c(1:4)
   } else if (isUsingFixedVPD & !isUsingFixedAlpha) {
@@ -394,7 +394,7 @@ LightResponseCurveFitter_getOptimizedParameterPositions <- function(isUsingFixed
   } # iOpt
 }
 LightResponseCurveFitter$methods(
-  getOptimizedParameterPositions = LightResponseCurveFitter_getOptimizedParameterPositions)
+  getOptimizedParameterPositions = LRC_getOptimizedParameterPositions)
 
 #' optimLRCOnAdjustedPrior
 #' 
@@ -416,26 +416,24 @@ LightResponseCurveFitter$methods(
 #' @param parameterPrior numeric vector of prior parameter estimates (corresponding to theta)
 #' @param ctrl list of further controls
 #' @param ... further arguments to
-#' [LightResponseCurveFitter_optimLRC()] (passed to
-#' [LightResponseCurveFitter_computeCost()])
+#' [LRC_optimLRC()] (passed to
+#' [LRC_computeCost()])
 #' 
-#' @return list of result of [LightResponseCurveFitter_optimLRC()] amended with list
+#' @return list of result of [LRC_optimLRC()] amended with list
 #' `theta`, `iOpt` and `convergence`
 #' @export
-LightResponseCurveFitter_optimLRCOnAdjustedPrior <- function(
+LRC_optimLRCOnAdjustedPrior <- function(
   theta, iOpt, dsDay, parameterPrior, ctrl, ...) {
   
   if (!all(is.finite(theta))) stop("need to provide finite starting values.")
-  dsDayFinite <- dsDay[is.finite(dsDay$NEE) & is.finite(dsDay$sdNEE), ]
+  dsDayFinite <- subset(dsDay, is.finite(NEE) & is.finite(sdNEE))
+
+  npar = length(theta)
   if (nrow(dsDayFinite) < ctrl$minNRecInDayWindow) {
-    stop(
-      "inspect too few records, should be already filtered ",
+    stop("inspect too few records, should be already filtered ",
       "in partGLFitLRCOneWindow")
     return(list(
-      theta = {
-        theta[] <- NA
-        theta
-      }, iOpt = integer(0), convergence = 1003L))
+      theta = rep(NA, npar), iOpt = integer(0), convergence = 1003L))
   }
 
   minUnc <- quantile(dsDayFinite$sdNEE, 0.3)
@@ -443,18 +441,19 @@ LightResponseCurveFitter_optimLRCOnAdjustedPrior <- function(
     stop("Too many zeros in uncertainty of NEE.",
       " This cannot be handled in daytime partitioning.")
   }
+  
   Fc_unc <- if (isTRUE(ctrl$isBoundLowerNEEUncertainty)) {
     # twutz: avoid excessive weights by small uncertainties (of 1 / unc^2)
     pmax(dsDayFinite$sdNEE, minUnc)
   } else {
     dsDayFinite$sdNEE
   }
-  # plot(Fc_unc ~ dsDayFinite$sdNEE)
+  
   medianRelFluxUncertainty <- abs(median(Fc_unc / dsDayFinite$NEE))
   ## details<<
   ## The uncertainty of the prior, that maybe derived from fluxes)  is allowed to
   ## adapt to the uncertainty of the fluxes.
-  ## This is done in [LightResponseCurveFitter_getPriorScale()]
+  ## This is done in [LRC_getPriorScale()]
   sdParameterPrior <- .self$getPriorScale(parameterPrior, medianRelFluxUncertainty,
     nrow(dsDayFinite), ctrl = ctrl)
   sdParameterPrior[-iOpt] <- NA
@@ -474,7 +473,7 @@ LightResponseCurveFitter_optimLRCOnAdjustedPrior <- function(
 }
 
 LightResponseCurveFitter$methods(
-  optimLRCOnAdjustedPrior = LightResponseCurveFitter_optimLRCOnAdjustedPrior)
+  optimLRCOnAdjustedPrior = LRC_optimLRCOnAdjustedPrior)
 
 #' isParameterInBounds
 #' 
@@ -489,10 +488,10 @@ LightResponseCurveFitter$methods(
 #' 
 #' @return logical scalar: TRUE if parameters are within bounds, FALSE otherwise
 #' @export
-LightResponseCurveFitter_isParameterInBounds <- function(theta, sdTheta, RRefNight, ctrl) {
+LRC_isParameterInBounds <- function(theta, sdTheta, RRefNight, ctrl) {
   if (!is.finite(theta[2])) return(FALSE)
   if (isTRUE(as.vector((theta[2] > 100) && (sdTheta[2] >= theta[2])))) return(FALSE)
   return(TRUE)
 }
 LightResponseCurveFitter$methods(
-  isParameterInBounds = LightResponseCurveFitter_isParameterInBounds)
+  isParameterInBounds = LRC_isParameterInBounds)

@@ -1,0 +1,284 @@
+---
+title: REddyProc typical workflow —— simple
+output: 
+  rmarkdown::html_vignette:
+    keep_md: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown_notangle}
+  %\VignetteIndexEntry{REddyProc typical workflow —— simple}
+  %\usepackage[UTF-8]{inputenc}
+---
+
+# REddyProc typical workflow
+
+## Importing the half-hourly data
+The workflow starts with importing the half-hourly data. The example, reads a 
+text file with data of the year 1998 from the Tharandt site and converts the 
+separate decimal columns year, day, and hour to a POSIX timestamp column. 
+Next, it initializes the `sEddyProc` class.
+
+```{r inputData, spar = TRUE, message = FALSE}
+library(REddyProc)
+library(dplyr)
+library(data.table)
+library(magrittr)
+
+source('./vignettes/main_pkgs.R')
+
+fileName <- getExamplePath('Example_DETha98.txt', isTryDownload = TRUE)
+EddyData <- if (length(fileName)) fLoadTXTIntoDataframe(fileName) else
+  Example_DETha98
+EddyData %<>% as.data.table() %>% filterLongRuns("NEE") %>% 
+  mutate(DateTime = make_datetime_yjh(Year, DoY, Hour), .before = "Year")
+
+EProc <- sEddyProc$new(
+  'DE-Tha', as.data.frame(EddyData), c('NEE','Rg','Tair','VPD', 'Ustar'))
+
+# 绘图检查数据
+EProc$sPlotFingerprintY("NEE", Year = 1998, 
+  colors = rainbow(50), valueLimits = c(-300, 300))
+```
+
+> ustar threshold
+```{r}
+# bootstrap估算Ustar阈值
+EProc$sEstimateUstarScenarios(nSample = 100L, probs = c(0.05, 0.5, 0.95))
+EProc$sGetEstimatedUstarThresholdDistribution()
+EProc$sGetUstarScenarios() # seasonal variation threshold
+```
+
+> gap filling
+```{r}
+EProc$sMDSGapFillUStarScens("NEE")
+```
+
+> NEE partition
+```{r}
+EProc$sSetLocationInfo(LatDeg = 51.0, LongDeg = 13.6, TimeZoneHour = 1)
+EProc$sMDSGapFill("Tair", FillAll = FALSE, minNWarnRunLength = NA)
+EProc$sMDSGapFill("VPD", FillAll = FALSE, minNWarnRunLength = NA)
+EProc$sFillVPDFromDew() # fill longer gaps still present in VPD_f
+```
+
+
+```{r}
+EProc$sMRFluxPartitionUStarScens() # night partition
+```
+
+```{r}
+EProc$sGLFluxPartitionUStarScens() # day partition, 
+```
+<!-- Start daytime flux partitioning for variable NEE_U05_f with temperature Tair_f.
+Error in fCheckColNames(ds, c(NEEVar, QFNEEVar, TempVar, QFTempVar, RadVar,  : 
+  sGLFluxPartition:::fCheckColNames::: Missing specified columns in dataset: Rg_f, Rg_fqc! -->
+
+```{r}
+sEddyProc_sGLFluxPartitionUStarScens(...,
+  isWarnReplaceColumns = FALSE, warnOnOtherErrors = FALSE,
+  controlGLPart = partGLControl()
+)
+```
+
+```{r}
+R <- EProc$sExportResults() %>% as.data.table()
+```
+
+## 函数说明
+
+- 默认减去了15分钟
+- `filterLongRuns`: Replace long runs of equal NEE values by NA
+
+For writing plots of data of several years to pdf see also
+
+* [`sEddyProc_sPlotFingerprint`](../html/sEddyProc_sPlotFingerprint.html),
+* [`sEddyProc_sPlotHHFluxes`](../html/sEddyProc_sPlotHHFluxes.html), and
+* [`sEddyProc_sPlotDiurnalCycle`](../html/sEddyProc_sPlotDiurnalCycle.html).
+
+## Estimating the uStar threshold distribution
+
+```{r fpNEEUStar, include = FALSE, eval = FALSE}
+# EProc$sPlotNEEVersusUStarForSeason()
+uStarTh <- EProc$sGetEstimatedUstarThresholdDistribution()
+str(uStarTh)
+signif(unlist(uStarTh[1, 5:7]), 2)
+
+
+EProc$sDATA$NEE_low <- EProc$sDATA$NEE_median <- EProc$sDATA$NEE_orig <- 
+  EProc$sDATA$NEE_upper  <- EProc$sDATA$NEE
+
+.ustar <- uStarTh[1, ] # signal
+Ustar = EProc$sDATA$Ustar
+EProc$sDATA$NEE_orig[Ustar < .ustar$uStar] <- NA
+EProc$sDATA$NEE_low[Ustar < .ustar$`5%`] <- NA
+EProc$sDATA$NEE_median[Ustar < .ustar$`50%`] <- NA
+EProc$sDATA$NEE_upper[Ustar < .ustar$`95%`] <- NA
+# need to produce fingerprints by hand in console - if exeucted from chunk it does not safe a pdf
+if (!dir.exists("tmp")) dir.create("tmp")
+EProc$sPlotFingerprint('NEE_orig', Dir = "tmp/plots_fingerprint", Format = "png")
+EProc$sPlotFingerprint('NEE_low', Dir = "tmp/plots_fingerprint", Format = "png")
+EProc$sPlotFingerprint('NEE_median', Dir = "tmp/plots_fingerprint", Format = "png")
+EProc$sPlotFingerprint('NEE_upper', Dir = "tmp/plots_fingerprint", Format = "png")
+EProc$sDATA$NEE_median <- EProc$sDATA$NEE_orig <- 
+  EProc$sDATA$NEE_low <- EProc$sDATA$NEE_upper <- NULL
+```
+
+## Gap-filling
+The second post-processing step is filling the gaps in NEE using information of the 
+valid data. Here, we decide to use the same annual $u_*$ threshold estimate 
+in each season, as obtained above, and decide to compute uncertainty also 
+for valid records (FillAll). 
+
+```{r gapfill, message = FALSE}
+
+```
+
+The screen output (not shown here) already shows that the $u_*$-filtering and
+gap-filling was repeated for each given estimate of the $u_*$ threshold
+, i.e. column in 
+`uStarThAnnual`, with marking 22% to 38% of the data as gap. 
+For gap-filling without prior $u_*$-filtering using `sEddyProc_sMDSGapFill`
+or for applying single or user-specified $u_*$ thresholds using 
+`sEddyProc_sMDSGapFillAfterUstar`
+see `vignette("uStarCases")`.
+
+For each of the different $u_*$ threshold estimates
+a separate set of output columns of filled NEE and its 
+uncertainty is generated, distinguished by the suffixes given with 
+`uStarSuffixes`. <Suffix>"_f" denotes the filled value and "_fsd" the 
+estimated standard deviation of its uncertainty.
+
+```{r, results = 'hold'}
+grep("NEE_.*_f$",names(EProc$sExportResults()), value = TRUE)
+grep("NEE_.*_fsd$",names(EProc$sExportResults()), value = TRUE)
+```
+
+A fingerprint-plot of one of the new variables shows that gaps have been filled.
+```{r fpNEEFilled}
+EProc$sPlotFingerprintY('NEE_U50_f', Year = 1998)
+```
+
+```{r fpNEEFilled2, include = FALSE, eval = FALSE}
+# plot fingerprint of filled NEE for the median
+EProc$sPlotFingerprint('NEE_U50_f', Dir.s = "plots_fingerprint", Format.s = "png")
+#EProc$sPlotFingerprintY('NEE_U50_f', Year.i = 1998)
+#
+# Check that although using FillAll.b = TRUE still the original NEE is in NEE_f for valid records
+dss <- cbind(EddyData, EProc$sExportResults())
+head(dss$Ustar_U50_fqc)
+plot( NEE_U50_f ~ NEE, subset(dss, Ustar_U50_fqc == 0) )
+```
+
+## Partitioning net flux into GPP and Reco
+
+The third post-processing step is partitioning the net flux (NEE) into its gross 
+components GPP and Reco.
+The partitioning needs to distinguish carefully between night-time and day-time. 
+Therefore it needs a specification of geographical coordinates and time zone 
+to allow computing sunrise and sunset. Further, the missing values in the 
+used meteorological data need to be filled. 
+
+For VPD, which is important for daytime flux partitioning, and additional
+gap-filling of longer gaps based on minimum daily temperature (assumed dewpoint)
+is available.
+
+```{r, message = FALSE}
+EProc$sSetLocationInfo(LatDeg = 51.0, LongDeg = 13.6, TimeZoneHour = 1)  
+EProc$sMDSGapFill('Tair', FillAll = FALSE,  minNWarnRunLength = NA)     
+EProc$sMDSGapFill('VPD', FillAll = FALSE,  minNWarnRunLength = NA)     
+EProc$sFillVPDFromDew() # fill longer gaps still present in VPD_f
+
+EProc$sMRFluxPartitionUStarScens()
+## 之后，保存结果
+```
+
+## DT partitioning
+
+Now we are ready to invoke the partitioning, here by the night-time approach, 
+for each of the several filled NEE columns.
+
+```{r partNight, message = FALSE}
+EProc$sMRFluxPartitionUStarScens()
+```
+
+```{r fpGPPReco, include = FALSE, eval = FALSE}
+# plot fingerprint of filled NEE for the median
+EProc$sPlotFingerprint('GPP_U50_f', Dir = "plots_fingerprint", Format = "png")
+EProc$sPlotFingerprint('Reco_U50', Dir = "plots_fingerprint", Format = "png")
+#EProc$sPlotFingerprintY('GPP_U50_f', Year.i = 1998)
+dss <- EProc$sExportResults() %>% data.table()
+grep("GPP",names(dss), value = TRUE)
+summary(dss$GPP_U05_fqc)
+plot( dss$GPP_U05_fqc ~ dss$NEE_U50_fqc )
+```
+
+The results are stored in columns `Reco` and `GPP_f` modified by the respective 
+$u_*$ threshold suffix. 
+```{r}
+grep("GPP.*_f$|Reco",names(EProc$sExportResults()), value = TRUE)
+```
+
+Visualizations of the results by a fingerprint plot gives a compact overview. 
+```{r fingerPrintGPP}
+EProc$sPlotFingerprintY('GPP_U50_f', Year = 1998)
+```
+
+For using daytime-based flux partitioning see [`sEddyProc_sGLFluxPartition`](../html/sEddyProc_sGLFluxPartition.html) 
+computing columns `GPP_DT` and `Recco_DT`.
+
+## Estimating the uncertainty of aggregated results
+
+The results of the different $u_*$ threshold scenarios can be used for estimating
+the uncertainty due to not knowing the threshold.
+
+First, the mean of the GPP across all the year is computed for each
+$u_*$-scenario and converted from ${\mu mol\, CO_2\, 
+m^{-2} s^{-1}}$ to ${gC\,m^{-2} yr^{-1}}$.
+
+```{r aggregateGPP}
+FilledEddyData <- EProc$sExportResults()
+uStarSuffixes <- colnames(EProc$sGetUstarScenarios())[-1]
+#suffix <- uStarSuffixes[2]
+GPPAggCO2 <- sapply( uStarSuffixes, function(suffix) {
+	GPPHalfHour <- FilledEddyData[[paste0("GPP_",suffix,"_f")]]
+	mean(GPPHalfHour, na.rm = TRUE)
+})
+molarMass <- 12.011
+GPPAgg <- GPPAggCO2 * 1e-6 * molarMass * 3600*24*365.25
+print(GPPAgg)
+```
+
+The difference between those aggregated values is a first estimate of 
+uncertainty range in GPP due to uncertainty of the $u_*$ threshold.
+```{r, results = 'hide'}
+(max(GPPAgg) - min(GPPAgg)) / median(GPPAgg) 
+```
+In this run of the example a relative error of about 
+`r  if (!is_check) signif( (max(GPPAgg) - min(GPPAgg))/ median(GPPAgg)*100,2)`% 
+is inferred.
+
+For a better but more time consuming uncertainty estimate, specify a larger
+sample of $u_*$ threshold values, for each repeat the post-processing, and 
+compute statistics from the larger sample of resulting GPP columns. This can be
+achieved by specifying a larger sequence of quantiles when calling 
+`sEstimateUstarScenarios` in place of the command shown above.
+```{r, eval = FALSE}
+EProc$sEstimateUstarScenarios( 
+  nSample = 200, probs = seq(0.025,0.975,length.out = 39) )
+```
+
+## Storing the results in a csv-file
+
+The results still reside inside the `sEddyProc` class. 
+We first export them to an R Data.frame, append the columns to the original 
+input data, and write this data.frame to text file in a temporary directory.
+```{r, results = 'hide', message = FALSE}
+FilledEddyData <- EProc$sExportResults()
+CombinedData <- cbind(EddyData, FilledEddyData)
+fWriteDataframeToFile(CombinedData, 'DE-Tha-Results.txt', Dir = tempdir())
+# or without relying on data.frame EddyData
+# with replacing column DateTime by Year, DoY, and Hour:
+fWriteDataframeToFile(
+  cbind(EProc$sExportData(), EProc$sExportResults()), 'DE-Tha-Results_ydh.txt', 
+  isSplitDatetime=TRUE, Dir = tempdir())
+# tmp <- fLoadTXTIntoDataframe(file.path(tempdir(),'DE-Tha-Results_ydh.txt'))
+```

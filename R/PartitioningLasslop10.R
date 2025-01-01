@@ -48,7 +48,7 @@ partitionNEEGL <- function(
   ## hyperbolic function, as in Lasslop et al. (2010)
   ## Alternative fittings can be used by providing the corresponding subclass of
   ## \code{\link{LightResponseCurveFitter-class}} to \code{lrcFitter} argument.
-  ## (see \code{\link{LightResponseCurveFitter_predictGPP}})
+  ## (see \code{\link{LRC_predictGPP}})
   #
   ##author<< TW
   #
@@ -91,7 +91,7 @@ partitionNEEGL <- function(
 			  ## that has a parameter estimate associated
 			, FP_errorcode = NA_integer_ ##<< information why LRC-fit was not
 			  ## successful or was rejected, see result of
-			  ## \code{\link{LightResponseCurveFitter_fitLRC}}
+			  ## \code{\link{LRC_fitLRC}}
 			, FP_GPP2000 = NA_real_ 	##<< predicted GPP at VPD = 0 and PAR = 2000:
 			  ## a surrogate for maximum photosynthetic capacity
 			, FP_OPT_VPD = vector(mode = "list", length =  nrow(ds))	##<< list object
@@ -789,7 +789,7 @@ partGLFitLRCOneWindow <- function(
 	# the rownumber of the first record inside the day window
 	##seealso<< \code{\link{partGLEstimateTempSensInBoundsE0Only}}
 	#
-	##seealso<< \code{\link{LightResponseCurveFitter_fitLRC}}
+	##seealso<< \code{\link{LRC_fitLRC}}
 	#lrcFitter <- RectangularLRCFitter()
 	resOpt <- resOpt0 <- lrcFitter$fitLRC(dsDay, E0 = E0, sdE0 = sdE0
 	     , RRefNight = RRefNight

@@ -441,6 +441,11 @@ sEddyProc$methods(sFillMDC = sEddyProc_sFillMDC)
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#' sEddyProc_sMDSGapFill
+#' 
+#' MDS gap filling algorithm adapted after the PV-Wave code and paper by Markus
+#' Reichstein.
+#' 
 #' @param Var Variable to be filled
 #' @param QFVar Quality flag of variable to be filled
 #' @param QFValue Value of quality flag for _good_ (original) data, other data is set to missing
@@ -464,38 +469,20 @@ sEddyProc$methods(sFillMDC = sEddyProc_sFillMDC)
 #' 
 #' @export
 sEddyProc_sMDSGapFill <- function(
-  ### MDS gap filling algorithm adapted after the PV-Wave code and paper by Markus Reichstein.
-  Var = Var.s                 ##<< Variable to be filled
-  , QFVar = if (!missing(QFVar.s)) QFVar.s else 'none'       ##<< Quality flag
-  ##  of variable to be filled
-  , QFValue = if (!missing(QFValue.n)) QFValue.n else NA_real_   ##<< Value of
-  ##  quality flag for _good_ (original) data, other data is set to missing
-  , V1 = if (!missing(V1.s)) V1.s else 'Rg'            ##<< Condition variable 1
-  ## (default: Global radiation 'Rg' in  W m-2)
-  , T1 = if (!missing(T1.n)) T1.n else 50              ##<< Tolerance interval 1
-  ## (default: 50 W m-2)
-  , V2 = if (!missing(V2.s)) V2.s else 'VPD'           ##<< Condition variable 2
-  ## (default: Vapour pressure deficit 'VPD' in hPa)
-  , T2 = if (!missing(T2.n)) T2.n else 5               ##<< Tolerance interval 2
-  ## (default: 5 hPa)
-  , V3 = if (!missing(V3.s)) V3.s else 'Tair'          ##<< Condition variable 3
-  ## (default: Air temperature 'Tair' in degC)
-  , T3 = if (!missing(T3.n)) T3.n else 2.5             ##<< Tolerance interval 3
-  ## (default: 2.5 degC)
-  , FillAll = if (!missing(FillAll.b)) FillAll.b else TRUE       ##<< Fill
-  ##  all values to estimate uncertainties
-  , isVerbose = if (!missing(Verbose.b)) Verbose.b else TRUE       ##<< Print
-  ##  status information to screen
-  , suffix = if (!missing(Suffix.s)) Suffix.s else ''	      ##<< String
-  ##  suffix needed for different processing setups on the same dataset
-  ## (for explanations see below)
-  , minNWarnRunLength = ##<< scalar integer:
-    ## warn if number of subsequent
-    ## numerically equal values exceeds this number.
-    ## Set to Inf or NA for no warnings.
-    ## defaults for "NEE" to records across 4 hours and no warning for others.
-    if (Var == "NEE") 4 * .self$sINFO$DTS/24 else NA_integer_
-  , Var.s      ##<< deprecated
+  Var = Var.s,
+  QFVar = if (!missing(QFVar.s)) QFVar.s else 'none', 
+  QFValue = if (!missing(QFValue.n)) QFValue.n else NA_real_, 
+  V1 = if (!missing(V1.s)) V1.s else 'Rg',
+  T1 = if (!missing(T1.n)) T1.n else 50,
+  V2 = if (!missing(V2.s)) V2.s else 'VPD',
+  T2 = if (!missing(T2.n)) T2.n else 5,
+  V3 = if (!missing(V3.s)) V3.s else 'Tair',
+  T3 = if (!missing(T3.n)) T3.n else 2.5,
+  FillAll = if (!missing(FillAll.b)) FillAll.b else TRUE,
+  isVerbose = if (!missing(Verbose.b)) Verbose.b else TRUE,
+  suffix = if (!missing(Suffix.s)) Suffix.s else '',
+  minNWarnRunLength = if (Var == "NEE") 4 * .self$sINFO$DTS/24 else NA_integer_,
+  Var.s      ##<< deprecated
   , QFVar.s    ##<< deprecated
   , QFValue.n  ##<< deprecated
   , V1.s ##<< deprecated

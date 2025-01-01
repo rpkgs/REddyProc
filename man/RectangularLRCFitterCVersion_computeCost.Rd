@@ -21,7 +21,7 @@ RectangularLRCFitterCVersion_computeCost(
 \item{thetaOpt}{parameter vector with components of theta0 that are optimized}
 
 \item{theta}{parameter vector with positions as in argument of
-\code{\link[=LightResponseCurveFitter_getParameterNames]{LightResponseCurveFitter_getParameterNames()}}}
+\code{\link[=LRC_getParameterNames]{LRC_getParameterNames()}}}
 
 \item{iOpt}{position in theta that are optimized}
 
@@ -37,7 +37,7 @@ parameter (range of values)}
 \item{sdParameterPrior}{standard deviation of parameterPrior}
 
 \item{...}{other arguments to
-\link{LightResponseCurveFitter_predictLRC}, such as VPD0, fixVPD}
+\link{LRC_predictLRC}, such as VPD0, fixVPD}
 
 \item{VPD0}{VPD0 \link{hPa} -> Parameters VPD0 fixed to 10 hPa according
 to Lasslop et al 2010}

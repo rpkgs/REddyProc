@@ -12,7 +12,7 @@ NonrectangularLRCFitter <- setRefClass("NonrectangularLRCFitter",
 #'
 #' @return string vector of parameter names. Positions are important.
 #' Adds sixth parameter, `logitconv` to the parameters of
-#' [LightResponseCurveFitter_getParameterNames()]
+#' [LRC_getParameterNames()]
 #'
 #' @seealso [NonrectangularLRCFitter_predictGPP()]
 #' @export
@@ -134,7 +134,7 @@ NonrectangularLRCFitter$methods(predictLRC = NonrectangularLRCFitter_predictLRC)
 #' @param alpha slope at Rg = 0
 #' @param conv convexity parameter (see details)
 #'
-#' @seealso [LightResponseCurveFitter_predictGPP()]
+#' @seealso [LRC_predictGPP()]
 #' @export
 NonrectangularLRCFitter_predictGPP <- function(Rg, Amax, alpha, conv) {
   ## details<<
