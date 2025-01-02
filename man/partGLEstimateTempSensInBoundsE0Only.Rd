@@ -33,6 +33,13 @@ list with entries
 \description{
 Estimate bounded temperature sensitivity E0 and RRef of ecosystem respiration
 }
+\details{
+Basal respiration is reported for temperature of 15 degree Celsius.
+However during the fit a reference temperature of the median of the dataset
+is used. This is done to avoid strong correlations between estimated
+parameters \code{E0} and \code{RRef}, that occure if reference temperature is outside
+the center of the data.
+}
 \seealso{
 \code{\link[=partGLFitLRCWindows]{partGLFitLRCWindows()}}
 }

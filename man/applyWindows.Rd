@@ -11,8 +11,8 @@ applyWindows(
   winSizeInDays = winSizeRefInDays,
   winSizeRefInDays = 4L,
   strideInDays = floor(winSizeRefInDays/2L),
-  isVerbose = TRUE,
   nRecInDay = 48L,
+  isVerbose = TRUE,
   ...
 )
 }
@@ -35,9 +35,9 @@ is carried between windows}
 \item{strideInDays}{step in days for shifting the window, for alligning
 usually a factor of winSizeRef}
 
-\item{isVerbose}{set to FALSE to suppress messages}
-
 \item{nRecInDay}{number of records within one day (for half-hourly data its 48)}
+
+\item{isVerbose}{set to FALSE to suppress messages}
 
 \item{...}{further arguments to FUN}
 }

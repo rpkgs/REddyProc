@@ -234,30 +234,30 @@ fCalcETfromLE <- function(
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#' Temperature dependence of soil respiration
+#' 
+#' Temperature dependence of soil respiration after Equation 11 in Lloyd & Taylor (1994)
+#' 
+#' @param RRef Respiration rate at reference temperature
+#' @param E0 Temperature sensitivity ("activation energy") in Kelvin (degK)
+#' @param TSoil Soil temperature in Kelvin (degK)
+#' @param TRef Reference temperature of 10 degC in Kelvin (degK)
+#' @param T0 Regression temperature as fitted by LloydTaylor (1994) in Kelvin (degK)
+#' 
+#' @references 
+#' Lloyd J, Taylor JA (1994) On the temperature dependence of soil respiration.
+#'    Functional Ecology, 8, 315-323.
 #' @export
 fLloydTaylor <- function(
-  ##title<<
-  ## Temperature dependence of soil respiration
-  ##description<<
-  ## Temperature dependence of soil respiration after Equation 11 in Lloyd & Taylor (1994)
-  RRef = R_ref.n          ##<< Respiration rate at reference temperature
-  , E0 = E_0.n            ##<< Temperature sensitivity ("activation energy")
-  ## in Kelvin (degK)
-  , TSoil = Tsoil.n       ##<< Soil temperature in Kelvin (degK)
-  , TRef = if (missing(T_ref.n)) 273.15 + 10 else T_ref.n ##<< Reference
-  ## temperature of 10 degC in Kelvin (degK)
-  , T0 = if (missing(T_0.n)) 227.13 else T_0.n        ##<< Regression
-  ## temperature as fitted by LloydTaylor (1994) in Kelvin (degK)
+  RRef = R_ref.n, E0 = E_0.n, 
+  TSoil = Tsoil.n, 
+  TRef = if (missing(T_ref.n)) 273.15 + 10 else T_ref.n, 
+  T0 = if (missing(T_0.n)) 227.13 else T_0.n
   , R_ref.n    ##<< deprecated way to specify RRef
   , E_0.n      ##<< deprecated way to specify E0
   , Tsoil.n    ##<< deprecated way to specify Tsoil
   , T_ref.n    ##<< deprecated way to specify TRef
   , T_0.n      ##<< deprecated way to specify T0
-  ##author<<
-  ## AMM
-  ##reference<<
-  ## Lloyd J, Taylor JA (1994) On the temperature dependence of soil respiration.
-  ## Functional Ecology, 8, 315-323.
 ) {
   varNamesDepr <- c(
     "R_ref.n","E_0.n","Tsoil.n","T_ref.n","T_0.n")
@@ -268,6 +268,7 @@ fLloydTaylor <- function(
   if (length(iDepr)) warning(
     "Argument names ",varNamesDepr[iDepr]," have been deprecated."
     ," Please, use instead ", varNamesNew[iDepr])
+  
   # Fitting temperature T_0 from  paper
   R <- RRef * exp(E0 * (1/(TRef - T0) - 1/(TSoil - T0) ) )
   attr(R, 'varnames') <- 'R'

@@ -144,6 +144,41 @@ getStartRecsOfWindows <- function(
   pmax(1L, iRecStart0) # iRecStart
 }
 
+# get_winInfo
+#' @export 
+get_winInfo <- function(
+  nRec, 
+  winSizeInDays = winSizeRefInDays, 
+  winSizeRefInDays = 4L, strideInDays = floor(winSizeRefInDays / 2L),
+  nRecInDay = 48L) 
+{
+  nDay <- as.integer(ceiling(nRec / nRecInDay))
+  nDayLastWindow <- nDay - (winSizeRefInDays / 2)
+  
+  startDaysRef <- seq(1, nDayLastWindow, strideInDays)
+  iCentralRec <- 1L + as.integer((startDaysRef - 1L) + winSizeRefInDays / 2) * nRecInDay
+
+  nWindow <- length(startDaysRef)
+  dayStart0 <- as.integer(startDaysRef + winSizeRefInDays / 2 - winSizeInDays / 2)
+  
+  dayStart <- pmax(1L, dayStart0)
+  dayEnd <- pmin(nDay, dayStart0 - 1L + winSizeInDays)
+
+  iRecStart0 <- as.integer(iCentralRec - winSizeInDays / 2 * nRecInDay)
+  iRecStart <- pmax(1L, iRecStart0)
+  iRecEnd <- pmin(nRec, as.integer(iCentralRec - 1L + winSizeInDays / 2 * nRecInDay))
+
+  data.frame(
+    iWindow = 1:nWindow ## << integer: counter of the window
+    , dayStart = dayStart ## << integer: starting day of the window
+    , dayEnd = dayEnd ## << integer: ending day of the window
+    , iRecStart = iRecStart ## << integer: first record number of the window
+    , iRecEnd = iRecEnd ## << integer: last record number of the window
+    , iCentralRec = iCentralRec ## << integer: central record within the window
+    ## assuming equidistant records
+  )
+}
+
 #' apply a function to several windows of a data.frame
 #' 
 #' @param ds data.frame to iterate
@@ -162,54 +197,30 @@ applyWindows <- function(
   ds, FUN, prevRes = list(), 
   winSizeInDays = winSizeRefInDays, 
   winSizeRefInDays = 4L, strideInDays = floor(winSizeRefInDays / 2L),
-  isVerbose = TRUE, nRecInDay = 48L, ...) 
+  nRecInDay = 48L, 
+  isVerbose = TRUE, ...) 
 {
   ## details<<
-  ## Assumes equidistant rows with nRecInDay records forming one day
-  ## and reporting full days, i.e. all of the nRecInDay records are in the first day.
+  # Assumes equidistant rows with nRecInDay records forming one day and
+  # reporting full days, i.e. all of the nRecInDay records are in the first day.
 
   ## details<<
-  ## In order to have a common reference winSizeRefInDays is given so that
-  ## results by a different window
-  ## size correspond to each window of shifting a window of winSizeRefInDays
-  ## Each window is anchord so that the center equals the center of the
-  ## reference window.
-  ## This becomes important when selecting records at the edges of the series.
-  nRec <- nrow(ds)
-  nDay <- as.integer(ceiling(nRec / nRecInDay))
-  nDayLastWindow <- nDay - (winSizeRefInDays / 2)
-  startDaysRef <- seq(1, nDayLastWindow, strideInDays)
-  iCentralRec <- 1L + as.integer((startDaysRef - 1L) + winSizeRefInDays / 2) * nRecInDay
-  nWindow <- length(startDaysRef)
-  dayStart0 <- as.integer(startDaysRef + winSizeRefInDays / 2 - winSizeInDays / 2)
+  # In order to have a common reference winSizeRefInDays is given so that
+  # results by a different window size correspond to each window of shifting a
+  # window of winSizeRefInDays Each window is anchord so that the center equals
+  # the center of the reference window.
+  # This becomes important when selecting records at the edges of the series.
+  info <- get_winInfo(nrow(ds), winSizeInDays, winSizeRefInDays, strideInDays, nRecInDay)  
+  nWindow <- nrow(info)
   
-  dayStart <- pmax(1L, dayStart0)
-  dayEnd <- pmin(nDay, dayStart0 - 1L + winSizeInDays)
-
-  iRecStart0 <- as.integer(iCentralRec - winSizeInDays / 2 * nRecInDay)
-  iRecStart <- pmax(1L, iRecStart0)
-  iRecEnd <- pmin(nRec, as.integer(iCentralRec - 1L + winSizeInDays / 2 * nRecInDay))
-
-  # central record in each window, only last record, refers to reference window
-  # of size winSizeRefInDays
-  ## value<< a list with first component a data.frame with columns
-  dsRec <- data.frame(
-    iWindow = 1:nWindow ## << integer: counter of the window
-    , dayStart = dayStart ## << integer: starting day of the window
-    , dayEnd = dayEnd ## << integer: ending day of the window
-    , iRecStart = iRecStart ## << integer: first record number of the window
-    , iRecEnd = iRecEnd ## << integer: last record number of the window
-    , iCentralRec = iCentralRec ## << integer: central record within the window
-    ## assuming equidistant records
-  )
   # each will hold a data.frame to be row-bound afterwards (dont know the cols yet)
   res2List <- vector("list", nWindow)
   for (iWindow in 1:nWindow) {
-    if (isVerbose) message(", ", startDaysRef[iWindow], appendLF = FALSE)
-    startRec <- iRecStart[iWindow]
-    endRec <- iRecEnd[iWindow]
+    if (isVerbose) message(", ", info$dayStart[iWindow], appendLF = FALSE)
+    startRec <- info$iRecStart[iWindow]
+    endRec <- info$iRecEnd[iWindow]
     dsWin <- ds[startRec:endRec, ]
-    resFun <- FUN(dsWin, dsRec[iWindow, ], prevRes, ...)
+    resFun <- FUN(dsWin, info[iWindow, ], prevRes, ...)
     ## details<< Usually indicate an invalid result by returning NULL.
     ## If one still wants to store results but prevent updating the
     ## \code{prevRes} argument supplied to the next call
@@ -222,13 +233,7 @@ applyWindows <- function(
     }
   }
   if (isVerbose) message("") # LineFeed
-  # rbind res2List, but keep NULL results, therefore add dummy dataframe,
-  # and delete dummy column afterward
-  # res2List[sapply(res2List, is.null) ] <- list(data.frame(..DUMMY = 1))
-  # res2$..DUMMY <- NULL
-  ## value<< The second entry (\code{resFUN}) is a list (of length nrow(winInfo))
-  ## with each entry a result of a call to FUN.
-  list(winInfo = dsRec, resFUN = res2List)
+  list(winInfo = info, resFUN = res2List)
 }
 
 #' simplify the result returned by applyWindows
@@ -252,21 +257,29 @@ simplifyApplyWindows <- function(resApply) {
   cbind(resApply$winInfo, ansFUN)
 }
 
+#' Estimate temperature sensitivity E0 within one window
+#' 
+#' @details 
+#' Estimation of respiration at reference temperature (RRef) and temperature
+#' sensitivity (E0) for one window of night-time data.
+#' 
+#' The reference temperature is taken as the median of the temperatures of
+#' valid records, unless a fixed reference temperature (in degree Celsius) is
+#' specified by argument `controlGLPart$fixedTRefAtNightTime`.
+#' 
+#' @param dss data.frame with numeric columns NEE, sdNEE, Temp (degC) , VPD, Rg,
+#' and logical columns isNight and isDay
+#' @param winInfo one-row data.frame with window information, including iWindow
+#' @param prevRes component prevRes from previous result, here with item prevE0
+#' @param isVerbose set to FALSE to suppress messages
+#' @param nRecInDay number of records within one day (for half-hourly data its 48)
+#' @param controlGLPart list of further default parameters
+#' 
+#' @seealso [partitionNEEGL()], [partGLEstimateTempSensInBoundsE0Only()]
 partGLFitNightTempSensOneWindow <- function(
-    ### Estimate temperature sensitivity E0 within one window
-    dss ## << data.frame with numeric columns NEE, sdNEE, Temp (degC)
-    ## , VPD, Rg, and logical columns isNight and isDay
-    , winInfo ## << one-row data.frame with window information, including iWindow
-    , prevRes ## << component prevRes from previous result, here with item prevE0
-    , isVerbose = TRUE ## << set to FALSE to suppress messages
-    , nRecInDay = 48L ## << number of records within one day
-    ## (for half-hourly data its 48)
-    , controlGLPart = partGLControl() ## << list of further default parameters
-    ) {
-  ## seealso<< \code{\link{partitionNEEGL}}
-  ## description<<
-  ## Estimation of respiration at reference temperature (RRef) and
-  ## temperature sensitivity (E0) for one window.
+  dss, winInfo, prevRes, isVerbose = TRUE, nRecInDay = 48L, 
+  controlGLPart = partGLControl()) 
+{
   isValid <- isValidNightRecord(dss)
   # check that there are enough night and enough day-values for fitting,
   # else continue with next window
@@ -274,12 +287,7 @@ partGLFitNightTempSensOneWindow <- function(
     return(data.frame(E0 = NA_real_, sdE0 = NA_real_, TRefFit = NA_real_, RRefFit = NA_real_))
   }
   dssNight <- dss[isValid, ]
-  ## seealso<< \code{\link{partGLEstimateTempSensInBoundsE0Only}}
-  ## details<<
-  ## The reference temperature is taken as the median of the temperatures of
-  ## valid records,
-  ## unless a fixed reference temperature (in degree Celsius) is specified
-  ## by argument \code{controlGLPart$fixedTRefAtNightTime}.
+
   TRefFitCelsius <- if (length(controlGLPart$fixedTRefAtNightTime) &&
     is.finite(controlGLPart$fixedTRefAtNightTime)
   ) {
@@ -292,27 +300,29 @@ partGLFitNightTempSensOneWindow <- function(
     fConvertCtoK(dssNight$Temp),
     prevE0 = prevRes$E0, TRefFit = fConvertCtoK(TRefFitCelsius))
   
-  ans <- data.frame(
-    E0 = resNightFit$E0, sdE0 = resNightFit$sdE0,
+  data.frame(E0 = resNightFit$E0, sdE0 = resNightFit$sdE0,
     TRefFit = resNightFit$TRefFit, RRefFit = resNightFit$RRefFit)
-  ans
 }
 
-isValidNightRecord <- function(
-    ### compute logical vector of each rows in ds is its a valid night record
-    ds ## << data.frame with columns isNight, NEE, Temp (degC)
-    ) {
+#' compute logical vector of each rows in ds is its a valid night record
+#' @details For robustness, data is trimmed to conditions at temperature > 1 degC
+#' but only timmed if there are more at least 12 records left
+#' @param ds data.frame with columns isNight, NEE, Temp (degC)
+#' @return logical vector of length nrow(ds)
+isValidNightRecord <- function(ds) {
   isValid <- !is.na(ds$isNight) & ds$isNight & !is.na(ds$NEE) & is.finite(ds$Temp)
-  ## details<<
-  ## For robustness, data is trimmed to conditions at temperature > 1 degC
-  ## but only timmed if there are more at least 12 records left
   isFreezing <- ds$Temp[isValid] <= -1
   if (sum(!isFreezing) >= 12L) isValid[isValid][isFreezing] <- FALSE
-  ## value<< a logical vector of length nrow(ds)
   return(isValid)
 }
 
 #' Estimate bounded temperature sensitivity E0 and RRef of ecosystem respiration
+#' 
+#' @details Basal respiration is reported for temperature of 15 degree Celsius.
+#' However during the fit a reference temperature of the median of the dataset
+#' is used. This is done to avoid strong correlations between estimated
+#' parameters `E0` and `RRef`, that occure if reference temperature is outside
+#' the center of the data.
 #' 
 #' @param REco night time NEE
 #' @param temperatureKelvin temperature in Kelvin
@@ -332,14 +342,7 @@ partGLEstimateTempSensInBoundsE0Only <- function(
   REco, temperatureKelvin, prevE0 = NA, 
   TRefFit = median(temperatureKelvin, na.rm = TRUE))
 {
-  ## details<<
-  # Basal respiration is reported for temperature of 15 degree Celsius. However
-  # during the fit a reference temperature of the median of the dataset is used.
-  # This is done to avoid strong correlations between estimated parameters `E0`
-  # and `RRef`, that occure if reference temperature is outside the center of the
-  # data.
   if (!is.finite(prevE0)) prevE0 = 100
-
   resFit <- try(
     nls(
       formula = R_eco ~ fLloydTaylor(RRef, E0, Temp, TRef = TRefFit),
@@ -431,15 +434,14 @@ partGLSmoothTempSens <- function(E0Win) {
   iNoFiniteE0 <- which(!is.finite(E0WinYrs$E0))
   if (length(iNoFiniteE0)) {
     if (length(iNoFiniteE0) == nrow(E0WinYrs)) {
-      stop(
-        "Could not estimate respiration~temperature relationship."
-      )
+      stop("Could not estimate respiration~temperature relationship.")
     }
     E0WinYrs$E0[iNoFiniteE0] <- mean(E0WinYrs$E0[-iNoFiniteE0])
     E0WinYrs$sdE0[iNoFiniteE0] <- quantile(E0WinYrs$sdE0[-iNoFiniteE0], 0.9) * 1.5
   }
   E0WinYrs
 }
+
 .tmp.f <- function() {
   plot(E0 ~ iCentralRec, E0Win, type = "l")
   arrows(E0WinFinite$iCentralRec, E0WinFinite$E0 - E0WinFinite$sdE0,
@@ -470,33 +472,35 @@ partGLSmoothTempSens <- function(E0Win) {
   E0Win$sdE0 / E0Win$E0
 }
 
+#' Estimate Reference temperature from nighttime and given tempsens E0
+#' 
+#' Estimation of respiration at reference temperature (RRef) and temperature
+#' sensitivity (E0) for one window.
+#' 
+#' @details If there are too few records
+#' (n < `controlGLPart$minNRecInDayWindow`) then return NA.
+#' 
+#' @param dss data.frame with numeric columns NEE, isNight, Temp, Rg
+#' @param winInfo one-row data.frame with window information, including iWindow
+#' @param prevRes component prevRes from previous result, here not used.
+#' @param E0Win data.frame with columns E0 and sdE0, RRefFit, and TRefFit
+#' with one row for each window
+#' @param controlGLPart list of further default parameters
+#' @param TRef numeric scalar of Temperature (degree Celsius) for reference
+#' respiration RRef
+#' 
+#' @seealso [partitionNEEGL()], [partGLEstimateTempSensInBoundsE0Only()]
+#' 
+#' @return named scalar, RRef
+#' @export 
 partGLFitNightRespRefOneWindow <- function(
-    ### Estimate Reference temperature from nicht-time and given tempsens E0
-    dss ## << data.frame with numeric columns NEE, isNight, Temp, Rg
-    , winInfo ## << one-row data.frame with window information, including iWindow
-    , prevRes = list() ## << component prevRes from previous result, here not used.
-    , E0Win ## << data.frame with columns E0 and sdE0, RRefFit, and
-    ## TRefFit with one row for each window
-    , controlGLPart = partGLControl() ## << list of further default parameters
-    , TRef = 15 ## << numeric scalar of Temperature (degree Celsius) for
-    ## reference respiration RRef
-    ) {
-  ## author<< TW
-  ## seealso<< \code{\link{partitionNEEGL}}
-  ## description<<
-  ## Estimation of respiration at reference temperature (RRef) and
-  ## temperature sensitivity (E0) for one window.
+  dss, winInfo, prevRes = list(), E0Win, controlGLPart = partGLControl(), TRef = 15){
   isValid <- isValidNightRecord(dss)
   # check that there are enough night and enough day-values for fitting,
   # else continue with next window
-  ## details<<
-  ## If there are too few night-time records
-  ## (< controlGLPart$minNRecInDayWindow) then return NA
-  if (sum(isValid) < controlGLPart$minNRecInDayWindow) {
-    return(c(RRef = NA_real_))
-  }
+  if (sum(isValid) < controlGLPart$minNRecInDayWindow) return(c(RRef = NA_real_))
+  
   dssNight <- dss[isValid, ]
-  ## seealso<< \code{\link{partGLEstimateTempSensInBoundsE0Only}}
   REco <- dssNight$NEE
   E0 <- E0Win$E0[winInfo$iWindow]
   TRefInKelvin <- 273.15 + TRef # 15degC in Kelvin
@@ -510,10 +514,7 @@ partGLFitNightRespRefOneWindow <- function(
     coef(lm15)
   } else {
     fLloydTaylor(E0Win$RRefFit[winInfo$iWindow], E0, TRefInKelvin,
-      TRef = E0Win$TRefFit[winInfo$iWindow]
-    )
+      TRef = E0Win$TRefFit[winInfo$iWindow])
   }
-  RRefBounded <- max(0, RRef)
-  ## value<< named numeric vector with single entry RRef
-  c(RRef = RRefBounded)
+  c(RRef = max(0, RRef))
 }
