@@ -49,8 +49,7 @@ sEddyProc_sGLFluxPartition <- function(
   ## replacing output columns
 ) {
   if (!missing(debug.l)) {
-    warning(
-      "sEddyProc_sGLFluxPartition: argument name debug.l is deprecated. "
+    warning("sEddyProc_sGLFluxPartition: argument name debug.l is deprecated. "
       , "use debug instead.")
     debug <- debug.l
   }
@@ -838,8 +837,7 @@ sEddyProc_sRegrRref <- function(
   attr(Rref, 'varnames') <- 'R_ref'
   attr(Rref, 'units') <- attr(sDT[[NightFluxVar]], 'units')
   #
-  message(
-    'Regression of reference temperature R_ref for '
+  message('Regression of reference temperature R_ref for '
     , sum(!is.na(LMRes.F$R_ref_ok)), ' periods.')
   Rref
   ##value<<
@@ -847,5 +845,3 @@ sEddyProc_sRegrRref <- function(
   ## respiration (R_ref, flux units)
 }
 sEddyProc$methods(sRegrRref = sEddyProc_sRegrRref)
-
-

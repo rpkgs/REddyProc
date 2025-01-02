@@ -13,7 +13,7 @@ if (!exists(".binUstar")) .binUstar <- REddyProc:::.binUstar
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 10 days from June from Example_DETha98.txt shipped with REddyProc
-if (0) {
+# if (0) {
   Example_DETha98_Filled <- getFilledExampleDETha98Data()
   dt = as_tibble(Example_DETha98_Filled)
 
@@ -31,13 +31,13 @@ if (0) {
       Temp = Tair_f,
       isNight = Rg_f <= 4 & PotRad_NEW == 0,
       isDay = Rg_f > 4 & PotRad_NEW != 0
-    )
-  save(dsNEE, file = "tmp/dsNEE_Tharandt.RData")
-} else {
-  # load("tmp/dsNEE_Tharandt.RData")
-  load("../../tmp/dsNEE_Tharandt.RData")
-  dsNEE %<>% as.data.frame()
-}
+    ) %>% as.data.frame()
+#   save(dsNEE, file = "tmp/dsNEE_Tharandt.RData")
+# } else {
+#   # load("tmp/dsNEE_Tharandt.RData")
+#   load("../../tmp/dsNEE_Tharandt.RData")
+#   dsNEE %<>% as.data.frame()
+# }
 
 # 8 first days of June from IT-MBo.2005.txt
 # 10 days from June from Example_DETha98.txt shipped with REddyProc
