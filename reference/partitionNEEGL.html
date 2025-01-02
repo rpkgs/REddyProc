@@ -132,6 +132,20 @@ and <code><a href="LogisticSigmoidLRCFitter.html">LogisticSigmoidLRCFitter()</a>
 deviation depend on the used LRC (e.g. for the non-rectangular LRC see
 <code>NonrectangularLRCFitter_getParamNames</code>). They are estimated for windows and
 are reported with the first record of the window.</p></li>
+<li><p><code>FP_VARnight</code>   : NEE filtered for nighttime records (others NA)</p></li>
+<li><p><code>FP_VARday</code>     : NEE filtered for daytime records (others NA)</p></li>
+<li><p><code>NEW_FP_Temp</code>   : temperature after filtering for quality flag, degree Celsius</p></li>
+<li><p><code>NEW_FP_VPD</code>    : vapour pressure deficit after filtering for quality flag, hPa</p></li>
+<li><p><code>FP_RRef_Night</code> : basal respiration estimated from nighttime (W / m2)</p></li>
+<li><p><code>FP_qc</code>         : quality flag:</p><ul><li><p>0 : good parameter fit,</p></li>
+<li><p>1 : some parameters out of range, required refit,</p></li>
+<li><p>2 : next parameter estimate is more than two weeks away</p></li>
+</ul></li>
+<li><p><code>FP_dRecPar</code>    : records until or after closest record that has a parameter estimate associated</p></li>
+<li><p><code>FP_errorcode</code>  : information why LRC-fit was not successful or was rejected, see result of <code><a href="LRC_fitLRC.html">LRC_fitLRC()</a></code></p></li>
+<li><p><code>FP_GPP2000</code>    : predicted GPP at VPD = 0 and PAR = 2000 : a surrogate for maximum photosynthetic capacity</p></li>
+<li><p><code>FP_OPT_VPD</code>    : list object of fitting results including <code>iOpt</code> and <code>covParms</code></p></li>
+<li><p><code>FP_OPT_NoVPD</code>  : list object of fitting results with fit neglecting the VPD effect</p></li>
 </ul></div>
     <div id="details">
     <h2>Details</h2>
