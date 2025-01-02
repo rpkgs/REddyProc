@@ -37,7 +37,9 @@ Encoding: UTF-8
 LazyData: true
 VignetteBuilder: knitr
 LinkingTo: Rcpp
-Depends: R (>= 3.0.0), methods
+Depends: 
+    R (>= 3.5),
+    methods
 Imports: Rcpp, dplyr, purrr, rlang, readr, tibble, 
     data.table, crayon, 
     magrittr, solartime, 

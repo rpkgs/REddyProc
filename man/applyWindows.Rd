@@ -8,10 +8,7 @@ applyWindows(
   ds,
   FUN,
   prevRes = list(),
-  winSizeInDays = winSizeRefInDays,
-  winSizeRefInDays = 4L,
-  strideInDays = floor(winSizeRefInDays/2L),
-  nRecInDay = 48L,
+  winInfo = get_winInfo(nrow(ds)),
   isVerbose = TRUE,
   ...
 )
@@ -26,16 +23,6 @@ third: most recent valid result of calls FUN. Valid is a non-NULL result.}
 
 \item{prevRes}{initial values for the list that
 is carried between windows}
-
-\item{winSizeInDays}{Window size in days}
-
-\item{winSizeRefInDays}{Window size in days for reference window
-(e.g. day-Window for night time)}
-
-\item{strideInDays}{step in days for shifting the window, for alligning
-usually a factor of winSizeRef}
-
-\item{nRecInDay}{number of records within one day (for half-hourly data its 48)}
 
 \item{isVerbose}{set to FALSE to suppress messages}
 

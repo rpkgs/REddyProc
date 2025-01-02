@@ -47,12 +47,15 @@ partGL_FitNight_E0_RRef <- function(
   if (isVerbose) 
     message("  Estimating temperature sensitivity from night time NEE ", appendLF = FALSE)
   
-  resNight <- simplifyApplyWindows(tmp <- applyWindows(ds,
-    partGL_FitNight_1win_E0,
-    prevRes = data.frame(E0 = NA),
+  winInfo <- get_winInfo(nrow(ds),
     winSizeRefInDays = winSizeRefInDays,
     winSizeInDays = winSizeNight,
-    nRecInDay = nRecInDay,
+    nRecInDay = nRecInDay
+  )
+  
+  resNight <- simplifyApplyWindows(tmp <- applyWindows(ds,
+    partGL_FitNight_1win_E0,
+    prevRes = data.frame(E0 = NA), winInfo = winInfo,
     isVerbose = isVerbose, controlGLPart = controlGLPart))
   iNoSummary <- which(is.na(resNight$E0))
   iExtend <- 1
@@ -63,13 +66,15 @@ partGL_FitNight_E0_RRef <- function(
     if (isVerbose) 
       message("    increase window size to ", winExtendSizes[iExtend], appendLF = FALSE)
     
-    resNightExtend <- simplifyApplyWindows(applyWindows(ds,
-      partGL_FitNight_1win_E0,
-      prevRes = data.frame(E0 = NA),
+    .winInfo <- get_winInfo(nrow(ds),
       winSizeRefInDays = winSizeRefInDays,
       winSizeInDays = winExtendSizes[iExtend],
+      nRecInDay = nRecInDay
+    )
+    resNightExtend <- simplifyApplyWindows(applyWindows(ds,
+      partGL_FitNight_1win_E0,
+      prevRes = data.frame(E0 = NA), winInfo = .winInfo,
       isVerbose = isVerbose,
-      nRecInDay = nRecInDay,
       controlGLPart = controlGLPart
     )) # T_ref固定(median(temp)), 优化得到`E0`, `RRef`
     resNight[iNoSummary, ] <- resNightExtend[iNoSummary, ]
@@ -103,11 +108,9 @@ partGL_FitNight_E0_RRef <- function(
   if (isVerbose) message(
       "  Estimating respiration at reference temperature for smoothed temperature",
       " sensitivity from night time NEE ", appendLF = FALSE)
+  
   resRef15 <- simplifyApplyWindows(tmp <- applyWindows(ds,
-    partGL_FitNight_1win_RRef,
-    winSizeRefInDays = winSizeRefInDays,
-    winSizeInDays = winSizeNight,
-    nRecInDay = nRecInDay, 
+    partGL_FitNight_1win_RRef, winInfo = winInfo, 
     E0Win = E0Smooth,
     controlGLPart = controlGLPart,
     isVerbose = isVerbose

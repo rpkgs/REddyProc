@@ -80,10 +80,7 @@ get_winInfo <- function(
 #'
 #' @export
 applyWindows <- function(
-    ds, FUN, prevRes = list(),
-    winSizeInDays = winSizeRefInDays,
-    winSizeRefInDays = 4L, strideInDays = floor(winSizeRefInDays / 2L),
-    nRecInDay = 48L,
+    ds, FUN, prevRes = list(), winInfo = get_winInfo(nrow(ds)),
     isVerbose = TRUE, ...) {
   ## details<<
   # Assumes equidistant rows with nRecInDay records forming one day and
@@ -95,17 +92,18 @@ applyWindows <- function(
   # window of winSizeRefInDays Each window is anchord so that the center equals
   # the center of the reference window.
   # This becomes important when selecting records at the edges of the series.
-  info <- get_winInfo(nrow(ds), winSizeInDays, winSizeRefInDays, strideInDays, nRecInDay)
-  nWindow <- nrow(info)
+
+  # winInfo <- get_winInfo(nrow(ds), winSizeInDays, winSizeRefInDays, strideInDays, nRecInDay)
+  nWindow <- nrow(winInfo)
 
   # each will hold a data.frame to be row-bound afterwards (dont know the cols yet)
   res2List <- vector("list", nWindow)
   for (iWindow in 1:nWindow) {
-    if (isVerbose) message(", ", info$dayStart[iWindow], appendLF = FALSE)
-    startRec <- info$iRecStart[iWindow]
-    endRec <- info$iRecEnd[iWindow]
+    if (isVerbose) message(", ", winInfo$dayStart[iWindow], appendLF = FALSE)
+    startRec <- winInfo$iRecStart[iWindow]
+    endRec <- winInfo$iRecEnd[iWindow]
     dsWin <- ds[startRec:endRec, ]
-    resFun <- FUN(dsWin, info[iWindow, ], prevRes, ...)
+    resFun <- FUN(dsWin, winInfo[iWindow, ], prevRes, ...)
     ## details<< Usually indicate an invalid result by returning NULL.
     ## If one still wants to store results but prevent updating the
     ## \code{prevRes} argument supplied to the next call
@@ -118,7 +116,7 @@ applyWindows <- function(
     }
   }
   if (isVerbose) message("") # LineFeed
-  list(winInfo = info, resFUN = res2List)
+  list(winInfo = winInfo, resFUN = res2List)
 }
 
 #' simplify the result returned by applyWindows

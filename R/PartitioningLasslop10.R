@@ -149,7 +149,7 @@ partitionNEEGL <- function(
     if (!length(dsTempSens$RRef) || all(is.na(dsTempSens$RRef))) {
       resRef15 <- simplifyApplyWindows(applyWindows(dsR,
         partGL_FitNight_1win_RRef,
-        nRecInDay = nRecInDay,
+        winInfo = get_winInfo(nrow(dsR), nRecInDay = nRecInDay), 
         E0Win = dsTempSens,
         controlGLPart = controlGLPart,
         isVerbose = isVerbose
@@ -344,6 +344,8 @@ partGLExtractStandardData <- function(ds
   , Suffix.s ## << deprecated
   , controlGLPart = partGLControl() ## << further default parameters,
 ) {
+  class(ds) <- "data.frame"
+  
   if (!missing(NEEVar.s)) NEEVar <- NEEVar.s # in default, lines too wide
   if (!missing(TempVar.s)) TempVar <- TempVar.s
   varNamesDepr <- c(
@@ -431,7 +433,7 @@ partGLExtractStandardData <- function(ds
   isDay <- (ds[[RadVar]] > 4 & isNotPotRadZero)
   #
   ## value<< a data.frame with columns
-  dsR <- data.frame(
+  dsR <- tibble(
     sDateTime = ds[[1]] ## << first column of \code{ds},
     ## usually the time stamp
     ## not used, but usually first column is a DateTime is kept
@@ -464,7 +466,7 @@ partGLExtractStandardData <- function(ds
       controlGLPart$replaceMissingSdNEEParms[2]
     )
   }
-  dsR
+  dsR#%>% as_tibble()
 }
 
 
@@ -496,13 +498,14 @@ partGLFitLRCWindows <- function(
     message("  Estimating light response curve parameters from day time NEE ",
       appendLF = FALSE)
   }
+
+  winInfo = get_winInfo(nrow(ds), winSizeInDays = 4L, nRecInDay = nRecInDay)
+  
   resLRC <- applyWindows(ds, partGLFitLRCOneWindow,
     prevRes = list(resOpt = list(thetaOpt = rep(NA_real_, 6L))),
-    winSizeInDays = 4L,
+    winInfo = winInfo,
     isVerbose = isVerbose,
-    nRecInDay = nRecInDay
-    
-    , E0Win = dsTempSens,
+    E0Win = dsTempSens,
     controlGLPart = controlGLPart,
     lrcFitter = lrcFitter
   )

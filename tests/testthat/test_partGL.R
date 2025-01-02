@@ -1,4 +1,3 @@
-#+++ Unit tests for fConvertTimeToPosix functions +++
 context("partGL")
 
 library(dplyr)
@@ -10,7 +9,6 @@ if (!exists(".partGPAssociateSpecialRows")) {
 }
 if (!exists(".binUstar")) .binUstar <- REddyProc:::.binUstar
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # 10 days from June from Example_DETha98.txt shipped with REddyProc
 # if (0) {
   Example_DETha98_Filled <- getFilledExampleDETha98Data()
@@ -64,7 +62,6 @@ if (!exists(".binUstar")) .binUstar <- REddyProc:::.binUstar
   save(dsNEE, file = "tmp/dsNEE_Tharandt.RData")
   dput(dsNEE)
 }
-
 
 source("data-partGL.R")
 
@@ -191,7 +188,7 @@ test_that("applyWindows", {
   # larger than reference window of 4 days
   resApply <- REddyProc:::applyWindows(
     ds, fReportTime, prevRes,
-    winSizeInDays = 6L, nRecInDay = nRecInDay
+    winInfo = get_winInfo(nrow(ds), winSizeInDays = 6L, nRecInDay = nRecInDay)
   )
   res <- cbind(resApply$winInfo, tmp <- do.call(
     rbind, lapply(resApply$resFUN, "[[", 1L)
@@ -233,8 +230,8 @@ test_that("simplifyApplyWindows", {
   fReportTimeSimple(ds, 0)
   # larger than reference window of 4 days
   resApply <- REddyProc:::applyWindows(
-    ds, fReportTimeSimple,
-    winSizeInDays = 6L, nRecInDay = nRecInDay
+    ds, fReportTimeSimple, 
+    winInfo = get_winInfo(nrow(ds), winSizeInDays = 6L, nRecInDay = nRecInDay)
   )
   res <- REddyProc:::simplifyApplyWindows(resApply)
   nRecRes <- nrow(res)
@@ -256,8 +253,8 @@ test_that("simplifyApplyWindows", {
   fReportTimeSimpleDs(ds, 0)
   # larger than reference window of 4 days
   resApply <- REddyProc:::applyWindows(
-    ds, fReportTimeSimpleDs,
-    winSizeInDays = 6L, nRecInDay = nRecInDay
+    ds, fReportTimeSimpleDs, 
+    winInfo = get_winInfo(nrow(ds), winSizeInDays = 6L, nRecInDay = nRecInDay)
   )
   resDs <- REddyProc:::simplifyApplyWindows(resApply)
   expect_equal(res, resDs)
@@ -273,7 +270,7 @@ test_that("estimating temperature sensitivity windows outputs are in accepted ra
     REddyProc:::applyWindows(
       dss, REddyProc:::partGL_FitNight_1win_E0,
       prevRes = data.frame(E0 = NA),
-      winSizeInDays = 12L
+      winInfo = get_winInfo(nrow(dss), winSizeInDays = 12L)
       # ,controlGLPart = controlGLPart
     )
   )
@@ -286,7 +283,6 @@ test_that("estimating temperature sensitivity windows outputs are in accepted ra
 test_that("partGLFitLRCWindows outputs are in accepted range", {
   skip_if_not_installed("mlegp")
   ds <- partGLExtractStandardData(dsNEE)
-  #
   # yday <- as.POSIXlt(dsNEE$sDateTime)$yday
   dsTempSens <- dsTempSens0 <- REddyProc:::partGL_FitNight_E0_RRef(
     ds,
@@ -295,7 +291,7 @@ test_that("partGLFitLRCWindows outputs are in accepted range", {
   )
   lrcFitter <- RectangularLRCFitter()
   # lrcFitter <- NonrectangularLRCFitter()
-  resFits <- REddyProc:::partGLFitLRCWindows(
+  resFits <- partGLFitLRCWindows(
     ds,
     nRecInDay = 48L, dsTempSens = dsTempSens,
     controlGLPart = partGLControl(nBootUncertainty = 10L),
