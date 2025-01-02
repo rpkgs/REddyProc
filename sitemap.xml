@@ -106,6 +106,7 @@
 <url><loc>/reference/pipe.html</loc></url>
 <url><loc>/reference/read_from_ameriflux22.html</loc></url>
 <url><loc>/reference/read_from_fluxnet15.html</loc></url>
+<url><loc>/reference/reexports.html</loc></url>
 <url><loc>/reference/renameVariablesInDataframe.html</loc></url>
 <url><loc>/reference/replaceMissingSdByPercentage.html</loc></url>
 <url><loc>/reference/sEddyProc-class.html</loc></url>
