@@ -132,7 +132,7 @@ fCheckOutsideRange <- function(
 {
   fCheckColNames(Data.F, VarName.s, paste(CallFunction.s, 'fCheckOutsideRange', sep = ':::'))
   fCheckColNum(Data.F, VarName.s, paste(CallFunction.s, 'fCheckOutsideRange',  sep = ':::'))
-  Var.V.n <- Data.F[, VarName.s]
+  Var.V.n <- Data.F[[VarName.s]]
 
   # Check condition
   CondText.s <- if (length(Condition.V.s) == 2 && Condition.V.s[1]  %in% c('<', ' <= ', ' == ', ' >= ', '>', ' != ') && nzchar(Condition.V.s[2]) ) {

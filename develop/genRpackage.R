@@ -112,7 +112,7 @@ if ( length(grep( "twutz", Sys.getenv('HOME'))) != 0 ) {
 if (T==F) { #Only needs to be executed if example files changed...
   # Provide (update) example data for package from txt file
 	Example_DETha98 <- fLoadTXTIntoDataframe('Example_DETha98.txt','inst/examples')
-	save('Example_DETha98', file='data/Example_DETha98.Rdata')
+	save('Example_DETha98', file='data-raw/Example_DETha98.Rdata')
 }
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

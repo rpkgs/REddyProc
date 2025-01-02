@@ -6,7 +6,7 @@
 context("gapfilling")
 # Furher context: fCheckColNames, fCheckColNumeric, fCheckOutsideRange
 
-if (!exists("Example_DETha98")) load("data/Example_DETha98.RData")
+if (!exists("Example_DETha98")) load("data-raw/Example_DETha98.RData")
 EddyData <- Example_DETha98 %>% filterLongRuns("NEE")
 #Include POSIX time stamp column
 EddyDataWithPosix <- suppressMessages(fConvertTimeToPosix(

@@ -12,7 +12,7 @@ if (!exists(".binUstar")) .binUstar <- REddyProc:::.binUstar
 # Example is accessible if package is installed, otherwise need to load it from
 #  data directory below package root
 tmp <- Example_DETha98
-#if (!exists("Example_DETha98")) load("data/Example_DETha98.RData")
+#if (!exists("Example_DETha98")) load("data-raw/Example_DETha98.RData")
 EddyData.F <- Example_DETha98
 
 EddyDataWithPosix.F <- ds <- suppressMessages(

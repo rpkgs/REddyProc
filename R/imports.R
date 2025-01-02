@@ -49,3 +49,8 @@ NULL
 #"%>%" <- magrittr::"%>%"
 
 NULL
+
+
+#' @importFrom lubridate month
+#' @export
+lubridate::month

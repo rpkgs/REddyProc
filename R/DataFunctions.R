@@ -30,9 +30,7 @@ help_DateTimes <- function(
 }
 
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #+++ Time format conversion to POSIX
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #' @export
 fConvertTimeToPosix <- function(
@@ -373,7 +371,6 @@ fCheckHHTimeSeries <- function(
   ## Function stops on errors.
 }
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 fFullYearTimeSteps <- function(
   ##description<<
   ## Generate vector with (half-)hourly time steps of full year, stamped in the
@@ -405,7 +402,6 @@ fFullYearTimeSteps <- function(
   ## Vector with time steps of full year in POSIX format
 }
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 fExpandToFullYear <- function(
   ##description<<

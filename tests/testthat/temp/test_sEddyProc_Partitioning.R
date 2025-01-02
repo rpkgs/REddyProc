@@ -1,18 +1,12 @@
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #+++ Unit tests for sEddyProc functions regarding partioning +++
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Author: TW
-#require(testthat)
 context("sEddyProc-Class partitioning")
-
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 if (!exists(".binUstar") ) .binUstar <- REddyProc:::.binUstar
 
 # Example is accessible if package is installed, otherwise need to load
 # it from data directory below package root
-if (!exists("Example_DETha98")) load("data/Example_DETha98.RData")
-EddyData.F <- Example_DETha98
+if (!exists("Example_DETha98")) load("data-raw/Example_DETha98.RData")
+EddyData.F <- DETha98 %>% as.data.frame()
 
 #Include POSIX time stamp column
 EddyDataWithPosix.F <- suppressMessages(fConvertTimeToPosix(
@@ -139,5 +133,3 @@ test_that("Tuning the temperature range",{
 })
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-

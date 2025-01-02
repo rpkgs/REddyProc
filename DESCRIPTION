@@ -41,7 +41,7 @@ Depends:
     R (>= 3.5),
     methods
 Imports: Rcpp, dplyr, purrr, rlang, readr, tibble, 
-    data.table, crayon, 
+    data.table, lubridate, crayon, 
     magrittr, solartime, 
     bigleaf (>= 0.7), mlegp
 Suggests: testthat, lubridate, minpack.lm, segmented, knitr, rmarkdown, lognorm, ggplot2, 

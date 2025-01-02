@@ -2,7 +2,7 @@
 #require(testthat)
 context("plotFingerPrint")
 
-if (!exists("Example_DETha98")) load("data/Example_DETha98.RData")
+if (!exists("Example_DETha98")) load("data-raw/Example_DETha98.RData")
 EddyData.F <- Example_DETha98
 
 #Include POSIX time stamp column
