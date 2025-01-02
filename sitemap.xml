@@ -93,12 +93,12 @@
 <url><loc>/reference/isValidNightRecord.html</loc></url>
 <url><loc>/reference/partGLControl.html</loc></url>
 <url><loc>/reference/partGLControlLasslopCompatible.html</loc></url>
-<url><loc>/reference/partGLEstimateTempSensInBoundsE0Only.html</loc></url>
 <url><loc>/reference/partGLExtractStandardData.html</loc></url>
-<url><loc>/reference/partGLFitNightRespRefOneWindow.html</loc></url>
-<url><loc>/reference/partGLFitNightTempSensOneWindow.html</loc></url>
-<url><loc>/reference/partGLFitNightTimeTRespSens.html</loc></url>
-<url><loc>/reference/partGLSmoothTempSens.html</loc></url>
+<url><loc>/reference/partGL_FitNight_1win_E0.html</loc></url>
+<url><loc>/reference/partGL_FitNight_1win_E0_kernel.html</loc></url>
+<url><loc>/reference/partGL_FitNight_1win_RRef.html</loc></url>
+<url><loc>/reference/partGL_FitNight_E0_RRef.html</loc></url>
+<url><loc>/reference/partGL_smoothE0.html</loc></url>
 <url><loc>/reference/partitionNEEGL.html</loc></url>
 <url><loc>/reference/pipe.html</loc></url>
 <url><loc>/reference/read_from_ameriflux22.html</loc></url>
