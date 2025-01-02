@@ -46,6 +46,8 @@
 <url><loc>/reference/RectangularLRCFitter_computeGPPGradient.html</loc></url>
 <url><loc>/reference/RectangularLRCFitter_predictGPP.html</loc></url>
 <url><loc>/reference/applyWindows.html</loc></url>
+<url><loc>/reference/dot-computeRecoNight.html</loc></url>
+<url><loc>/reference/dot-partGPAssociateSpecialRows.html</loc></url>
 <url><loc>/reference/estimate_vpd_from_dew.html</loc></url>
 <url><loc>/reference/extract_FN15.html</loc></url>
 <url><loc>/reference/fCalcAVPfromVMFandPress.html</loc></url>
@@ -102,6 +104,7 @@
 <url><loc>/reference/read_from_ameriflux22.html</loc></url>
 <url><loc>/reference/read_from_fluxnet15.html</loc></url>
 <url><loc>/reference/renameVariablesInDataframe.html</loc></url>
+<url><loc>/reference/replaceMissingSdByPercentage.html</loc></url>
 <url><loc>/reference/sEddyProc-class.html</loc></url>
 <url><loc>/reference/sEddyProc.html</loc></url>
 <url><loc>/reference/sEddyProc_initialize.html</loc></url>
