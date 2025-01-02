@@ -88,10 +88,13 @@
 <url><loc>/reference/help_DateTimes.html</loc></url>
 <url><loc>/reference/help_export.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/isValidNightRecord.html</loc></url>
 <url><loc>/reference/partGLControl.html</loc></url>
 <url><loc>/reference/partGLControlLasslopCompatible.html</loc></url>
 <url><loc>/reference/partGLEstimateTempSensInBoundsE0Only.html</loc></url>
 <url><loc>/reference/partGLExtractStandardData.html</loc></url>
+<url><loc>/reference/partGLFitNightRespRefOneWindow.html</loc></url>
+<url><loc>/reference/partGLFitNightTempSensOneWindow.html</loc></url>
 <url><loc>/reference/partGLFitNightTimeTRespSens.html</loc></url>
 <url><loc>/reference/partGLSmoothTempSens.html</loc></url>
 <url><loc>/reference/partitionNEEGL.html</loc></url>

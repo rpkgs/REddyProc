@@ -89,6 +89,14 @@ Set it to the center of the data (the default) for best fit (lowest uncertainty)
 <li><p><code>TRefFit</code> : reference temperature used in the E0 fit</p></li>
 <li><p><code>RRefFit</code> : respiration at TRefFit</p></li>
 </ul></div>
+    <div id="details">
+    <h2>Details</h2>
+    <p>Basal respiration is reported for temperature of 15 degree Celsius.
+However during the fit a reference temperature of the median of the dataset
+is used. This is done to avoid strong correlations between estimated
+parameters <code>E0</code> and <code>RRef</code>, that occure if reference temperature is outside
+the center of the data.</p>
+    </div>
     <div id="see-also">
     <h2>See also</h2>
     <div class="dont-index"><p><code>partGLFitLRCWindows()</code></p></div>
