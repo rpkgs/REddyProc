@@ -57,10 +57,7 @@
 <span>  <span class="va">ds</span>,</span>
 <span>  <span class="va">FUN</span>,</span>
 <span>  prevRes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  winSizeInDays <span class="op">=</span> <span class="va">winSizeRefInDays</span>,</span>
-<span>  winSizeRefInDays <span class="op">=</span> <span class="fl">4L</span>,</span>
-<span>  strideInDays <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="va">winSizeRefInDays</span><span class="op">/</span><span class="fl">2L</span><span class="op">)</span>,</span>
-<span>  nRecInDay <span class="op">=</span> <span class="fl">48L</span>,</span>
+<span>  winInfo <span class="op">=</span> <span class="fu">get_winInfo</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">ds</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  isVerbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -84,24 +81,6 @@ third: most recent valid result of calls FUN. Valid is a non-NULL result.</p></d
 <dt id="arg-prevres">prevRes<a class="anchor" aria-label="anchor" href="#arg-prevres"></a></dt>
 <dd><p>initial values for the list that
 is carried between windows</p></dd>
-
-
-<dt id="arg-winsizeindays">winSizeInDays<a class="anchor" aria-label="anchor" href="#arg-winsizeindays"></a></dt>
-<dd><p>Window size in days</p></dd>
-
-
-<dt id="arg-winsizerefindays">winSizeRefInDays<a class="anchor" aria-label="anchor" href="#arg-winsizerefindays"></a></dt>
-<dd><p>Window size in days for reference window
-(e.g. day-Window for night time)</p></dd>
-
-
-<dt id="arg-strideindays">strideInDays<a class="anchor" aria-label="anchor" href="#arg-strideindays"></a></dt>
-<dd><p>step in days for shifting the window, for alligning
-usually a factor of winSizeRef</p></dd>
-
-
-<dt id="arg-nrecinday">nRecInDay<a class="anchor" aria-label="anchor" href="#arg-nrecinday"></a></dt>
-<dd><p>number of records within one day (for half-hourly data its 48)</p></dd>
 
 
 <dt id="arg-isverbose">isVerbose<a class="anchor" aria-label="anchor" href="#arg-isverbose"></a></dt>
