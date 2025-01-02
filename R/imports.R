@@ -41,7 +41,7 @@ NULL
 # does not work without rd roclet
 #' re-export magrittr pipe operator
 #'
-#' @importFrom magrittr %>%
+#' @importFrom magrittr %>% set_attributes
 #' @name %>%
 #' @rdname pipe
 #' @export

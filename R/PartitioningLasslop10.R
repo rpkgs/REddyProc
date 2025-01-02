@@ -41,7 +41,7 @@
 #' `NonrectangularLRCFitter_getParamNames`). They are estimated for windows and
 #' are reported with the first record of the window.
 #'
-#' @seealso [partGLFitNightTimeTRespSens()]
+#' @seealso [partGL_FitNight_E0_RRef()]
 #' @export
 partitionNEEGL <- function(
     ds,
@@ -52,41 +52,32 @@ partitionNEEGL <- function(
     suffix = if (!missing(Suffix.s)) Suffix.s else "",
     NEEVar.s, TempVar.s, VPDVar.s, RadVar.s, Suffix.s # deprecated
     , ..., controlGLPart = partGLControl(), isVerbose = TRUE, nRecInDay = 48L,
-    lrcFitter = RectangularLRCFitter()) {
+    lrcFitter = RectangularLRCFitter()) 
+{
   varNamesDepr <- c("NEEVar.s", "TempVar.s", "VPDVar.s", "RadVar.s", "Suffix.s")
   varNamesNew <- c("NEEVar", "TempVar", "VPDVar", "RadVar", "suffix")
   iDepr <- which(!c(
     missing(NEEVar.s), missing(TempVar.s), missing(VPDVar.s),
     missing(RadVar.s), missing(Suffix.s)
   ))
-  if (length(iDepr)) {
-    warning(
-      "Argument names ", varNamesDepr[iDepr], " have been deprecated.",
-      " Please, use instead ", varNamesNew[iDepr]
-    )
-  }
-
+  if (length(iDepr)) 
+    warning("Argument names ", varNamesDepr[iDepr], " have been deprecated.",
+      " Please, use instead ", varNamesNew[iDepr])
+  
   suffixDash <- paste((if (fCheckValString(suffix)) "_" else ""),
-    suffix,
-    sep = ""
-  ) # used to compute default NEEVar
+    suffix, sep = "") # used to compute default NEEVar
   if (isVerbose) {
-    message(
-      "Start daytime flux partitioning for variable ",
-      NEEVar, " with temperature ", TempVar, "."
-    )
+    message("Start daytime flux partitioning for variable ",
+      NEEVar, " with temperature ", TempVar, ".")
   }
   dsR <- partGLExtractStandardData(ds,
     NEEVar = NEEVar, TempVar = TempVar,
     VPDVar = VPDVar, RadVar = RadVar, suffix = suffix,
-    ..., controlGLPart = controlGLPart
-  )
+    ..., controlGLPart = controlGLPart)
 
   dsAns0 <- tibble(
-    FP_VARnight = rep(NA_real_, nrow(ds)) # NEE filtered
-    ## for nighttime records (others NA)
-    , FP_VARday = NA_real_ # NEE filtered for daytime
-    ## records (others NA)
+    FP_VARnight = rep(NA_real_, nrow(ds)) # NEE filtered for nighttime records (others NA)
+    , FP_VARday = NA_real_ # NEE filtered for daytime records (others NA)
     , NEW_FP_Temp = dsR$Temp # temperature after filtering for quality
     ## flag degree Celsius
     , NEW_FP_VPD = dsR$VPD # vapour pressure deficit after filtering
@@ -113,56 +104,47 @@ partitionNEEGL <- function(
   lrcParNames <- lrcFitter$getParamNames()
   lrcParNames <- c(lrcParNames, paste0(lrcParNames, "_sd"))
   FP_lrcParNames <- paste0("FP_", lrcParNames)
-  tmp <- matrix(NA_real_,
-    nrow = nrow(ds), ncol = length(FP_lrcParNames),
-    dimnames = list(NULL, FP_lrcParNames)
-  )
+  tmp <- matrix(NA_real_, nrow = nrow(ds), ncol = length(FP_lrcParNames),
+    dimnames = list(NULL, FP_lrcParNames))
+
   dsAns <- cbind(dsAns0, tmp)
-  dsAns$FP_VARnight <- ifelse(dsR$isNight, dsR$NEE, NA)
-  attr(dsAns$FP_VARnight, "varnames") <- paste(attr(dsR$NEE, "varnames"),
-    "_night",
-    sep = ""
-  )
-  attr(dsAns$FP_VARnight, "units") <- attr(dsR$NEE, "units")
-  dsAns$FP_VARday <- ifelse(dsR$isDay, dsR$NEE, NA)
-  attr(dsAns$FP_VARday, "varnames") <- paste(attr(dsR$NEE, "varnames"),
-    "_day",
-    sep = ""
-  )
-  attr(dsAns$FP_VARday, "units") <- attr(dsR$NEE, "units")
+
+  .units = attr(dsR$NEE, "units")
+  .varnames = attr(dsR$NEE, "varnames")
+  dsAns$FP_VARnight <- ifelse(dsR$isNight, dsR$NEE, NA) %>% 
+    set_attributes(list(varnames = paste0(.varnames, "_night"), units = .units))
+  dsAns$FP_VARday <- ifelse(dsR$isDay, dsR$NEE, NA) %>% 
+    set_attributes(list(varnames = paste0(.varnames, "_day"), units = .units))
   # Estimate Parameters of light response curve: R_ref, alpha, beta and k
   # according to Table A1 (Lasslop et al., 2010)
 
   isUsingFixedTempSens <- length(controlGLPart$fixedTempSens) &&
     all(is.finite(controlGLPart$fixedTempSens$E0)) &&
     all(is.finite(controlGLPart$fixedTempSens$sdE0))
+  
   dsTempSens <- if (!isUsingFixedTempSens) {
-    dsTempSens <- partGLFitNightTimeTRespSens(dsR,
+    dsTempSens <- partGL_FitNight_E0_RRef(dsR,
       nRecInDay = nRecInDay,
       controlGLPart = controlGLPart,
-      isVerbose = isVerbose
-    )
+      isVerbose = isVerbose)
   } else {
     dsTempSens <- controlGLPart$fixedTempSens
     nWindow <- length(getStartRecsOfWindows(nrow(dsR), nRecInDay = nRecInDay))
     # if one row is given, use it for all windows
     if (nrow(dsTempSens) == 1L) {
-      dsTempSens <- do.call(
-        rbind,
-        lapply(1:nWindow, function(i) dsTempSens)
-      )
+      dsTempSens <- do.call(rbind,
+        lapply(1:nWindow, function(i) dsTempSens))
     }
     if (nrow(dsTempSens) != nWindow) {
       stop(
         "when providing controlGLPart$fixedTempSens then it must be 1 row",
         "or rows must macht the number of windows (", nWindow, "), but was ",
-        nrow(dsTempSens)
-      )
+        nrow(dsTempSens))
     }
     # if no RRef is given, estimate from nighttime data
     if (!length(dsTempSens$RRef) || all(is.na(dsTempSens$RRef))) {
       resRef15 <- simplifyApplyWindows(applyWindows(dsR,
-        partGLFitNightRespRefOneWindow,
+        partGL_FitNight_1win_RRef,
         nRecInDay = nRecInDay,
         E0Win = dsTempSens,
         controlGLPart = controlGLPart,
@@ -173,8 +155,7 @@ partitionNEEGL <- function(
     # fill missing RRef by previous window.
     # on NA at the start of the series, take the first occuring finite value
     dsTempSens$RRef <- fillNAForward(dsTempSens$RRef,
-      firstValue = dsTempSens$RRef[which(is.finite(dsTempSens$RRef))[1]]
-    )
+      firstValue = dsTempSens$RRef[which(is.finite(dsTempSens$RRef))[1]])
     dsTempSens
   }
   ## seealso<< \code{partGLFitLRCWindows}
@@ -213,10 +194,7 @@ partitionNEEGL <- function(
     resParms[, c("RRef_night", "parms_out_range", "convergence", lrcParNames, "GPP2000", "resOpt")]
   ## seealso<< \code{partGLInterpolateFluxes}
   dsAnsFluxes <- partGLInterpolateFluxes(
-    # dsR$Rg
-    ds[[RadVar]]
-    # , dsAns$NEW_FP_VPD, dsAns$NEW_FP_Temp
-    , ds[[VPDVar]],
+    ds[[RadVar]], ds[[VPDVar]],
     ds[[TempVar]] # prediction using non-filtered, i.e. gap-filled
     , resParms,
     controlGLPart = controlGLPart,
@@ -238,14 +216,10 @@ partitionNEEGL <- function(
     ## based on LRC-fits that neglected the VPD effect.
     iNAVPD <- which(is.na(ds[[VPDVar]] & is.na(dsAnsFluxes$GPP)))
     if (length(iNAVPD)) {
-      message(
-        "  could not predict GPP in ", length(iNAVPD),
-        " cases due to missing VPD."
-      )
-      message(
-        "    Therefore refitting LightResponseCurve with option ",
-        "isNeglectVPDEffect = TRUE"
-      )
+      message("  could not predict GPP in ", length(iNAVPD),
+        " cases due to missing VPD.")
+      message("    Therefore refitting LightResponseCurve with option ",
+        "isNeglectVPDEffect = TRUE")
       ctrlNeglectVPD <- within(controlGLPart, isNeglectVPDEffect <- TRUE)
       resParms <- resParmsWithoutVPD <- partGLFitLRCWindows(dsR,
         nRecInDay = nRecInDay,
@@ -255,10 +229,8 @@ partitionNEEGL <- function(
       )
       dsAns$FP_OPT_NoVPD[resParmsWithoutVPD$iCentralRec] <-
         resParmsWithoutVPD$resOpt
-      dsAnsFluxes2 <- partGLInterpolateFluxes(dsR$Rg
-        # , dsAns$NEW_FP_VPD, dsAns$NEW_FP_Temp
-        , ds[[VPDVar]],
-        ds[[TempVar]] # do prediction also using gap-Filled values
+      dsAnsFluxes2 <- partGLInterpolateFluxes(dsR$Rg, 
+        ds[[VPDVar]], ds[[TempVar]] # do prediction also using gap-Filled values
         , resParmsWithoutVPD,
         controlGLPart = ctrlNeglectVPD,
         lrcFitter = lrcFitter
@@ -283,27 +255,25 @@ partitionNEEGL <- function(
   # set quality flag to 2 where next parameter estimate is more than 14 days away
   dsAns$FP_qc[abs(dsAns$FP_dRecPar) > (14 * nRecInDay)] <- 2L
   # dsAns[is.finite(dsAns$FP_beta), ]
-  #
-  RecoDTVar.s <- paste0("Reco_DT", suffixDash)
-  GPPDTVar.s <- paste0("GPP_DT", suffixDash)
+  
+  RecoDTVar.s   <- paste0("Reco_DT", suffixDash)
+  GPPDTVar.s    <- paste0("GPP_DT", suffixDash)
   RecoDTSdVar.s <- paste0(RecoDTVar.s, "_SD")
-  GPPDTSdVar.s <- paste0(GPPDTVar.s, "_SD")
+  GPPDTSdVar.s  <- paste0(GPPDTVar.s, "_SD")
 
-  dsAns[[RecoDTVar.s]] <- dsAnsFluxes$Reco
-  attr(dsAns[[RecoDTVar.s]], "varnames") <- RecoDTVar.s
-  attr(dsAns[[RecoDTVar.s]], "units") <- attr(dsR$NEE, "units")
-
-  dsAns[[GPPDTVar.s]] <- dsAnsFluxes$GPP
-  attr(dsAns[[GPPDTVar.s]], "varnames") <- GPPDTVar.s
-  attr(dsAns[[GPPDTVar.s]], "units") <- attr(dsR$NEE, "units")
-
+  units = attr(dsR$NEE, "units")
+  dsAns[[RecoDTVar.s]] <- dsAnsFluxes$Reco %>% 
+    set_attributes(list(varnames = RecoDTVar.s, units = units))
+  
+  dsAns[[GPPDTVar.s]] <- dsAnsFluxes$GPP %>% 
+    set_attributes(list(varnames = GPPDTVar.s, units = units))
+  
   if (controlGLPart$isSdPredComputed) {
-    dsAns[[RecoDTSdVar.s]] <- dsAnsFluxes$sdReco
-    attr(dsAns[[RecoDTSdVar.s]], "varnames") <- RecoDTSdVar.s
-    attr(dsAns[[RecoDTSdVar.s]], "units") <- attr(dsR$NEE, "units")
-    dsAns[[GPPDTSdVar.s]] <- dsAnsFluxes$sdGPP
-    attr(dsAns[[GPPDTSdVar.s]], "varnames") <- GPPDTSdVar.s
-    attr(dsAns[[GPPDTSdVar.s]], "units") <- attr(dsR$NEE, "units")
+    dsAns[[RecoDTSdVar.s]] <- dsAnsFluxes$sdReco %>% 
+      set_attributes(list(varnames = RecoDTSdVar.s, units = units))
+
+    dsAns[[GPPDTSdVar.s]] <- dsAnsFluxes$sdGPP %>% 
+      set_attributes(list(varnames = GPPDTSdVar.s, units = units))
   }
   # sTEMP$GPP_DT_fqc <<- cbind(sDATA, sTEMP)[, QFFluxVar.s]
   # ! New code: MDS gap filling information are not copied from NEE_fmet
@@ -311,14 +281,12 @@ partitionNEEGL <- function(
   return(dsAns)
 }
 
-#' @param LRCFitConvergenceTolerance convergence criterion for rectangular light
-#' response curve fit. If relative improvement of reducing residual sum of
-#' squares between predictions and observations is less than this criterion,
-#' assume convergence. Decrease to get more precise parameter estimates,
-#' Increase for speedup.
-#'
-#'
-#'
+# ' @param LRCFitConvergenceTolerance convergence criterion for rectangular light
+# ' response curve fit. If relative improvement of reducing residual sum of
+# ' squares between predictions and observations is less than this criterion,
+# ' assume convergence. Decrease to get more precise parameter estimates,
+# ' Increase for speedup.
+
 #' @export
 partGLControl <- function( ### Default list of parameters for Lasslop 2010 daytime flux partitioning
                           LRCFitConvergenceTolerance = 1e-3 ## << convergence criterion for rectangular
@@ -381,7 +349,7 @@ partGLControl <- function( ### Default list of parameters for Lasslop 2010 dayti
                           ## is missing
                           , fixedTempSens = data.frame( ## << data.frame
                             ## of one row or nRow = nWindow
-                            ## corresponding to return value of \code{partGLFitNightTimeTRespSens}
+                            ## corresponding to return value of \code{partGL_FitNight_E0_RRef}
                             ## While column \code{RRef} is used only as a  prior and initial value for
                             ## the daytime-fitting and can be NA,
                             ## \code{E0} is used as given temperature sensitivity and varied according
@@ -500,7 +468,6 @@ partGLControlLasslopCompatible <- function( ### Daytime flux partitioning parms 
                                            ## This overrules option replaceMissingSdNEEParms.
                                            , ... ## << further arguments to \code{\link{partGLControl}}
 ) {
-  ## author<< TW
   ## seealso<< \code{\link{partGLControl}}
   partGLControl(
     nBootUncertainty = nBootUncertainty,
@@ -524,65 +491,76 @@ attr(partGLControlLasslopCompatible, "ex") <- function() {
   partGLControlLasslopCompatible()
 }
 
+#' Relevant columns from original input with defined names
+#' 
+#' @param ds dataset with all the specified input columns and full days in equidistant times
+#' @param NEEVar Variable of NEE
+#' @param QFNEEVar Quality flag of variable
+#' @param QFNEEValue Value of quality flag for _good_ (original) data
+#' @param NEESdVar Variable of standard deviation of net ecosystem fluxes
+#' 
+#' @param TempVar Filled air or soil temperature variable (degC)
+#' @param QFTempVar Quality flag of filled temperature variable
+#' @param QFTempValue Value of temperature quality flag for _good_ (original) data
+#' 
+#' @param VPDVar Filled Vapor Pressure Deficit, VPD (hPa)
+#' @param QFVPDVar Quality flag of filled VPD variable
+#' @param QFVPDValue Value of VPD quality flag for _good_ (original) data
+#' 
+#' @param RadVar Filled radiation variable
+#' @param QFRadVar Quality flag of filled radiation variable
+#' @param QFRadValue Value of radiation quality flag for _good_ (original) data
+#' 
+#' @param PotRadVar Variable name of potential rad. (W / m2)
+#' @param suffix string inserted into column names before identifier for NEE column defaults
+#' 
+#' @param controlGLPart further default parameters
+#' 
+#' @seealso [partGLControl()], [sEddyProc_sMDSGapFillAfterUstar()]
 #' @export
-partGLExtractStandardData <- function( ### Relevant columns from original input with defined names
-                                      ds ## << dataset with all the specified input columns and
-                                      ## full days in equidistant times
-                                      , NEEVar = paste0("NEE", suffixDash, "_f") ## << Variable of NEE
-                                      , QFNEEVar = if (!missing(QFNEEVar.s)) QFNEEVar.s else paste0("NEE", suffixDash, "_fqc") ## << Quality
-                                      ## flag of variable
-                                      , QFNEEValue = if (!missing(QFNEEValue.n)) QFNEEValue.n else 0 ## << Value of quality flag for
-                                      ## _good_ (original) data
-                                      , NEESdVar = if (!missing(NEESdVar.s)) NEESdVar.s else paste0("NEE", suffixDash, "_fsd") ## << Variable of
-                                      ## standard deviation of net ecosystem fluxes
-                                      , TempVar = paste0("Tair_f") ## << Filled air or soil
-                                      ## temperature variable (degC)
-                                      , QFTempVar = if (!missing(QFTempVar.s)) QFTempVar.s else paste0("Tair_fqc") ## << Quality flag of
-                                      ## filled temperature variable
-                                      , QFTempValue = if (!missing(QFTempValue.n)) QFTempValue.n else 0 ## << Value of temperature quality flag
-                                      ## for _good_ (original) data
-                                      , VPDVar = if (!missing(VPDVar.s)) VPDVar.s else paste0("VPD_f") ## << Filled Vapor Pressure Deficit, VPD (hPa)
-                                      , QFVPDVar = if (!missing(QFVPDVar.s)) QFVPDVar.s else paste0("VPD_fqc") ## << Quality flag of filled VPD variable
-                                      , QFVPDValue = if (!missing(QFVPDValue.n)) QFVPDValue.n else 0 ## << Value of VPD quality flag for
-                                      ## _good_ (original) data
-                                      , RadVar = if (!missing(RadVar.s)) RadVar.s else "Rg_f" ## << Filled radiation variable
-                                      , QFRadVar = if (!missing(QFRadVar.s)) QFRadVar.s else paste0("Rg_fqc") ## << Quality flag of filled radiation variable
-                                      , QFRadValue = if (!missing(QFRadValue.n)) QFRadValue.n else 0 ## << Value of radiation quality flag for
-                                      ## _good_ (original) data
-                                      , PotRadVar = if (!missing(PotRadVar.s)) PotRadVar.s else "PotRad_NEW" ## << Variable name of potential rad. (W / m2)
-                                      , suffix = if (!missing(Suffix.s)) Suffix.s else "" ## << string inserted into column names before
-                                      ## identifier for NEE column defaults
-                                      ## (see \code{\link{sEddyProc_sMDSGapFillAfterUstar}}).
-                                      , NEEVar.s ## << deprecated
-                                      , QFNEEVar.s ## << deprecated
-                                      , QFNEEValue.n ## << deprecated
-                                      , NEESdVar.s ## << deprecated
-                                      , TempVar.s ## << deprecated
-                                      , QFTempVar.s ## << deprecated
-                                      , QFTempValue.n ## << deprecated
-                                      , VPDVar.s ## << deprecated
-                                      , QFVPDVar.s ## << deprecated
-                                      , QFVPDValue.n ## << deprecated
-                                      , RadVar.s ## << deprecated
-                                      , QFRadVar.s ## << deprecated
-                                      , QFRadValue.n ## << deprecated
-                                      , PotRadVar.s ## << deprecated
-                                      , Suffix.s ## << deprecated
-                                      , controlGLPart = partGLControl() ## << further default parameters,
-                                      ## see \code{\link{partGLControl}}
+partGLExtractStandardData <- function(ds
+  , NEEVar = paste0("NEE", suffixDash, "_f")
+  , QFNEEVar = if (!missing(QFNEEVar.s)) QFNEEVar.s else paste0("NEE", suffixDash, "_fqc")
+  , QFNEEValue = if (!missing(QFNEEValue.n)) QFNEEValue.n else 0
+  , NEESdVar = if (!missing(NEESdVar.s)) NEESdVar.s else paste0("NEE", suffixDash, "_fsd")
+  , TempVar = paste0("Tair_f")
+  , QFTempVar = if (!missing(QFTempVar.s)) QFTempVar.s else paste0("Tair_fqc")
+  , QFTempValue = if (!missing(QFTempValue.n)) QFTempValue.n else 0
+  , VPDVar = if (!missing(VPDVar.s)) VPDVar.s else paste0("VPD_f")
+  , QFVPDVar = if (!missing(QFVPDVar.s)) QFVPDVar.s else paste0("VPD_fqc")
+  , QFVPDValue = if (!missing(QFVPDValue.n)) QFVPDValue.n else 0
+  , RadVar = if (!missing(RadVar.s)) RadVar.s else "Rg_f"
+  , QFRadVar = if (!missing(QFRadVar.s)) QFRadVar.s else paste0("Rg_fqc")
+  , QFRadValue = if (!missing(QFRadValue.n)) QFRadValue.n else 0
+  , PotRadVar = if (!missing(PotRadVar.s)) PotRadVar.s else "PotRad_NEW"
+  , suffix = if (!missing(Suffix.s)) Suffix.s else ""
+  , NEEVar.s ## << deprecated
+  , QFNEEVar.s ## << deprecated
+  , QFNEEValue.n ## << deprecated
+  , NEESdVar.s ## << deprecated
+  , TempVar.s ## << deprecated
+  , QFTempVar.s ## << deprecated
+  , QFTempValue.n ## << deprecated
+  , VPDVar.s ## << deprecated
+  , QFVPDVar.s ## << deprecated
+  , QFVPDValue.n ## << deprecated
+  , RadVar.s ## << deprecated
+  , QFRadVar.s ## << deprecated
+  , QFRadValue.n ## << deprecated
+  , PotRadVar.s ## << deprecated
+  , Suffix.s ## << deprecated
+  , controlGLPart = partGLControl() ## << further default parameters,
 ) {
   if (!missing(NEEVar.s)) NEEVar <- NEEVar.s # in default, lines too wide
   if (!missing(TempVar.s)) TempVar <- TempVar.s
   varNamesDepr <- c(
     "NEEVar.s", "TempVar.s", "VPDVar.s", "RadVar.s", "Suffix.s",
     "QFNEEVar.s", "QFNEEValue.n", "QFTempVar.s", "QFTempValue.n",
-    "QFVPDVar.s", "QFVPDValue.n", "QFRadVar.s", "QFRadValue.n", "PotRadVar.s"
-  )
+    "QFVPDVar.s", "QFVPDValue.n", "QFRadVar.s", "QFRadValue.n", "PotRadVar.s")
   varNamesNew <- c(
     "NEEVar", "TempVar", "VPDVar", "RadVar", "suffix",
     "QFNEEVar", "QFNEEValue", "QFTempVar", "QFTempValue",
-    "QFVPDVar", "QFVPDValue", "QFRadVar", "QFRadValue", "PotRadVar"
-  )
+    "QFVPDVar", "QFVPDValue", "QFRadVar", "QFRadValue", "PotRadVar")
   iDepr <- which(!c(
     missing(NEEVar.s), missing(TempVar.s), missing(VPDVar.s), missing(RadVar.s),
     missing(Suffix.s), missing(QFNEEVar.s), missing(QFNEEValue.n),
@@ -593,16 +571,12 @@ partGLExtractStandardData <- function( ### Relevant columns from original input 
   if (length(iDepr)) {
     warning(
       "Argument names ", varNamesDepr[iDepr], " have been deprecated.",
-      " Please, use instead ", varNamesNew[iDepr]
-    )
+      " Please, use instead ", varNamesNew[iDepr])
   }
 
   # Check if specified columns exist in sDATA or sTEMP and if numeric
   # and plausible. Then apply quality flag
-  suffixDash <- paste((if (fCheckValString(suffix)) "_" else ""),
-    suffix,
-    sep = ""
-  )
+  suffixDash <- paste0((if (fCheckValString(suffix)) "_" else ""), suffix)
   # Check if specified columns exist in sDATA or sTEMP and if numeric
   # and plausible. Then apply quality flag
   fCheckColNames(ds, c(
@@ -623,8 +597,7 @@ partGLExtractStandardData <- function( ### Relevant columns from original input 
   # TODO: docu meteo filter, standard FALSE
   NEW_FP_Temp <- if (isTRUE(controlGLPart$isFilterMeteoQualityFlag)) {
     fSetQF(
-      ds, TempVar, QFTempVar, QFTempValue, "partGLExtractStandardData"
-    )
+      ds, TempVar, QFTempVar, QFTempValue, "partGLExtractStandardData")
   } else {
     ds[[TempVar]]
   }
@@ -638,7 +611,7 @@ partGLExtractStandardData <- function( ### Relevant columns from original input 
   } else {
     ds[[RadVar]]
   }
-  #
+
   # Filter night time values only
   # ! Note: Rg <= 4 congruent with Lasslop et al., 2010 to define Night
   # for the calculation of E_0.n
@@ -833,16 +806,13 @@ partGLFitLRCOneWindow <- function(
       ),
       isValid = FALSE)
   }
-  if (is.na(E0)) {
-    return(getNAResult(1010L))
-  }
-  #
-  ## details<< If there are too few records (<
-  ## \code{controlGLPart$minNRecInDayWindow}), then
-  ## the constraint on non-NA VPD is neglected and
-  ## \code{controlGLPart$isNeglectVPDEffect} is set to TRUE
-  ## If there are still too few records, an NA-result with convergence
-  ## code 1011L is returned.
+  if (is.na(E0)) return(getNAResult(1010L))
+  
+  # details<< If there are too few records (<
+  # \code{controlGLPart$minNRecInDayWindow}), then the constraint on non-NA VPD
+  # is neglected and \code{controlGLPart$isNeglectVPDEffect} is set to TRUE If
+  # there are still too few records, an NA-result with convergence code 1011L is
+  # returned.
   if ((sum(isValidDayRec) < controlGLPart$minNRecInDayWindow)) {
     controlGLPart$isNeglectVPDEffect <- TRUE
     isValidDayRec <- isValidDayRecNoVPDConstraint
@@ -861,7 +831,7 @@ partGLFitLRCOneWindow <- function(
   # iMeanRecInDayWindow <- as.integer(nrow(ds)%/%2)
   # TODO firstRecInDayWindow.i <- which(SubsetDayPeriod.b)[1]
   # the rownumber of the first record inside the day window
-  ## seealso<< \code{\link{partGLEstimateTempSensInBoundsE0Only}}
+  ## seealso<< \code{\link{partGL_FitNight_1win_E0_kernel}}
   #
   ## seealso<< \code{\link{LRC_fitLRC}}
   # lrcFitter <- RectangularLRCFitter()
@@ -871,9 +841,8 @@ partGLFitLRCOneWindow <- function(
     controlGLPart = controlGLPart,
     lastGoodParameters = prevRes$resOpt$thetaOpt
   )
-  if (!is.finite(resOpt$thetaOpt[1])) {
-    return(getNAResult(resOpt$convergence))
-  }
+  if (!is.finite(resOpt$thetaOpt[1])) return(getNAResult(resOpt$convergence))
+  
   sdTheta <- resOpt$thetaOpt
   sdTheta[] <- NA
   sdTheta[resOpt$iOpt] <- sqrt(diag(resOpt$covParms)[resOpt$iOpt])
@@ -957,7 +926,6 @@ partGLInterpolateFluxes <- function( ### Interpolate Reco and GPP from two neigh
                                     , lrcFitter ## << R5 class instance responsible for fitting the LRC curve
                                     , isVerbose = TRUE ## << set to FALSE to suppress messages
 ) {
-  ## author<< TW
   ## seealso<< \code{link{partitionNEEGL}}
   ## details<<
   ## \code{resLRC$iFirstRecInCentralDay} must denote the row for which the
