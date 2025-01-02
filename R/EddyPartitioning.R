@@ -1,4 +1,3 @@
-
 #' @export
 sEddyProc_sGLFluxPartitionUStarScens <- function(
   ### Flux partitioning after Lasslop et al. (2010)
@@ -33,40 +32,34 @@ sEddyProc_sGLFluxPartitionUStarScens <- function(
 sEddyProc$methods(
   sGLFluxPartitionUStarScens = sEddyProc_sGLFluxPartitionUStarScens)
 
+#' Daytime-based Flux partitioning after Lasslop et al. (2010)
+#' 
+#' @param ... arguments to [partitionNEEGL()] in addition to the dataset such as
+#' `suffix`
+#' @param debug list with debugging control
+#' - `useLocaltime` if TRUE use local time zone instead of geo-solar time to compute potential radiation
+#' @param isWarnReplaceColumns set to FALSE to avoid the warning on replacing output columns
+#' 
+#' @return Flux partitioning results are in `sTEMP` data frame of the class.
+#' 
+#' @references 
+#' Lasslop G, Reichstein M, Papale D, et al. (2010) Separation of net ecosystem
+#'    exchange into assimilation and respiration using a light response curve
+#'    approach: critical issues and global evaluation. Global Change Biology,
+#'    Volume 16, Issue 1, Pages 187-208
 #' @export
-sEddyProc_sGLFluxPartition <- function(
-  ### Daytime-based Flux partitioning after Lasslop et al. (2010)
-  ...		##<< arguments to \code{\link{partitionNEEGL}} in addition to the dataset
-  ## such as \code{suffix}
-  , debug = list(   ##<< List with debugging control.
-    ##describe<<
-    useLocaltime = FALSE	##<< if TRUE use local time zone instead of
-    ## geo-solar time to compute potential radiation
-    ##end<<
-  )
+sEddyProc_sGLFluxPartition <- function(..., debug = list(useLocaltime = FALSE)
   , debug.l ##<< deprecated, renamed to debug
-  , isWarnReplaceColumns = TRUE		##<< set to FALSE to avoid the warning on
-  ## replacing output columns
-) {
+  , isWarnReplaceColumns = TRUE) {
   if (!missing(debug.l)) {
     warning("sEddyProc_sGLFluxPartition: argument name debug.l is deprecated. "
       , "use debug instead.")
     debug <- debug.l
   }
-  ##details<<
-  ## Daytime-based partitioning of measured net ecosystem fluxes into gross
-  ## primary production (GPP)
-  ## and ecosystem respiration (Reco)
-  ##author<< MM, TW
-  ##references<<
-  ## Lasslop G, Reichstein M, Papale D, et al. (2010) Separation of net
-  ## ecosystem exchange into assimilation and respiration using
-  ## a light response curve approach: critical issues and global evaluation.
-  ## Global Change Biology, Volume 16, Issue 1, Pages 187-208
+
   .self$sCalcPotRadiation(useSolartime = !isTRUE(debug$useLocaltime) )
-  dsAns <- partitionNEEGL(cbind(.self$sDATA, .self$sTEMP), ...
-                          , nRecInDay = sINFO$DTS
-  )
+  dsAns <- partitionNEEGL(cbind(.self$sDATA, .self$sTEMP), ..., nRecInDay = sINFO$DTS)
+
   iExisting <- na.omit(match(colnames(dsAns), colnames(.self$sTEMP)  ))
   if (length(iExisting) ) {
     if (isWarnReplaceColumns) warning(
@@ -76,8 +69,6 @@ sEddyProc_sGLFluxPartition <- function(
   }
   sTEMP <<- cbind(.self$sTEMP, dsAns)
   return(invisible(NULL))
-  ##value<<
-  ## Flux partitioning results are in sTEMP data frame of the class.
 }
 sEddyProc$methods(sGLFluxPartition = sEddyProc_sGLFluxPartition)
 
@@ -102,37 +93,35 @@ sEddyProc_sTKFluxPartitionUStarScens <- function(
 sEddyProc$methods(
   sTKFluxPartitionUStarScens = sEddyProc_sTKFluxPartitionUStarScens)
 
+#' Modified daytime-based Flux partitioning after Keenan et al. (2019)
+#' 
+#' @param ... arguments to [sEddyProc_sGLFluxPartition()]
+#' @param controlGLPart further default parameters, such as `suffix`
+#' 
+#' @return Flux partitioning results are in sTEMP data frame of the class.
 #' @export
-sEddyProc_sTKFluxPartition <- function(
-  ### Modified daytime-based Flux partitioning after Keenan et al. (2019)
-  ...		##<< arguments to \code{\link{sEddyProc_sGLFluxPartition}}
-  ## in addition to the dataset
-  , controlGLPart = partGLControl()	##<< further default parameters,
-  ## such as \code{suffix}
-) {
+sEddyProc_sTKFluxPartition <- function(..., controlGLPart = partGLControl()) {
   warning("Modified daytime partioning (Keenan 2019) is experimental. Use with caution.")
   controlGLPart$useNightimeBasalRespiration <- TRUE
   .self$sGLFluxPartition(..., controlGLPart = controlGLPart)
-  ##value<<
-  ## Flux partitioning results are in sTEMP data frame of the class.
 }
 sEddyProc$methods(sTKFluxPartition = sEddyProc_sTKFluxPartition)
 
+#' Flux partitioning after Reichstein et al. (2005)
+#' 
+#' @details Nighttime-based partitioning of measured net ecosystem fluxes into
+#' gross primary production (GPP) and ecosystem respiration (Reco) for all u*
+#' threshold scenarios.
+#' 
+#' @param ... arguments to [sEddyProc_sMRFluxPartition()]
+#' @param uStarScenKeep scalar string specifying the scenario for which to keep
+#' parameters (see [sEddyProc_sApplyUStarScen()]). Defaults to the first scenario.
+#' 
+#' @return NULL, it adds output columns in the class
 #' @export
-sEddyProc_sMRFluxPartitionUStarScens <- function(
-  ### Flux partitioning after Reichstein et al. (2005)
-  ...  ##<< arguments to \code{\link{sEddyProc_sMRFluxPartition}}
-  , uStarScenKeep = character(0) ##<< Scalar string specifying the scenario
-  ## for which to keep parameters (see \code{\link{sEddyProc_sApplyUStarScen}}.
-  ## Defaults to the first scenario.
-) {
-  ##details<<
-  ## Nighttime-based partitioning of measured net ecosystem fluxes into
-  ## gross primary production (GPP) and ecosystem respiration (Reco)
-  ## for all u* threshold scenarios.
+sEddyProc_sMRFluxPartitionUStarScens <- function(..., uStarScenKeep = character(0)) {
   tmp <- .self$sApplyUStarScen(
     .self$sMRFluxPartition, ..., uStarScenKeep = uStarScenKeep)
-  ##value<< NULL, it adds output columns in the class
   invisible(tmp)
 }
 sEddyProc$methods(
@@ -143,7 +132,6 @@ sEddyProc$methods(
 #+++ Flux partitionig algorithm, adapted after the PV-Wave code and paper by
 #+++ Markus Reichstein +++
 #+++ Dependencies: Eddy.R, DataFunctions.R
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # references<<
 # Reichstein M, Falge E, Baldocchi D et al. (2005) On the separation of
@@ -730,7 +718,6 @@ sEddyProc_sRegrE0fromShortTerm <- function(
 }
 sEddyProc$methods(sRegrE0fromShortTerm = sEddyProc_sRegrE0fromShortTerm)
 
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 sEddyProc_sRegrRref <- function(
   ### Estimation of the reference periods respiration Rref of \code{\link{fLloydTaylor}}

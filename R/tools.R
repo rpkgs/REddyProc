@@ -38,3 +38,34 @@ fillNAForward <- function(x, firstValue = median(x, na.rm = TRUE)) {
   }
   return(x)
 }
+
+#' replace missing standard deviation of a measure x by a percentage of x
+#'
+#' @details If either perc or inSdX is NA then only the other criterion is applied.
+#' If both are NA then all missings are set to NA.
+#'
+#' @param sdX numeric vector: with missing to be repalce
+#' @param x numeric vector of length(sdX): value form which percentage is computed
+#' @param perc numeric scalar: sdX = perc * x
+#' @param minSdX numeric scalar: minimum of sdX to be applied for low x
+#'
+#' @return sdX with non-finite values replaced.
+replaceMissingSdByPercentage <- function(sdX, x, perc = 0.2, minSdX = 0.7) {
+  ## \code{sdX[iToFill] <- pmax(minSdX, abs(x[iToFill] * perc), na.rm = TRUE)}
+  iToFill <- !is.finite(sdX)
+  sdX[iToFill] <- pmax(minSdX, abs(x[iToFill] * perc), na.rm = TRUE)
+  sdX
+}
+
+
+listk <- function(...) {
+  # get variable names from input expressions
+  cols <- as.list(substitute(list(...)))[-1]
+  vars <- names(cols)
+  Id_NoName <- if (is.null(vars)) seq_along(cols) else which(vars == "")
+
+  if (length(Id_NoName) > 0) {
+    vars[Id_NoName] <- sapply(cols[Id_NoName], deparse)
+  }
+  setNames(list(...), vars)
+}

@@ -40,7 +40,22 @@
 #' deviation depend on the used LRC (e.g. for the non-rectangular LRC see
 #' `NonrectangularLRCFitter_getParamNames`). They are estimated for windows and
 #' are reported with the first record of the window.
-#'
+#' 
+#' - `FP_VARnight`   : NEE filtered for nighttime records (others NA)
+#' - `FP_VARday`     : NEE filtered for daytime records (others NA)
+#' - `NEW_FP_Temp`   : temperature after filtering for quality flag, degree Celsius
+#' - `NEW_FP_VPD`    : vapour pressure deficit after filtering for quality flag, hPa
+#' - `FP_RRef_Night` : basal respiration estimated from nighttime (W / m2)
+#' - `FP_qc`         : quality flag:
+#'     + 0 : good parameter fit,
+#'     + 1 : some parameters out of range, required refit,
+#'     + 2 : next parameter estimate is more than two weeks away
+#' - `FP_dRecPar`    : records until or after closest record that has a parameter estimate associated
+#' - `FP_errorcode`  : information why LRC-fit was not successful or was rejected, see result of [LRC_fitLRC()]
+#' - `FP_GPP2000`    : predicted GPP at VPD = 0 and PAR = 2000 : a surrogate for maximum photosynthetic capacity
+#' - `FP_OPT_VPD`    : list object of fitting results including `iOpt` and `covParms`
+#' - `FP_OPT_NoVPD`  : list object of fitting results with fit neglecting the VPD effect
+#' 
 #' @seealso [partGL_FitNight_E0_RRef()]
 #' @export
 partitionNEEGL <- function(
@@ -51,7 +66,8 @@ partitionNEEGL <- function(
     RadVar = if (!missing(RadVar.s)) RadVar.s else "Rg_f",
     suffix = if (!missing(Suffix.s)) Suffix.s else "",
     NEEVar.s, TempVar.s, VPDVar.s, RadVar.s, Suffix.s # deprecated
-    , ..., controlGLPart = partGLControl(), isVerbose = TRUE, nRecInDay = 48L,
+    , ..., 
+    controlGLPart = partGLControl(), isVerbose = TRUE, nRecInDay = 48L,
     lrcFitter = RectangularLRCFitter()) 
 {
   varNamesDepr <- c("NEEVar.s", "TempVar.s", "VPDVar.s", "RadVar.s", "Suffix.s")
@@ -64,8 +80,7 @@ partitionNEEGL <- function(
     warning("Argument names ", varNamesDepr[iDepr], " have been deprecated.",
       " Please, use instead ", varNamesNew[iDepr])
   
-  suffixDash <- paste((if (fCheckValString(suffix)) "_" else ""),
-    suffix, sep = "") # used to compute default NEEVar
+  suffixDash <- paste0((if (fCheckValString(suffix)) "_" else ""), suffix) # used to compute default NEEVar
   if (isVerbose) {
     message("Start daytime flux partitioning for variable ",
       NEEVar, " with temperature ", TempVar, ".")
@@ -76,28 +91,17 @@ partitionNEEGL <- function(
     ..., controlGLPart = controlGLPart)
 
   dsAns0 <- tibble(
-    FP_VARnight = rep(NA_real_, nrow(ds)) # NEE filtered for nighttime records (others NA)
-    , FP_VARday = NA_real_ # NEE filtered for daytime records (others NA)
-    , NEW_FP_Temp = dsR$Temp # temperature after filtering for quality
-    ## flag degree Celsius
-    , NEW_FP_VPD = dsR$VPD # vapour pressure deficit after filtering
-    ## for quality flag, hPa
-    , FP_RRef_Night = NA_real_ # basal respiration estimated
-    ## from nighttime (W / m2)
-    , FP_qc = NA_integer_ # quality flag: 0: good parameter fit,
-    ## 1: some parameters out of range, required refit,
-    ## 2: next parameter estimate is more than two weeks away
-    , FP_dRecPar = NA_integer_ # records until or after closest record
-    ## that has a parameter estimate associated
-    , FP_errorcode = NA_integer_ # information why LRC-fit was not
-    ## successful or was rejected, see result of
-    ## \code{\link{LRC_fitLRC}}
-    , FP_GPP2000 = NA_real_ # predicted GPP at VPD = 0 and PAR = 2000:
-    ## a surrogate for maximum photosynthetic capacity
-    , FP_OPT_VPD = vector(mode = "list", length = nrow(ds)) # list object
-    ## of fitting results including iOpt and covParms
-    , FP_OPT_NoVPD = vector(mode = "list", length = nrow(ds)) # same as
-    ## FP_OPT_VPD holding optimization results with fit neglecting the VPD effect
+    FP_VARnight     = rep(NA_real_, nrow(ds)) # NEE filtered for nighttime records (others NA)
+    , FP_VARday     = NA_real_                # NEE filtered for daytime records (others NA)
+    , NEW_FP_Temp   = dsR$Temp                # temperature after filtering for quality flag, degree Celsius
+    , NEW_FP_VPD    = dsR$VPD                 # vapour pressure deficit after filtering for quality flag, hPa
+    , FP_RRef_Night = NA_real_                # basal respiration estimated from nighttime (W / m2)
+    , FP_qc         = NA_integer_             
+    , FP_dRecPar    = NA_integer_             
+    , FP_errorcode  = NA_integer_             # information why LRC-fit was not successful or was rejected
+    , FP_GPP2000    = NA_real_                # predicted GPP at VPD = 0 and PAR = 2000
+    , FP_OPT_VPD    = vector(mode = "list", length = nrow(ds)) 
+    , FP_OPT_NoVPD  = vector(mode = "list", length = nrow(ds))
   )
 
   # append LRC parameter result columns
@@ -123,7 +127,7 @@ partitionNEEGL <- function(
     all(is.finite(controlGLPart$fixedTempSens$sdE0))
   
   dsTempSens <- if (!isUsingFixedTempSens) {
-    dsTempSens <- partGL_FitNight_E0_RRef(dsR,
+    partGL_FitNight_E0_RRef(dsR,
       nRecInDay = nRecInDay,
       controlGLPart = controlGLPart,
       isVerbose = isVerbose)
@@ -152,8 +156,7 @@ partitionNEEGL <- function(
       ))
       dsTempSens$RRef <- resRef15$RRef
     }
-    # fill missing RRef by previous window.
-    # on NA at the start of the series, take the first occuring finite value
+    
     dsTempSens$RRef <- fillNAForward(dsTempSens$RRef,
       firstValue = dsTempSens$RRef[which(is.finite(dsTempSens$RRef))[1]])
     dsTempSens
@@ -181,11 +184,8 @@ partitionNEEGL <- function(
   # in the window
   # default is isAssociateParmsToMeanOfValids = TRUE
   # (double check partGLControl argument)
-  colNameAssoc <- if (isTRUE(controlGLPart$isAssociateParmsToMeanOfValids)) {
-    "iMeanRec"
-  } else {
-    "iCentralRec"
-  }
+  colNameAssoc <- ifelse(isTRUE(controlGLPart$isAssociateParmsToMeanOfValids), 
+    "iMeanRec", "iCentralRec")
   # for the output, always report at central record
   dsAns[resParms$iCentralRec, c(
     "FP_RRef_Night", "FP_qc", "FP_errorcode",
@@ -238,12 +238,14 @@ partitionNEEGL <- function(
       dsAnsFluxes[iNAVPD, ] <- dsAnsFluxes2[iNAVPD, ]
     }
   }
+  # Keenan et al., 2019
   if (isTRUE(controlGLPart$useNightimeBasalRespiration)) {
     dsAnsFluxes <- .computeRecoNight(dsAnsFluxes, dsR, dsTempSens)
   }
+
   nNAGPP <- sum(is.na(dsAnsFluxes$GPP))
   if (nNAGPP) warning("could not predict GPP in ", nNAGPP, " cases.")
-  #
+  
   dsAns$FP_dRecPar <- dsAnsFluxes$dRecNextEstimate
   # copy quality flag from parameter row
   # 	first copy from iCentralRec to colNameAssoc
@@ -256,12 +258,10 @@ partitionNEEGL <- function(
   dsAns$FP_qc[abs(dsAns$FP_dRecPar) > (14 * nRecInDay)] <- 2L
   # dsAns[is.finite(dsAns$FP_beta), ]
   
+  units = attr(dsR$NEE, "units")
   RecoDTVar.s   <- paste0("Reco_DT", suffixDash)
   GPPDTVar.s    <- paste0("GPP_DT", suffixDash)
-  RecoDTSdVar.s <- paste0(RecoDTVar.s, "_SD")
-  GPPDTSdVar.s  <- paste0(GPPDTVar.s, "_SD")
 
-  units = attr(dsR$NEE, "units")
   dsAns[[RecoDTVar.s]] <- dsAnsFluxes$Reco %>% 
     set_attributes(list(varnames = RecoDTVar.s, units = units))
   
@@ -269,6 +269,9 @@ partitionNEEGL <- function(
     set_attributes(list(varnames = GPPDTVar.s, units = units))
   
   if (controlGLPart$isSdPredComputed) {
+    RecoDTSdVar.s <- paste0(RecoDTVar.s, "_SD")
+    GPPDTSdVar.s <- paste0(GPPDTVar.s, "_SD")
+
     dsAns[[RecoDTSdVar.s]] <- dsAnsFluxes$sdReco %>% 
       set_attributes(list(varnames = RecoDTSdVar.s, units = units))
 
@@ -279,217 +282,6 @@ partitionNEEGL <- function(
   # ! New code: MDS gap filling information are not copied from NEE_fmet
   # and NEE_fwin to GPP_fmet and GPP_fwin (since not known within this pure partitioning function)
   return(dsAns)
-}
-
-# ' @param LRCFitConvergenceTolerance convergence criterion for rectangular light
-# ' response curve fit. If relative improvement of reducing residual sum of
-# ' squares between predictions and observations is less than this criterion,
-# ' assume convergence. Decrease to get more precise parameter estimates,
-# ' Increase for speedup.
-
-#' @export
-partGLControl <- function( 
-  ### Default list of parameters for Lasslop 2010 daytime flux partitioning
-  LRCFitConvergenceTolerance = 1e-3 ## << convergence criterion for rectangular
-  ## light response curve fit.
-  ## If relative improvement of reducing residual sum of squares between
-  ## predictions and
-  ## observations is less than this criterion, assume convergence.
-  ## Decrease to get more precise parameter estimates, Increase for speedup.
-  , nLRCFitConvergenceTolerance = 1e-3 ## << convergence criterion for
-  ## nonrectangular light response curve fit.
-  ## Here its a factor of machine tolerance.
-  , nBootUncertainty = 30L ## << number of bootstrap samples for
-  ## estimating uncertainty.
-  ## Set to zero to derive uncertainty from curvature of a single fit
-  , minNRecInDayWindow = 10L ## << Minimum number of data points
-  ## for regression
-  , isAssociateParmsToMeanOfValids = TRUE ## << set to FALSE to
-  ## associate parameters to
-  ## the first record of the window for interpolation
-  ## instead of mean across valid records inside a window
-  , isLasslopPriorsApplied = TRUE ## << set to TRUE to apply strong fixed
-  ## priors on LRC fitting.
-  ## Returned parameter estimates claimed valid for some case where not
-  ## enough data was available
-  , isUsingLasslopQualityConstraints = FALSE ## << set to TRUE to avoid
-  ## quality constraints additional to Lasslop 2010
-  , isSdPredComputed = TRUE ## << set to FALSE to avoid computing
-  ## standard errors
-  ## of Reco and GPP for small performance increase
-  , isFilterMeteoQualityFlag = FALSE ## << set to TRUE to use only records
-  ## where quality flag
-  ## of meteo drivers (radiation, temperature, VPD) is zero, i.e.
-  ## non-gapfilled for parameter estimation.
-  ## For prediction, the gap-filled value is used always, to produce
-  ## predictions also for gaps.
-  , isBoundLowerNEEUncertainty = TRUE ## << set to FALSE to avoid adjustment
-  ## of very low uncertainties before
-  ## day-Time fitting that avoids the high leverage those records with
-  ## unreasonable low uncertainty.
-  , fixedTRefAtNightTime = NA ## << if a finite value (degree Centigrade)
-  ## is given, it is used instead of median data temperature as reference
-  ## temperature in estimation of temperature sensitivity from night data
-  , isExtendTRefWindow = TRUE ## << set to FALSE to avoid successively
-  ## extending the night-time window
-  ## in order to estimate a temperature sensitivity where previous estimates
-  ## failed
-  , smoothTempSensEstimateAcrossTime = TRUE ## << set to FALSE to use
-  ## independent estimates of temperature
-  ## sensitivity on each windows instead of a vector of E0 that is
-  ## smoothed over time
-  , isNeglectPotRadForNight = FALSE ## << set to TRUE to not use potential
-  ## radiation in determining night-time data.
-  , NRHRfunction = FALSE ## << deprecated: Flag if TRUE use the NRHRF
-  ## for partitioning; Now use \code{lrcFitter = NonrectangularLRCFitter()}
-  , isNeglectVPDEffect = FALSE ## << set to TRUE to avoid using VPD in the
-  ## computations. This may help when VPD is rarely measured.
-  , isRefitMissingVPDWithNeglectVPDEffect = TRUE ## << set to FALSE to avoid
-  ## repeating estimation
-  ## with \code{isNeglectVPDEffect = TRUE} trying to predict when VPD
-  ## is missing
-  , fixedTempSens = data.frame( ## << data.frame
-    ## of one row or nRow = nWindow
-    ## corresponding to return value of \code{partGL_FitNight_E0_RRef}
-    ## While column \code{RRef} is used only as a  prior and initial value for
-    ## the daytime-fitting and can be NA,
-    ## \code{E0} is used as given temperature sensitivity and varied according
-    ## to \code{sdE0} in the bootstrap.
-    E0 = NA_real_, sdE0 = NA_real_, RRef = NA_real_
-  ),
-  replaceMissingSdNEEParms = c(perc = 0.2, minSd = 0.7) ## << parameters for
-  ## replacing missing standard deviation of NEE.
-  ## see \code{replaceMissingSdByPercentage}.
-  ## Default sets missing uncertainty to 20% of NEE but at least 0.7
-  ## flux-units (usually mumol CO2 / m2 / s).
-  ## Specify c(NA, NA) to avoid replacing missings in standard deviation of
-  ## NEE and to omit those records from LRC fit.
-  , neglectNEEUncertaintyOnMissing = FALSE ## << If set to TRUE: if there are
-  ## records with missing uncertainty of NEE inside one window,
-  ## set all uncertainties to 1.
-  ## This overrules option replaceMissingSdNEEParms.
-  , minPropSaturation = NA ## << quality criterion for sufficient data
-  ## in window. If GPP prediction of highest PAR of window is less than
-  ## minPropSaturation * (GPP at light-saturation, i.e. beta)
-  ## this indicates that PAR is not sufficiently high to constrain the
-  ## shape of the LRC
-  , useNightimeBasalRespiration = FALSE ## << set to TRUE to estimate
-  ## nighttime respiration based on basal respiration estimated on
-  ## nighttime data instead of basal respiration estimated from daytime
-  ## data. This implements the modified daytime method from
-  ## Keenan 2019 (doi:10.1038/s41559-019-0809-2)
-) {
-  ## author<< TW
-  ## seealso<< \code{\link{partitionNEEGL}}
-  ## description<<
-  ## For highest compatibility to the pvWave code of G.Lasslop
-  ## (used by first BGC-online tool)
-  ## see function \code{\link{partGLControlLasslopCompatible}}.
-  if (NRHRfunction) {
-    stop(
-      "option 'NRHRfunction' is deprecated.", " Use instead in partitionNEEGL argument:",
-      "lrcFitter = NonrectangularLRCFitter()")
-  }
-  if (isTRUE(neglectNEEUncertaintyOnMissing)) {
-    replaceMissingSdNEEParms <- c(NA, NA)
-  }
-  ctrl <- list(
-    LRCFitConvergenceTolerance = LRCFitConvergenceTolerance,
-    nLRCFitConvergenceTolerance = nLRCFitConvergenceTolerance,
-    nBootUncertainty = nBootUncertainty,
-    minNRecInDayWindow = minNRecInDayWindow,
-    isAssociateParmsToMeanOfValids = isAssociateParmsToMeanOfValids,
-    isLasslopPriorsApplied = isLasslopPriorsApplied,
-    isUsingLasslopQualityConstraints = isUsingLasslopQualityConstraints,
-    isSdPredComputed = isSdPredComputed,
-    isFilterMeteoQualityFlag = isFilterMeteoQualityFlag,
-    isBoundLowerNEEUncertainty = isBoundLowerNEEUncertainty,
-    fixedTRefAtNightTime = fixedTRefAtNightTime,
-    isExtendTRefWindow = isExtendTRefWindow,
-    smoothTempSensEstimateAcrossTime = smoothTempSensEstimateAcrossTime,
-    isNeglectPotRadForNight = isNeglectPotRadForNight,
-    isNeglectVPDEffect = isNeglectVPDEffect,
-    isRefitMissingVPDWithNeglectVPDEffect = isRefitMissingVPDWithNeglectVPDEffect,
-    fixedTempSens = fixedTempSens,
-    replaceMissingSdNEEParms = replaceMissingSdNEEParms,
-    neglectNEEUncertaintyOnMissing = neglectNEEUncertaintyOnMissing,
-    minPropSaturation = minPropSaturation,
-    useNightimeBasalRespiration = useNightimeBasalRespiration
-  )
-  ## value<< list with entries of given arguments.
-  ctrl
-}
-
-attr(partGLControl, "ex") <- function() {
-  partGLControl(nBootUncertainty = 40L)
-}
-
-#' @export
-partGLControlLasslopCompatible <- function( 
-  ### Daytime flux partitioning parms compatible with with the pvWave
-  nBootUncertainty = 0L ## << 0: Derive uncertainty from
-  ## curvature of a single fit, neglecting the uncertainty of previously
-  ## estimated temperature sensitivity, E0
-  , minNRecInDayWindow = 10L ## << Minimum number of 10 valid records
-  ## for regression in a single window
-  , isAssociateParmsToMeanOfValids = FALSE ## << associate parameters to
-  ## the first record of the window for interpolation instead of mean across
-  ## valid records inside a window
-  , isLasslopPriorsApplied = TRUE ## << Apply fixed Lasslop priors
-  ## in LRC fitting.
-  , isUsingLasslopQualityConstraints = TRUE ## << avoid quality constraints
-  ## additional to the ones in Lasslop 2010
-  , isBoundLowerNEEUncertainty = FALSE ## << FALSE: avoid adjustment of very
-  ## low uncertainties before
-  ## day-Time fitting that avoids the high leverage those records with
-  ## unreasonable low uncertainty.
-  , fixedTRefAtNightTime = 15 ## << use fixed (degree Centigrade)
-  ## temperature sensitivity
-  ## instead of median data temperature as reference temperature in
-  ## estimation of temperature sensitivity from night data
-  , isExtendTRefWindow = FALSE ## << avoid successively extending the
-  ## night-time window
-  ## in order to estimate a temperature sensitivity where previous
-  ## estimates failed
-  , smoothTempSensEstimateAcrossTime = FALSE ## << FALSE: use independent
-  ## estimates of temperature
-  ## sensitivity on each windows instead of a vector of E0 that is
-  ## smoothed over time
-  , isRefitMissingVPDWithNeglectVPDEffect = FALSE ## << FALSE: avoid
-  ## repeating estimation with \code{isNeglectVPDEffect = TRUE}
-  , minPropSaturation = NA ## << NA: avoid quality constraint of
-  ## sufficient saturation in data
-  ## This option is overruled, i.e. not considered, if option
-  ## isUsingLasslopQualityConstraints = TRUE.
-  , isNeglectVPDEffect = FALSE ## << FALSE: do not neglect VPD effect
-  , replaceMissingSdNEEParms = c(NA, NA) ## << do not replace missing NEE,
-  ## but see option
-  , neglectNEEUncertaintyOnMissing = TRUE ## << if there are records with
-  ## missing uncertainty of NEE inside one window, set all sdNEE to 1.
-  ## This overrules option replaceMissingSdNEEParms.
-  , ... ## << further arguments to \code{\link{partGLControl}}
-) {
-  ## seealso<< \code{\link{partGLControl}}
-  partGLControl(
-    nBootUncertainty = nBootUncertainty,
-    minNRecInDayWindow = minNRecInDayWindow,
-    isAssociateParmsToMeanOfValids = isAssociateParmsToMeanOfValids,
-    isLasslopPriorsApplied = isLasslopPriorsApplied,
-    isUsingLasslopQualityConstraints = isUsingLasslopQualityConstraints,
-    isBoundLowerNEEUncertainty = isBoundLowerNEEUncertainty,
-    fixedTRefAtNightTime = fixedTRefAtNightTime,
-    isExtendTRefWindow = isExtendTRefWindow,
-    smoothTempSensEstimateAcrossTime = smoothTempSensEstimateAcrossTime,
-    isNeglectVPDEffect = isNeglectVPDEffect,
-    isRefitMissingVPDWithNeglectVPDEffect = isRefitMissingVPDWithNeglectVPDEffect,
-    replaceMissingSdNEEParms = replaceMissingSdNEEParms,
-    neglectNEEUncertaintyOnMissing = neglectNEEUncertaintyOnMissing,
-    minPropSaturation = minPropSaturation,
-    ...
-  )
-}
-attr(partGLControlLasslopCompatible, "ex") <- function() {
-  partGLControlLasslopCompatible()
 }
 
 #' Relevant columns from original input with defined names
@@ -676,22 +468,30 @@ partGLExtractStandardData <- function(ds
 }
 
 
+#' Estimate successive Rectangular Hyperbolic Light Response Curve parameters
+#' 
+#' @param ds data.frame with numeric columns NEE, sdNEE, Temp (degC), VPD, Rg,
+#' and logical columns isNight and isDay
+#' @param winSizeDays Window size in days for daytime fits
+#' @param strideInDays step in days for shifting the windows
+#' @param nRecInDay number of records within one day (for half-hourly data its 48)
+#' @param dsTempSens data.frame that reports for each window temperature sensitivity
+#' parameters E0 and RRef
+#' @param isVerbose set to FALSE to suppress messages
+#' @param controlGLPart list of further default parameters
+#' @param lrcFitter R5 class instance responsible for fitting the light response curve
+#' 
+#' @return a tibble with a row for each window providing information on window size,
+#' parameters estimated from light response curve (LRC), and their standard deviation.
+#' Moreover, and estimated from night-time data after smoothing and forward-filling:
+#' the uncertainty of temperature sensitivity \code{E0_night_sd}, And the respiration
+#' at reference temperature \code{RRef_night}. Finally it contains a list column
+#' \code{resOpt} with the optimization results.
+#' 
+#' @seealso [partGLFitLRCOneWindow()]
 partGLFitLRCWindows <- function( 
-  ### Estimate successive Rectangular Hyperbolic Light Response Curve parameters
-  ds ## << data.frame with numeric columns NEE, sdNEE,
-  ## Temp (degC), VPD, Rg, and logical columns isNight and isDay
-  , winSizeDays = 4L ## << Window size in days for daytime fits
-  , strideInDays = 2L ## << step in days for shifting the windows
-  , nRecInDay = 48L ## << number of records within one day
-  ## (for half-hourly data its 48)
-  , dsTempSens ## << data.frame that reports for each window
-  ## temperature sensitivity parameters E0 and RRef
-  , isVerbose = TRUE ## << set to FALSE to suppress messages
-  , controlGLPart = partGLControl() ## << list of further default parameters
-  , lrcFitter ## << R5 class instance responsible for fitting the
-  ## light response curve
-) {
-  ## seealso<< \code{\link{partGLFitLRCOneWindow}}
+  ds, winSizeDays = 4L, strideInDays = 2L, nRecInDay = 48L, dsTempSens, 
+  isVerbose = TRUE, controlGLPart = partGLControl(), lrcFitter = RectangularLRCFitter()) {
   if (isVerbose) {
     message("  Estimating light response curve parameters from day time NEE ",
       appendLF = FALSE)
@@ -701,7 +501,7 @@ partGLFitLRCWindows <- function(
     winSizeInDays = 4L,
     isVerbose = isVerbose,
     nRecInDay = nRecInDay
-    #
+    
     , E0Win = dsTempSens,
     controlGLPart = controlGLPart,
     lrcFitter = lrcFitter
@@ -710,15 +510,11 @@ partGLFitLRCWindows <- function(
   iNoSummary <- which(sapply(lrcSummary, length) == 0)
   if (length(iNoSummary)) {
     stop("expected summary returned by all fits, but found missing summaries.")
-    # 		# put dummy NA data.frame where no fit was obtained
-    # 		dummySummary <- lrcSummary[-iNoSummary][[1]]
-    # 		dummySummary[] <- NA
-    # 		lrcSummary[iNoSummary] <- list(dummySummary)
   }
   resOptList <- lapply(resLRC$resFUN, "[[", "resOpt")
   resOptDf <- tibble(resOpt = resOptList)
   resParms <- as_tibble(cbind(resLRC$winInfo, bind_rows(lrcSummary), resOptDf))
-  # table(resParms$convergence)
+
   # E0_night equals E0, but uncertainty might differ
   resParms$E0_bootstrap_sd <- resParms$E0_sd # due to bootstrap,
   # this may differ, save before overriding by night-time estimate
@@ -747,25 +543,26 @@ partGLFitLRCWindows <- function(
   resParms
 }
 
+#' Estimate Rectangular Hyperbolic Light Response Curve parameters
+#' 
+#' @details Estimation as in Lasslop et al., 2010 for successive periods, i.e.
+#' windows. Fitting is done on a subset of the data where isDay, NEE, sdNEE,
+#' Temp, Rg, and VPD are all non-NA and isDay is TRUE
+#' 
+#' @param ds data.frame with numeric columns NEE, sdNEE, Temp (degC), VPD, Rg,
+#' and logical columns isNight and isDay
+#' @param winInfo one-row data.frame with window information, including iWindow
+#' @param prevRes component prevRes from previous result, here with item prevE0
+#' @param E0Win data.frame with columns E0, sdE0, RRef from nighttime,
+#' one row for each window
+#' @param controlGLPart list of further default parameters
+#' @param lrcFitter R5 class instance responsible for fitting the light response curve
+#' 
+#' @return a list with components resOpt, summary, isValid
+#' @seealso [partitionNEEGL()]
 partGLFitLRCOneWindow <- function(
-    ### Estimate Rectangular Hyperbolic Light Response Curve parameters
-    ds ## << data.frame with numeric columns NEE, sdNEE,
-    ## Temp (degC), VPD, Rg, and logical columns isNight and isDay
-    , winInfo ## << one-row data.frame with window information, including iWindow
-    , prevRes ## << component prevRes from previous result, here with item prevE0
-    , E0Win ## << data.frame with columns E0, sdE0, RRef from nighttime,
-    ## one row for each window
-    , controlGLPart = partGLControl() ## << list of further default parameters
-    , lrcFitter = RectangularLRCFitter() ## << R5 class instance responsible
-    ## for fitting the light response curve
-    ) {
-  ## author<< TW
-  ## seealso<< \code{\link{partitionNEEGL}}
-  ## details<<
-  ## Estimation as in Lasslop et al., 2010 for successive periods, i.e. windows.
-  ## Fitting is done on a subset of the data where isDay, NEE, sdNEE, Temp,
-  ## Rg, and VPD are all non-NA
-  ## and isDay is TRUE
+  ds, winInfo, prevRes, E0Win, controlGLPart = partGLControl(), lrcFitter = RectangularLRCFitter()) {
+  
   isValidDayRecNoSdNEEConstraint <- !is.na(ds$isDay) & ds$isDay &
     !is.na(ds$NEE) & !is.na(ds$Temp) & !is.na(ds$Rg)
   ## details<<
@@ -787,14 +584,14 @@ partGLFitLRCOneWindow <- function(
     isValidDayRecNoVPDConstraint & !is.na(ds$VPD)
   }
   iMeanRecInDayWindow <- as.integer(round(mean(which(isValidDayRec))))
-  #
-  # if too few records or
-  # if no temperature-respiration relationship could be found,
-  # indicate no-fit, but report Window properties
+  
+  # if too few records or if no temperature-respiration relationship could be
+  # found, indicate no-fit, but report Window properties
   E0 <- E0Win$E0[winInfo$iWindow]
   # when provided fixed E0 the column sdEO does not exist
   sdE0 <- if (length(E0Win$sdE0)) E0Win$sdE0[winInfo$iWindow] else NA
   RRefNight <- E0Win$RRef[winInfo$iWindow]
+
   getNAResult <- function(convergenceCode) {
     list(
       resOpt = NULL,
@@ -847,13 +644,7 @@ partGLFitLRCOneWindow <- function(
   sdTheta <- resOpt$thetaOpt
   sdTheta[] <- NA
   sdTheta[resOpt$iOpt] <- sqrt(diag(resOpt$covParms)[resOpt$iOpt])
-  #
-  # record valid fits results
-  # as.data.frame(t(resOpt$thetaOpt))
-  # if (as.POSIXlt(dsDay$sDateTime[1])$mday + 2L >= 11) recover()
-  # if (as.POSIXlt(dsDay$sDateTime[1])$mday + 2L >= 27) recover()
-  # save(dsDay, file = "tmp / dsDayDebug.RData")
-  #
+  
   # compute GPP2000 without VPD effect
   GPP2000 <- lrcFitter$predictLRC(
     resOpt$thetaOpt, 2000, VPD = NA, Temp = NA, fixVPD = TRUE)$GPP
@@ -916,30 +707,30 @@ partGLFitLRCOneWindow <- function(
   ans
 }
 
+#' Interpolate Reco and GPP from two neighboring parameter sets
+#' 
+#' @details `resLRC$iFirstRecInCentralDay` must denote the row for which the
+#' LRC parameters are representative, here, the first record of the center day
+#' 
+#' 
+#' @param Rg numeric vector of photosynthetic flux density [umol / m2 / s] or Global Radiation
+#' @param VPD numeric vector of Vapor Pressure Deficit [hPa]
+#' @param Temp numeric vector of Temperature [degC]
+#' @param resParms data frame with results of \code{partGLFitLRCWindows} of
+#' fitting the light-response-curve for several windows
+#' @param controlGLPart further default parameters, see \code{\link{partGLControl}}
+#' @param lrcFitter R5 class instance responsible for fitting the LRC curve
+#' @param isVerbose set to FALSE to suppress messages
+#' 
+#' @seealso [partitionNEEGL()], [partGLFitLRCWindows()]
 partGLInterpolateFluxes <- function(
-  ### Interpolate Reco and GPP from two neighboring parameter sets
-  Rg ## << numeric vector of photosynthetic flux density [umol / m2 / s]
-  ## or Global Radiation
-  , VPD ## << numeric vector of Vapor Pressure Deficit [hPa]
-  , Temp ## << numeric vector of Temperature [degC]
-  , resParms ## << data frame with results of \code{partGLFitLRCWindows}
-  ## of fitting the light-response-curve for several windows
-  , controlGLPart = partGLControl() ## << further default parameters,
-  ## see \code{\link{partGLControl}}
-  , lrcFitter ## << R5 class instance responsible for fitting the LRC curve
-  , isVerbose = TRUE ## << set to FALSE to suppress messages
-) {
-  ## seealso<< \code{link{partitionNEEGL}}
-  ## details<<
-  ## \code{resLRC$iFirstRecInCentralDay} must denote the row for which the
-  ## LRC parameters are representative,
-  ## here, the first record of the center day
+  Rg, VPD, Temp, resParms, controlGLPart = partGLControl(), 
+  lrcFitter, isVerbose = TRUE) {
   # create a dataframe with index of rows of estimates before and after and
   # corresponding weights
   iValidWin <- which(is.finite(resParms$parms_out_range))
-  summaryLRC <- resParms %>%
-    select(!"resOpt") %>%
-    slice(iValidWin)
+  summaryLRC <- resParms %>% select(!"resOpt") %>% slice(iValidWin)
+  
   resOptList <- resParms$resOpt[iValidWin]
   nLRC <- nrow(summaryLRC)
   nRec <- length(Rg)
@@ -961,11 +752,8 @@ partGLInterpolateFluxes <- function(
   ## mean time of all valid records within the window
   # for each original record merge parameters assicated with previous fit or
   # next fit respectively
-  colNameAssoc <- if (isTRUE(controlGLPart$isAssociateParmsToMeanOfValids)) {
-    "iMeanRec"
-  } else {
-    "iCentralRec"
-  }
+  colNameAssoc <- ifelse(isTRUE(controlGLPart$isAssociateParmsToMeanOfValids), 
+    "iMeanRec", "iCentralRec")
   dsAssoc <- .partGPAssociateSpecialRows(summaryLRC[[colNameAssoc]], nRec)
   # now we have columns iBefore and iAfter, which can be used to merge the
   # parameter estimate columns to each row
@@ -1038,117 +826,6 @@ partGLInterpolateFluxes <- function(
   ## value<< data.frame with nrow() rows and columns  GPP, Reco, varGPP
   ## , varReco, and dRecNextEstimate
   ans
-}
-
-.tmp.f <- function() { # omit declaration for now
-  computeAggregatedCovariance <- function(
-    ### Covariances between Reco and GPP predictions due same uncertain model coefficients
-    dsPred ## << data.frame with predictors (Rg, VPD, Temp)
-    , resParms ## << data.frame with results of \code{partGLFitLRCWindows} of
-    ## fitting the light-response-curve for several windows
-    , resParmsNoVPD ## << data.frame like resParms, but was fitted with option
-    ## isNeglectVPDEffect = TRUE, for predicting if VPD is missing
-    , controlGLPart = partGLControl() ## << further default parameters,
-    ## see \code{\link{partGLControl}} with entry "isAssociateParmsToMeanOfValids"
-    , lrcFitter ## << R5 class instance responsible for fitting the light response
-    ## curve, with method getParamNames()
-    , iAggregate = 1:nrow(dsPred) ## << row indices about which to
-    ## sum over, must be contiguous
-  ) {
-    sumCovGPP <- 0
-    sumCovReco <- 0
-    # merge parameters to predictors
-    isValidWin <- is.finite(resParms$parms_out_range)
-    summaryLRC <- resParms[isValidWin, , drop = FALSE]
-    resOptList <- resParms$resOptList[isValidWin]
-    colNameAssoc <- if (isTRUE(controlGLPart$isAssociateParmsToMeanOfValids)) {
-      "iMeanRec"
-    } else {
-      "iCentralRec"
-    }
-    dsAssoc <- .partGPAssociateSpecialRows(summaryLRC[[colNameAssoc]], nRec)
-    # now we have columns iBefore and iAfter, which can be used to
-    # merge the parameter estimate columns to each row
-    parNames <- lrcFitter$getParamNames()
-    dsBefore <- merge(
-      structure(data.frame(dsAssoc$iSpecialBefore, dsAssoc$iBefore),
-        names = c("iParRec", colNameAssoc)),
-      summaryLRC[, c(colNameAssoc, parNames)]
-    )
-    dsAfter <- merge(
-      structure(data.frame(dsAssoc$iSpecialAfter, dsAssoc$iAfter),
-        names = c("iParRec", colNameAssoc)),
-      summaryLRC[, c(colNameAssoc, lrcFitter$getParamNames())]
-    )
-    #
-    # compute gradients (each entry is a list with components vectors Reco and GPP
-    grad2 <- lapply(list(dsBefore, dsAfter), function(dsi) {
-      theta <- as.matrix(dsi[, parNames])
-      grad <- lrcFitter$computeLRCGradient(
-        theta, dsPred$Rg, dsPred$VPD, pmax(-40, dsPred$Temp))
-    })
-    for (iRec in iAggregate[-1]) { # in first line only entry with i == j
-      iParRecBefore <- dsAssoc$iSpecialBefore[iRec]
-      resOptBefore <- resOptList[[iParRecBefore]]
-      iParRecAfter <- dsAssoc$iSpecialAfter[iRec]
-      resOptAfter <- resOptList[[iParRecAfter]]
-      gradGPPIBefore <- grad[[1]]$GPP[iRec, ]
-      gradRecoIBefore <- grad[[1]]$Reco[iRec, ]
-      gradGPPIAfter <- grad[[2]]$GPP[iRec, ]
-      gradRecoIAfter <- grad[[2]]$Reco[iRec, ]
-      for (jRec in iAggregate[1]:(iRec - 1)) { # iter from start to one before iRec
-        # assume covariance larger than zero only in same interval between estimates
-        if ((dsAssoc$iSpecialBefore[jRec] == iParRecBefore) &&
-          (dsAssoc$iSpecialAfter[jRec] == iParRecAfter) ) {
-          gradGPPJBefore <- grad[[1]]$GPP[jRec, ]
-          gradRecoJBefore <- grad[[1]]$Reco[jRec, ]
-          gradGPPJAfter <- grad[[2]]$GPP[jRec, ]
-          gradRecoJAfter <- grad[[2]]$Reco[jRec, ]
-          covRecoBefore <- gradRecoIBefore %*%
-            resOptBefore$covParms[names(gradRecoIBefore), names(gradRecoIBefore)] %*%
-            gradRecoJBefore
-          covGPPBefore <- gradGPPIBefore %*%
-            resOptBefore$covParms[names(gradGPPIBefore), names(gradGPPIBefore)] %*%
-            gradGPPJBefore
-          covRecoAfter <- gradRecoIAfter %*%
-            resOptAfter$covParms[names(gradRecoIAfter), names(gradRecoIAfter)] %*%
-            gradRecoJAfter
-          covGPPBAfter <- gradGPPIAfter %*%
-            resOptAfter$covParms[names(gradGPPIAfter), names(gradGPPIAfter)] %*%
-            gradGPPJAfter
-          covRecoMix <- dsAssoc$wBefore[iRec] * dsAssoc$wBefore[jRec] * covRecoBefore +
-            dsAssoc$wAfter[iRec] * dsAssoc$wAfter[jRec] * covRecoAfter
-          covGPPMix <- dsAssoc$wBefore[iRec] * dsAssoc$wBefore[jRec] * covGPPBefore +
-            dsAssoc$wAfter[iRec] * dsAssoc$wAfter[jRec] * covGPPAfter
-          sumCovReco <- sumCovReco + 2 * covRecoMix # symm, add also from transposed
-          sumCovGPP <- sumCovGPP + 2 * covGPPMix
-        } # match of iParRecBefore and iParRecAfter
-      } # for jRec
-    } # for iRec
-    ## value<< named numeri vector with two components:
-    ans <- c(
-      sumCovGPP = sumCovGPP ## << sum_{i<>j} cov(GPP_i, GPP_j)
-      , sumCovReco = sumCovReco ## << sum_{i<>j} cov(Reco_i, Reco_j)
-    )
-  }
-} # .tmp.f
-
-
-.tmp.f <- function() {
-  # execute on recover jsut before ans <- in .partGPInterploateFluxes,
-  # from test_that("interpolate Fluxes"
-  # there is only one period with changing parametrization
-  x <- seq_along(Rg)
-  plot(Reco ~ x)
-  lines(Reco2[[1]] ~ x, col = "blue")
-  lines(Reco2[[2]] ~ x, col = "orange")
-  # note how the black dots first follow the blue line, then converge
-  # to the orange line
-  plot(GPP ~ x)
-  lines(GPP2[[1]] ~ x, col = "blue")
-  lines(GPP2[[2]] ~ x, col = "orange")
-  # not much difference between blue and orange
-  # (difference only seen if plot window is very large)
 }
 
 #' associate each row with the previous and next row from a subset of rows
@@ -1224,24 +901,6 @@ partGLInterpolateFluxes <- function(
 }
 
 
-#' replace missing standard deviation of a measure x by a percentage of x
-#' 
-#' @details If either perc or inSdX is NA then only the other criterion is applied.
-#' If both are NA then all missings are set to NA.
-#' 
-#' @param sdX numeric vector: with missing to be repalce
-#' @param x numeric vector of length(sdX): value form which percentage is computed
-#' @param perc numeric scalar: sdX = perc * x
-#' @param minSdX numeric scalar: minimum of sdX to be applied for low x
-#' 
-#' @return sdX with non-finite values replaced.
-replaceMissingSdByPercentage <- function(sdX, x, perc = 0.2, minSdX = 0.7) {
-  ## \code{sdX[iToFill] <- pmax(minSdX, abs(x[iToFill] * perc), na.rm = TRUE)}
-  iToFill <- !is.finite(sdX)
-  sdX[iToFill] <- pmax(minSdX, abs(x[iToFill] * perc), na.rm = TRUE)
-  sdX
-}
-
 #' recompute ecosystem respiration at nighttime with nighttime reference
 #' 
 #' @details If `partGLControl$useNightimeBasalRespiration == TRUE` then
@@ -1250,18 +909,19 @@ replaceMissingSdByPercentage <- function(sdX, x, perc = 0.2, minSdX = 0.7) {
 #' 
 #' @param dsAnsFluxes data.frame with columns Reco and sdReco
 #' @param dsR data.frame with columns isNight, and Temp
-#' @param dsTempSens data.frame with column iCentralRec and E0
+#' @param dsTempSens data.frame with column `iCentralRec`, `E0`, and `RRef`
 #' 
-#' @return data.frame with updated night-time Reco and sdReco
+#' @return data.frame with updated night-time `Reco` and `sdReco`
 .computeRecoNight <- function(dsAnsFluxes, dsR, dsTempSens) {
   # Calculate the ecosystem respiration Reco by LlyodAndTaler
   TRefK <- 273.15 + 15
   T0 <- 227.13
   RRef <- approx(dsTempSens$iCentralRec, dsTempSens$RRef, 1:nrow(dsR), rule = 2)$y
   E0 <- approx(dsTempSens$iCentralRec, dsTempSens$E0, 1:nrow(dsR), rule = 2)$y
-  dsAnsFluxes$Reco[dsR$isNight] <- respNight <- 
-    fLloydTaylor(RRef[dsR$isNight], E0[dsR$isNight], fConvertCtoK(dsR$Temp[dsR$isNight]),
-    TRef = TRefK)
+
+  inds = dsR$isNight
+  dsAnsFluxes$Reco[inds] <- respNight <- 
+    fLloydTaylor(RRef[inds], E0[inds], fConvertCtoK(dsR$Temp[inds]), TRef = TRefK)
   ## details<< With given uncertainty of temperature sensitivity E0, the
   ## logarithm of respraiton R is normally distributed, i.e. R is lognormally
   ## distributed. With low uncertainty (sigma*) < 1.2 this is well
@@ -1270,10 +930,120 @@ replaceMissingSdByPercentage <- function(sdX, x, perc = 0.2, minSdX = 0.7) {
   # log(R) = log(RRef) + tempFac*E0
   sdE0 <- sqrt(approx(dsTempSens$iCentralRec, dsTempSens$sdE0^2, 1:nrow(dsR), rule = 2)$y)
   tempFacLloydTaylor <- 1 / (TRefK - T0) - 1 / (fConvertCtoK(dsR$Temp) - T0)
-  sigmaLogR <- (abs(tempFacLloydTaylor) * sdE0)[dsR$isNight]
+  sigmaLogR <- (abs(tempFacLloydTaylor) * sdE0)[inds]
+  
   # formula of variance of lognormal with mu replaced by mean
   # see lognrom/inst/docu/varianceBySigmaAndExpected.Rmd
-  dsAnsFluxes$sdReco[dsR$isNight] <- sqrt(exp(sigmaLogR^2) - 1) * respNight
-  ## value<< \code{dsAnsfluxes} with updated night-time Reco and sdReco
+  dsAnsFluxes$sdReco[inds] <- sqrt(exp(sigmaLogR^2) - 1) * respNight
   dsAnsFluxes
 }
+
+# .tmp.f <- function() { # omit declaration for now
+#   computeAggregatedCovariance <- function(
+#     ### Covariances between Reco and GPP predictions due same uncertain model coefficients
+#     dsPred ## << data.frame with predictors (Rg, VPD, Temp)
+#     , resParms ## << data.frame with results of \code{partGLFitLRCWindows} of
+#     ## fitting the light-response-curve for several windows
+#     , resParmsNoVPD ## << data.frame like resParms, but was fitted with option
+#     ## isNeglectVPDEffect = TRUE, for predicting if VPD is missing
+#     , controlGLPart = partGLControl() ## << further default parameters,
+#     ## see \code{\link{partGLControl}} with entry "isAssociateParmsToMeanOfValids"
+#     , lrcFitter ## << R5 class instance responsible for fitting the light response
+#     ## curve, with method getParamNames()
+#     , iAggregate = 1:nrow(dsPred) ## << row indices about which to
+#     ## sum over, must be contiguous
+#   ) {
+#     sumCovGPP <- 0
+#     sumCovReco <- 0
+#     # merge parameters to predictors
+#     isValidWin <- is.finite(resParms$parms_out_range)
+#     summaryLRC <- resParms[isValidWin, , drop = FALSE]
+#     resOptList <- resParms$resOptList[isValidWin]
+#     colNameAssoc <- if (isTRUE(controlGLPart$isAssociateParmsToMeanOfValids)) {
+#       "iMeanRec"
+#     } else {
+#       "iCentralRec"
+#     }
+#     dsAssoc <- .partGPAssociateSpecialRows(summaryLRC[[colNameAssoc]], nRec)
+#     # now we have columns iBefore and iAfter, which can be used to
+#     # merge the parameter estimate columns to each row
+#     parNames <- lrcFitter$getParamNames()
+#     dsBefore <- merge(
+#       structure(data.frame(dsAssoc$iSpecialBefore, dsAssoc$iBefore),
+#         names = c("iParRec", colNameAssoc)),
+#       summaryLRC[, c(colNameAssoc, parNames)]
+#     )
+#     dsAfter <- merge(
+#       structure(data.frame(dsAssoc$iSpecialAfter, dsAssoc$iAfter),
+#         names = c("iParRec", colNameAssoc)),
+#       summaryLRC[, c(colNameAssoc, lrcFitter$getParamNames())]
+#     )
+#     #
+#     # compute gradients (each entry is a list with components vectors Reco and GPP
+#     grad2 <- lapply(list(dsBefore, dsAfter), function(dsi) {
+#       theta <- as.matrix(dsi[, parNames])
+#       grad <- lrcFitter$computeLRCGradient(
+#         theta, dsPred$Rg, dsPred$VPD, pmax(-40, dsPred$Temp))
+#     })
+#     for (iRec in iAggregate[-1]) { # in first line only entry with i == j
+#       iParRecBefore <- dsAssoc$iSpecialBefore[iRec]
+#       resOptBefore <- resOptList[[iParRecBefore]]
+#       iParRecAfter <- dsAssoc$iSpecialAfter[iRec]
+#       resOptAfter <- resOptList[[iParRecAfter]]
+#       gradGPPIBefore <- grad[[1]]$GPP[iRec, ]
+#       gradRecoIBefore <- grad[[1]]$Reco[iRec, ]
+#       gradGPPIAfter <- grad[[2]]$GPP[iRec, ]
+#       gradRecoIAfter <- grad[[2]]$Reco[iRec, ]
+#       for (jRec in iAggregate[1]:(iRec - 1)) { # iter from start to one before iRec
+#         # assume covariance larger than zero only in same interval between estimates
+#         if ((dsAssoc$iSpecialBefore[jRec] == iParRecBefore) &&
+#           (dsAssoc$iSpecialAfter[jRec] == iParRecAfter) ) {
+#           gradGPPJBefore <- grad[[1]]$GPP[jRec, ]
+#           gradRecoJBefore <- grad[[1]]$Reco[jRec, ]
+#           gradGPPJAfter <- grad[[2]]$GPP[jRec, ]
+#           gradRecoJAfter <- grad[[2]]$Reco[jRec, ]
+#           covRecoBefore <- gradRecoIBefore %*%
+#             resOptBefore$covParms[names(gradRecoIBefore), names(gradRecoIBefore)] %*%
+#             gradRecoJBefore
+#           covGPPBefore <- gradGPPIBefore %*%
+#             resOptBefore$covParms[names(gradGPPIBefore), names(gradGPPIBefore)] %*%
+#             gradGPPJBefore
+#           covRecoAfter <- gradRecoIAfter %*%
+#             resOptAfter$covParms[names(gradRecoIAfter), names(gradRecoIAfter)] %*%
+#             gradRecoJAfter
+#           covGPPBAfter <- gradGPPIAfter %*%
+#             resOptAfter$covParms[names(gradGPPIAfter), names(gradGPPIAfter)] %*%
+#             gradGPPJAfter
+#           covRecoMix <- dsAssoc$wBefore[iRec] * dsAssoc$wBefore[jRec] * covRecoBefore +
+#             dsAssoc$wAfter[iRec] * dsAssoc$wAfter[jRec] * covRecoAfter
+#           covGPPMix <- dsAssoc$wBefore[iRec] * dsAssoc$wBefore[jRec] * covGPPBefore +
+#             dsAssoc$wAfter[iRec] * dsAssoc$wAfter[jRec] * covGPPAfter
+#           sumCovReco <- sumCovReco + 2 * covRecoMix # symm, add also from transposed
+#           sumCovGPP <- sumCovGPP + 2 * covGPPMix
+#         } # match of iParRecBefore and iParRecAfter
+#       } # for jRec
+#     } # for iRec
+#     ## value<< named numeri vector with two components:
+#     ans <- c(
+#       sumCovGPP = sumCovGPP ## << sum_{i<>j} cov(GPP_i, GPP_j)
+#       , sumCovReco = sumCovReco ## << sum_{i<>j} cov(Reco_i, Reco_j)
+#     )
+#   }
+# } # .tmp.f
+
+# .tmp.f <- function() {
+#   # execute on recover jsut before ans <- in .partGPInterploateFluxes,
+#   # from test_that("interpolate Fluxes"
+#   # there is only one period with changing parametrization
+#   x <- seq_along(Rg)
+#   plot(Reco ~ x)
+#   lines(Reco2[[1]] ~ x, col = "blue")
+#   lines(Reco2[[2]] ~ x, col = "orange")
+#   # note how the black dots first follow the blue line, then converge
+#   # to the orange line
+#   plot(GPP ~ x)
+#   lines(GPP2[[1]] ~ x, col = "blue")
+#   lines(GPP2[[2]] ~ x, col = "orange")
+#   # not much difference between blue and orange
+#   # (difference only seen if plot window is very large)
+# }

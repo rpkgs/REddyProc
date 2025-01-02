@@ -3,7 +3,6 @@ context("partGL")
 
 library(dplyr)
 library(magrittr)
-library(lubridate)
 
 if (!exists(".partGPAssociateSpecialRows")) {
   .partGPAssociateSpecialRows <-
@@ -105,7 +104,8 @@ test_that("replaceMissingSdByPercentage", {
 
 test_that("estimating temperature sensitivity oneWindow are in accepted range", {
   skip_if_not_installed("mlegp")
-  dss <- subset(dsNEE, Rg_f <= 0 & PotRad_NEW <= 0 & month(sDateTime) %in% 1:8) %>% 
+  dss <- subset(dsNEE, Rg_f <= 0 & PotRad_NEW <= 0 & 
+    lubridate::month(sDateTime) %in% 1:8) %>% 
     arrange(Temp) %>% 
     mutate(NEE = NEE_f)
   

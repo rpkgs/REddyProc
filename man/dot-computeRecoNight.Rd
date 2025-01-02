@@ -11,10 +11,10 @@
 
 \item{dsR}{data.frame with columns isNight, and Temp}
 
-\item{dsTempSens}{data.frame with column iCentralRec and E0}
+\item{dsTempSens}{data.frame with column \code{iCentralRec}, \code{E0}, and \code{RRef}}
 }
 \value{
-data.frame with updated night-time Reco and sdReco
+data.frame with updated night-time \code{Reco} and \code{sdReco}
 }
 \description{
 recompute ecosystem respiration at nighttime with nighttime reference

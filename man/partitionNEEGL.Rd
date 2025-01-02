@@ -58,6 +58,22 @@ A data.frame with columns:
 deviation depend on the used LRC (e.g. for the non-rectangular LRC see
 \code{NonrectangularLRCFitter_getParamNames}). They are estimated for windows and
 are reported with the first record of the window.
+\item \code{FP_VARnight}   : NEE filtered for nighttime records (others NA)
+\item \code{FP_VARday}     : NEE filtered for daytime records (others NA)
+\item \code{NEW_FP_Temp}   : temperature after filtering for quality flag, degree Celsius
+\item \code{NEW_FP_VPD}    : vapour pressure deficit after filtering for quality flag, hPa
+\item \code{FP_RRef_Night} : basal respiration estimated from nighttime (W / m2)
+\item \code{FP_qc}         : quality flag:
+\itemize{
+\item 0 : good parameter fit,
+\item 1 : some parameters out of range, required refit,
+\item 2 : next parameter estimate is more than two weeks away
+}
+\item \code{FP_dRecPar}    : records until or after closest record that has a parameter estimate associated
+\item \code{FP_errorcode}  : information why LRC-fit was not successful or was rejected, see result of \code{\link[=LRC_fitLRC]{LRC_fitLRC()}}
+\item \code{FP_GPP2000}    : predicted GPP at VPD = 0 and PAR = 2000 : a surrogate for maximum photosynthetic capacity
+\item \code{FP_OPT_VPD}    : list object of fitting results including \code{iOpt} and \code{covParms}
+\item \code{FP_OPT_NoVPD}  : list object of fitting results with fit neglecting the VPD effect
 }
 }
 \description{
