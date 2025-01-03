@@ -88,7 +88,7 @@ Can be a character vector or a object return by <code>cols()</code></p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span>  <span class="va">ds_fn15</span> <span class="op">&lt;-</span> <span class="va">Example_DETha98</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span>  <span class="va">ds_fn15</span> <span class="op">&lt;-</span> <span class="va">DETha98</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>     <span class="fu"><a href="fConvertTimeToPosix.html">fConvertTimeToPosix</a></span><span class="op">(</span><span class="st">'YDH'</span>,Year <span class="op">=</span> <span class="st">'Year'</span>,Day <span class="op">=</span> <span class="st">'DoY'</span>, Hour <span class="op">=</span> <span class="st">'Hour'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>     <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>        TIMESTAMP_END <span class="op">=</span> <span class="fu"><a href="POSIXctToBerkeleyJulianDate.html">POSIXctToBerkeleyJulianDate</a></span><span class="op">(</span><span class="va">DateTime</span><span class="op">)</span>,</span></span>
@@ -97,36 +97,70 @@ Can be a character vector or a object return by <code>cols()</code></p></dd>
 <span class="r-in"><span>     <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span>SW_IN <span class="op">=</span> <span class="st">"Rg"</span>, TA <span class="op">=</span> <span class="st">"Tair"</span>, USTAR <span class="op">=</span> <span class="st">"Ustar"</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>     <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/one_of.html" class="external-link">one_of</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>       <span class="st">"TIMESTAMP_END"</span>,<span class="st">"NEE"</span>,<span class="st">"SW_IN"</span>,<span class="st">"TA"</span>,<span class="st">"VPD"</span>,<span class="st">"USTAR"</span>,<span class="st">"season"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'Example_DETha98' not found</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Converted time format 'YDH' to POSIX with column name 'DateTime'.</span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ds_fn15</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'ds_fn15' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   TIMESTAMP_END   NEE SW_IN  TA VPD USTAR season</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   1.99801e+11 -1.21     0 7.4 4.6  0.72 199801</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   1.99801e+11  1.72     0 7.5 4.6  0.52 199801</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   1.99801e+11    NA     0 7.1 4.3  0.22 199801</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   1.99801e+11    NA     0 6.6 3.9  0.20 199801</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5   1.99801e+11  2.55     0 6.6 3.9  0.33 199801</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6   1.99801e+11    NA     0 6.5 4.0  0.15 199801</span>
 <span class="r-in"><span>  <span class="va">fname</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/write_delim.html" class="external-link">write_csv</a></span><span class="op">(</span><span class="va">ds_fn15</span>, <span class="va">fname</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'ds_fn15' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># standard columns are renamed to REddyProc defaults</span></span></span>
 <span class="r-in"><span>  <span class="va">ds_eproc</span> <span class="op">&lt;-</span> <span class="fu">fLoadFluxnet15</span><span class="op">(</span><span class="va">fname</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> '/tmp/Rtmpxjkopf/file1c2f70b87ab1' does not exist.</span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ds_eproc</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'ds_eproc' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   TIMESTAMP_END   NEE SW_IN  TA VPD USTAR            DateTime Ustar Tair Rg</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  199801010030 -1.21     0 7.4 4.6  0.72 1998-01-01 00:30:00  0.72  7.4  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  199801010100  1.72     0 7.5 4.6  0.52 1998-01-01 01:00:00  0.52  7.5  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  199801010130    NA     0 7.1 4.3  0.22 1998-01-01 01:30:00  0.22  7.1  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  199801010200    NA     0 6.6 3.9  0.20 1998-01-01 02:00:00  0.20  6.6  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  199801010230  2.55     0 6.6 3.9  0.33 1998-01-01 02:30:00  0.33  6.6  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  199801010300    NA     0 6.5 4.0  0.15 1998-01-01 03:00:00  0.15  6.5  0</span>
 <span class="r-in"><span>  <span class="va">EProc</span> <span class="op">&lt;-</span> <span class="va"><a href="sEddyProc.html">sEddyProc</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"DE-Tha"</span>, <span class="va">ds_eproc</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'ds_eproc' not found</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> New sEddyProc class for site 'DE-Tha'</span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">EProc</span><span class="op">$</span><span class="fu">sExportData</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'EProc' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              DateTime   NEE Rg Tair VPD Ustar</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1998-01-01 00:30:00 -1.21  0  7.4 4.6  0.72</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 1998-01-01 01:00:00  1.72  0  7.5 4.6  0.52</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 1998-01-01 01:30:00    NA  0  7.1 4.3  0.22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 1998-01-01 02:00:00    NA  0  6.6 3.9  0.20</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 1998-01-01 02:30:00  2.55  0  6.6 3.9  0.33</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 1998-01-01 03:00:00    NA  0  6.5 4.0  0.15</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># Additional columns can be specified, e.g. factor column season</span></span></span>
 <span class="r-in"><span>  <span class="va">ds_eproc</span> <span class="op">&lt;-</span> <span class="fu">fLoadFluxnet15</span><span class="op">(</span><span class="va">fname</span>,</span></span>
 <span class="r-in"><span>    additional_columns <span class="op">=</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/cols.html" class="external-link">cols</a></span><span class="op">(</span>season <span class="op">=</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/parse_factor.html" class="external-link">col_factor</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> '/tmp/Rtmpxjkopf/file1c2f70b87ab1' does not exist.</span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ds_eproc</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'ds_eproc' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   TIMESTAMP_END   NEE SW_IN  TA VPD USTAR season            DateTime Ustar Tair</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  199801010030 -1.21     0 7.4 4.6  0.72 199801 1998-01-01 00:30:00  0.72  7.4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  199801010100  1.72     0 7.5 4.6  0.52 199801 1998-01-01 01:00:00  0.52  7.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  199801010130    NA     0 7.1 4.3  0.22 199801 1998-01-01 01:30:00  0.22  7.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  199801010200    NA     0 6.6 3.9  0.20 199801 1998-01-01 02:00:00  0.20  6.6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  199801010230  2.55     0 6.6 3.9  0.33 199801 1998-01-01 02:30:00  0.33  6.6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  199801010300    NA     0 6.5 4.0  0.15 199801 1998-01-01 03:00:00  0.15  6.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Rg</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  0</span>
 <span class="r-in"><span>  <span class="va">EProc</span> <span class="op">&lt;-</span> <span class="va"><a href="sEddyProc.html">sEddyProc</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="st">"DE-Tha"</span>, <span class="va">ds_eproc</span>,</span></span>
 <span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NEE"</span>, <span class="st">"Rg"</span>, <span class="st">"Tair"</span>, <span class="st">"VPD"</span>, <span class="st">"Ustar"</span>,<span class="st">"season"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    ColNamesNonNumeric <span class="op">=</span> <span class="st">"season"</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'ds_eproc' not found</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> New sEddyProc class for site 'DE-Tha'</span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">EProc</span><span class="op">$</span><span class="fu">sExportData</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'EProc' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              DateTime   NEE Rg Tair VPD Ustar season</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1998-01-01 00:30:00 -1.21  0  7.4 4.6  0.72 199801</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 1998-01-01 01:00:00  1.72  0  7.5 4.6  0.52 199801</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 1998-01-01 01:30:00    NA  0  7.1 4.3  0.22 199801</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 1998-01-01 02:00:00    NA  0  6.6 3.9  0.20 199801</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 1998-01-01 02:30:00  2.55  0  6.6 3.9  0.33 199801</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 1998-01-01 03:00:00    NA  0  6.5 4.0  0.15 199801</span>
 </code></pre></div>
     </div>
   </div>
