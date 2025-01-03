@@ -27,7 +27,7 @@ Assigns default units to the columns and keeps variable name attributes
 as in original file.
 }
 \examples{
-  ds_fn15 <- Example_DETha98 \%>\%
+  ds_fn15 <- DETha98 \%>\%
      fConvertTimeToPosix('YDH',Year = 'Year',Day = 'DoY', Hour = 'Hour') \%>\%
      dplyr::mutate(
         TIMESTAMP_END = POSIXctToBerkeleyJulianDate(DateTime),

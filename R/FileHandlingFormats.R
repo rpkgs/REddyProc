@@ -60,7 +60,7 @@ fLoadEuroFlux16 <- function(
 #' @param ... further arguments to [read_csv()]
 #'
 #' @examples
-#'   ds_fn15 <- Example_DETha98 %>%
+#'   ds_fn15 <- DETha98 %>%
 #'      fConvertTimeToPosix('YDH',Year = 'Year',Day = 'DoY', Hour = 'Hour') %>%
 #'      dplyr::mutate(
 #'         TIMESTAMP_END = POSIXctToBerkeleyJulianDate(DateTime),
@@ -136,7 +136,7 @@ fLoadFluxnet15 <- function(file_path, additional_columns = character(0),
 }
 
 .tmp.f <- function(){
-  ds <- Example_DETha98 %>%
+  ds <- DETha98 %>%
     fConvertTimeToPosix('YDH',Year = 'Year',Day = 'DoY', Hour = 'Hour') %>%
     rename(SW_IN = .data$Rg, TA = .data$Tair, USTAR = .data$Ustar) %>%
     mutate(TIMESTAMP_END = POSIXctToBerkeleyJulianDate(.data$DateTime)) %>%

@@ -206,7 +206,7 @@ fWriteDataframeToFile <- function(
 }
 attr(fWriteDataframeToFile, 'ex') <- function() {
   (Dir <- tempdir())   # directory where output is written to
-  fWriteDataframeToFile(Example_DETha98, 'OutputTest.txt', Dir = Dir)
+  fWriteDataframeToFile(DETha98, 'OutputTest.txt', Dir = Dir)
 }
 
 #' @export

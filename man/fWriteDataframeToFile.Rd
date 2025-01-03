@@ -29,5 +29,5 @@ Department for Biogeochemical Integration at MPI-BGC, Jena, Germany <REddyProc-h
 \seealso{\code{\link{help_export}} \code{\link{fSplitDateTime}}}
 \examples{
 (Dir <- tempdir())   # directory where output is written to
-fWriteDataframeToFile(Example_DETha98, 'OutputTest.txt', Dir = Dir)
+fWriteDataframeToFile(DETha98, 'OutputTest.txt', Dir = Dir)
 }
