@@ -1,5 +1,5 @@
 pacman::p_load(
-  data.table, dplyr, lubridate, magrittr
+  data.table, dplyr, lubridate
 )
 
 make_date_yj <- function(year, doy, tz = "UTC") {

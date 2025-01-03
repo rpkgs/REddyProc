@@ -31,7 +31,6 @@ help_DateTimes <- function(
 
 
 #+++ Time format conversion to POSIX
-
 #' @export
 fConvertTimeToPosix <- function(
   ### Convert different time formats to POSIX
@@ -54,6 +53,7 @@ fConvertTimeToPosix <- function(
   , tz = 'GMT'				     ##<< timezone used to store the data. Advised to keep
     ## GMT to avoid daytime shifting issues
 ){
+  class(Data.F) <- c('data.frame', class(Data.F)) %>% unique()
   # Data.F = as_tibble(Data.F)
   varNamesDepr <- c(
     "TFormat.s","Year.s","Month.s","Day.s","Hour.s","Min.s","TName.s")

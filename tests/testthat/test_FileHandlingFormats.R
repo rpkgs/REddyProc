@@ -8,7 +8,7 @@
 context("FileHandlingFormats")
 
 test_that("fSplitDateTime",{
-  ds0 <- Example_DETha98[-nrow(Example_DETha98),]
+  ds0 <- DETha98[-nrow(DETha98),]
   ds_t <- ds0 %>%
     fConvertTimeToPosix('YDH',Year = 'Year',Day = 'DoY', Hour = 'Hour') %>%
     select(-one_of(c('Year', 'DoY', 'Hour')))
@@ -18,7 +18,7 @@ test_that("fSplitDateTime",{
 
 test_that("fWriteDataframeToFile",{
   fname = tempfile()
-  ds0 <- Example_DETha98[-nrow(Example_DETha98),]
+  ds0 <- DETha98[-nrow(DETha98),]
   ds_t <- ds0 %>%
     fConvertTimeToPosix('YDH',Year = 'Year',Day = 'DoY', Hour = 'Hour') %>%
     select(-one_of(c('Year', 'DoY', 'Hour')))
@@ -28,7 +28,7 @@ test_that("fWriteDataframeToFile",{
 })
 
 test_that("extract_FN15",{
-  ds <- Example_DETha98 %>%
+  ds <- DETha98 %>%
     filterLongRuns("NEE") %>%
     fConvertTimeToPosix('YDH', Year = 'Year', Day = 'DoY', Hour = 'Hour')
   EProc <- sEddyProc$new("DE-Tha", ds, c('NEE','Rg','Tair','VPD', 'Ustar'))
@@ -42,7 +42,7 @@ test_that("extract_FN15",{
 test_that("extract_FN15_QC",{
   skip("testing exporting (after filling) QC of several uStar thresholds takes too long")
   EddyDataWithPosix <- fConvertTimeToPosix(
-    Example_DETha98, 'YDH',Year = 'Year',Day = 'DoY', Hour = 'Hour') %>%
+    DETha98, 'YDH',Year = 'Year',Day = 'DoY', Hour = 'Hour') %>%
     filterLongRuns("NEE")
   EProc <- sEddyProc$new(
     'DE-Tha', EddyDataWithPosix, c('NEE','Rg','Tair','VPD', 'Ustar'))
@@ -56,7 +56,7 @@ test_that("extract_FN15_QC",{
 
 test_that("extract_Rg_VPD_Tair",{
   EddyDataWithPosix <- fConvertTimeToPosix(
-    Example_DETha98, 'YDH',Year = 'Year',Day = 'DoY', Hour = 'Hour') %>%
+    DETha98, 'YDH',Year = 'Year',Day = 'DoY', Hour = 'Hour') %>%
     filterLongRuns("NEE")
   EProc <- sEddyProc$new(
     'DE-Tha', EddyDataWithPosix, c('NEE','Rg','Tair','VPD', 'Ustar'))
@@ -72,7 +72,7 @@ test_that("extract_Rg_VPD_Tair",{
 })
 
 test_that("read_from_fluxnet15",{
-  ds <- Example_DETha98 %>%
+  ds <- DETha98 %>%
     filterLongRuns("NEE") %>%
     fConvertTimeToPosix('YDH', Year = 'Year', Day = 'DoY', Hour = 'Hour')
   EProc <- sEddyProc$new("DE-Tha", ds, c('NEE','Rg','Tair','VPD', 'Ustar'))
@@ -101,7 +101,7 @@ test_that("read_from_fluxnet15",{
 })
 
 test_that("read_from_ameriflux22",{
-  ds <- Example_DETha98 %>%
+  ds <- DETha98 %>%
     filterLongRuns("NEE") %>%
     fConvertTimeToPosix('YDH', Year = 'Year', Day = 'DoY', Hour = 'Hour')
   ds_af22 <- ds %>%
@@ -125,7 +125,7 @@ test_that("read_from_ameriflux22",{
 test_that("fWriteFrench23",{
   fname = tempfile()
   data = EddyDataWithPosix <- suppressMessages(fConvertTimeToPosix(
-    Example_DETha98, 'YDH', Year = 'Year', Day = 'DoY', Hour = 'Hour'))
+    DETha98, 'YDH', Year = 'Year', Day = 'DoY', Hour = 'Hour'))
   fWriteFrench23(data, fname)
   header <- read_lines(fname, n_max=2)
   .tmp.f <- function(){

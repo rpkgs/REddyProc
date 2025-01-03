@@ -3,7 +3,7 @@
 context("LightResponseCurveFitter")
 
 # 8 first days of June from IT-MBo.2005.txt
-# 10 days from June from Example_DETha98.txt shipped with REddyProc
+# 10 days from June from DETha98.txt shipped with REddyProc
 .tmp.f <- function() {
   # save(dsNEE, file="tmp/dsNEE_Tharandt.RData")
   load("tmp/dsNEE_Tharandt.RData") # dsNEE

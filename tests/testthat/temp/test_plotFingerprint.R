@@ -2,8 +2,8 @@
 #require(testthat)
 context("plotFingerPrint")
 
-if (!exists("Example_DETha98")) load("data-raw/Example_DETha98.RData")
-EddyData.F <- Example_DETha98
+# if (!exists("Example_DETha98")) load("data-raw/Example_DETha98.RData")
+EddyData.F <- DETha98
 
 #Include POSIX time stamp column
 EddyDataWithPosix.F <- suppressMessages(fConvertTimeToPosix(

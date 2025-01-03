@@ -1,7 +1,7 @@
 context("partGL")
 
 library(dplyr)
-library(magrittr)
+# library(magrittr)
 
 if (!exists(".partGPAssociateSpecialRows")) {
   .partGPAssociateSpecialRows <-
@@ -9,14 +9,14 @@ if (!exists(".partGPAssociateSpecialRows")) {
 }
 if (!exists(".binUstar")) .binUstar <- REddyProc:::.binUstar
 
-# 10 days from June from Example_DETha98.txt shipped with REddyProc
+# 10 days from June from DETha98.txt shipped with REddyProc
 # if (0) {
-  Example_DETha98_Filled <- getFilledExampleDETha98Data()
-  dt = as_tibble(Example_DETha98_Filled)
+  DETha98_Filled <- getFilledExampleDETha98Data()
+  dt = as_tibble(DETha98_Filled)
 
   tzEx <- REddyProc:::getTZone(dt$sDateTime)
   test_that("example dataset starts at midngiht", {
-    expect_true(Example_DETha98_Filled$sDateTime[1] ==
+    expect_true(DETha98_Filled$sDateTime[1] ==
       as.POSIXct("1998-01-01 00:15:00", tz = tzEx))
   })
 
@@ -37,7 +37,7 @@ if (!exists(".binUstar")) .binUstar <- REddyProc:::.binUstar
 # }
 
 # 8 first days of June from IT-MBo.2005.txt
-# 10 days from June from Example_DETha98.txt shipped with REddyProc
+# 10 days from June from DETha98.txt shipped with REddyProc
 .tmp.f <- function() {
   # save(dsNEE, file = "tmp/dsNEE_Tharandt.RData")
   load("tmp/dsNEE_Tharandt.RData") # dsNEE
@@ -860,7 +860,7 @@ test_that("partitionNEEGL: missing sdNEE", {
 test_that("partitionNEEGL long gap", {
   skip_if_not_installed("mlegp")
   skip("cannot repoduce SmoothTempSens failing")
-  dsNEE1 <- Example_DETha98_Filled
+  dsNEE1 <- DETha98_Filled
   # introduce a long four month gap
   bo <- dsNEE1$DoY >= 80 & dsNEE1$DoY <= 360
   dsNEE1$NEE_f[bo] <- NA
@@ -931,7 +931,7 @@ test_that("partitionNEETK", {
 
 test_that("report missing VPD_f column in error", {
   skip("only interactively test issue #34")
-  DETha98 <- fConvertTimeToPosix(Example_DETha98, "YDH",
+  DETha98 <- fConvertTimeToPosix(DETha98, "YDH",
     Year = "Year",
     Day = "DoY", Hour = "Hour"
   )[-(2:4)]
@@ -959,9 +959,9 @@ test_that("no nighttime data", {
     "Tair_f", "VPD_f", "Rg_f", "NEE_f",
     "NEE_fqc", "Tair_fqc", "Rg_fqc", "NEE_fsd"
   )
-  # ds <- Example_DETha98_Filled[,c('DateTime',cols)]
+  # ds <- DETha98_Filled[,c('DateTime',cols)]
   ds <- subset(
-    Example_DETha98_Filled,
+    DETha98_Filled,
     sDateTime >= as.POSIXct("1998-05-01 00:15:00", tz = tzEx) &
       sDateTime <= as.POSIXct("1998-09-01 21:45:00", tz = tzEx)
   )
@@ -977,7 +977,7 @@ test_that("no nighttime data", {
 .test_sEddyProc_sGLFluxPartitionUStarScens <- function() {}
 test_that("sEddyProc_sGLFluxPartitionUStarScens wrong suffix", {
   skip_if_not_installed("mlegp")
-  dsTest <- Example_DETha98_Filled %>%
+  dsTest <- DETha98_Filled %>%
     mutate(
       NEE_uStar_f = NEE, NEE_uStar_fqc = NEE_fqc, NEE_uStar_fsd = NEE_fsd,
       NEE_U50_f = NEE, NEE_U50_fqc = NEE_fqc, NEE_U50_fsd = NEE_fsd
@@ -997,7 +997,7 @@ test_that("sEddyProc_sGLFluxPartitionUStarScens wrong suffix", {
 
 test_that("sEddyProc_sGLFluxPartitionUStarScens", {
   skip_if_not_installed("mlegp")
-  dsTest <- Example_DETha98_Filled %>%
+  dsTest <- DETha98_Filled %>%
     mutate(
       NEE_uStar_f = NEE, NEE_uStar_fqc = NEE_fqc, NEE_uStar_fsd = NEE_fsd,
       NEE_U50_f = NEE, NEE_U50_fqc = NEE_fqc, NEE_U50_fsd = NEE_fsd

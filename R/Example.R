@@ -97,7 +97,7 @@ getFilledExampleDETha98Data <- function(
   if (!length(examplePath) ) {
     # Example_DETha98 is a lazyData object of REddyProc
     # nee to prefix package name here, to satisfy R CMD CHECK
-    Example_DETha98_Date <- REddyProc::Example_DETha98 %>%
+    Example_DETha98_Date <- DETha98 %>%
       filterLongRuns(c("NEE","H","LE")) %>%
       fConvertTimeToPosix('YDH', Year = 'Year', Day = 'DoY', Hour = 'Hour')
     Example_DETha98_sDate <- cbind(
@@ -118,4 +118,3 @@ getFilledExampleDETha98Data <- function(
   ##value<< example data.frame Example_DETha98 processed by gapfilling.
   ans <- local({load(examplePath); get(ls()[1])})
 }
-

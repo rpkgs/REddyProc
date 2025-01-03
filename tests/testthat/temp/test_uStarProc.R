@@ -7,8 +7,8 @@ context("sEddyProc-Class")
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Example is accessible if package is installed, otherwise need to load it from
 # data directory below package root
-if (!exists("Example_DETha98")) load("data-raw/Example_DETha98.RData")
-EddyData.F <- filterLongRuns(Example_DETha98, "NEE")
+# if (!exists("Example_DETha98")) load("data-raw/Example_DETha98.RData")
+EddyData.F <- filterLongRuns(DETha98, "NEE")
 
 #Include POSIX time stamp column
 EddyDataWithPosix.F <- suppressMessages(fConvertTimeToPosix(

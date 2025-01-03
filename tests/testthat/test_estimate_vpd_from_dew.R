@@ -5,7 +5,7 @@
 }
 
 # make big artificial gap in VPD, pretend to have filled Tair
-df_ex <- Example_DETha98 %>%
+df_ex <- DETha98 %>%
   fConvertTimeToPosix('YDH', Year = 'Year',Day = 'DoY', Hour = 'Hour') %>%
   mutate(VPDorig = .data$VPD, Tair_f = .data$Tair)
 i_artgap <- 3000:8000

@@ -203,7 +203,7 @@ test_that("reading Berkeley",{
 
 test_that("get_day_boundaries, filter_entire_days",{
   ds <- suppressMessages(fConvertTimeToPosix(
-    Example_DETha98, 'YDH', Year = 'Year', Day = 'DoY', Hour = 'Hour'))
+    DETha98, 'YDH', Year = 'Year', Day = 'DoY', Hour = 'Hour'))
   dss <- ds[4:(nrow(ds)-5),]
   db <- get_day_boundaries(dss$DateTime)
   expect_equal(db, as.POSIXct(c("1998-01-02 00:30:00","1998-12-31 00:00:00"),
@@ -219,11 +219,11 @@ test_that("get_day_boundaries, filter_entire_days",{
 
 test_that("filter_years_eop",{
   # construct multiyear dataset
-  ds99 <- ds00 <- Example_DETha98
+  ds99 <- ds00 <- DETha98
   ds99$Year <- 1999
   ds00$Year <- 2000
   ds2yr <- suppressMessages(
-    fConvertTimeToPosix(rbind(Example_DETha98, ds99, ds00)
+    fConvertTimeToPosix(rbind(DETha98, ds99, ds00)
                         , 'YDH', Year = 'Year', Day = 'DoY', Hour = 'Hour'))
   dss <- filter_years_eop(ds2yr, 1998:1999)
   expect_equal(dss$DateTime[c(1,nrow(dss))],

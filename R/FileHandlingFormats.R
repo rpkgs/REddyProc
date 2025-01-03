@@ -299,16 +299,18 @@ fLoadAmeriflux22 <- function(file_path, ...) {
 #'   DateTime, NEE,	Rg,	Tair,	rH,	VPD, Ustar, LE, H
 #'
 #' @export
-read_from_ameriflux22 <- function(df){
-  ds_eproc <- df %>% mutate(
-    DateTime = BerkeleyJulianDateToPOSIXct(.data$TIMESTAMP_END),
-    RH = ifelse(between(.data$RH,100.0,105.0),100.0, .data$RH),
-    VPD = fCalcVPDfromRHandTair(.data$RH, .data$TA)
-  ) %>%
-    select("DateTime", NEE = "FC",	Rg = "SW_IN",	Tair="TA",	rH="RH",
-           .data$VPD, Ustar = "USTAR", .data$LE, .data$H )
-  varnames = names(ds_eproc)[-1] # all except DateTime
-  units = REddyProc_defaultunits(varnames)
+read_from_ameriflux22 <- function(df) {
+  ds_eproc <- df %>%
+    mutate(
+      DateTime = BerkeleyJulianDateToPOSIXct(.data$TIMESTAMP_END),
+      RH = ifelse(between(.data$RH, 100.0, 105.0), 100.0, .data$RH),
+      VPD = fCalcVPDfromRHandTair(.data$RH, .data$TA)
+    ) %>%
+    select("DateTime",
+      NEE = "FC", Rg = "SW_IN", Tair = "TA", rH = "RH",
+      "VPD", Ustar = "USTAR", "LE", "H")
+  varnames <- names(ds_eproc)[-1] # all except DateTime
+  units <- REddyProc_defaultunits(varnames)
   ds_eproc <- ds_eproc %>%
     set_varunit_attributes(varnames, units)
 }
@@ -347,7 +349,4 @@ fWriteFrench23 <- function(
     filename, col_names=TRUE, append = TRUE)
   message('Wrote output in French23 format to textfile: ', filename)
 }
-attr(fWriteFrench23, 'ex') <- function() {
-}
-
-
+attr(fWriteFrench23, 'ex') <- function() {}

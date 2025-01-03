@@ -32,7 +32,7 @@ test_that("fCheckColNum zero-length vector",{
 })
 
 test_that("fKeepColumnAttributes",{
-  df1 <- Example_DETha98
+  df1 <- DETha98
   # subset rows
   df2 <- fKeepColumnAttributes(df1, function(x) filter(x, between(.data$DoY, 1,5)))
   expect_equal(sapply(df2, attributes), sapply(df1, attributes))
